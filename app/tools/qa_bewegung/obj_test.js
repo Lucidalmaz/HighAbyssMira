@@ -17,6 +17,7 @@
     const cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2;
     if (!S.lw || Math.hypot(S.lw[0] - cx, S.lw[1] - cz) > 22) { S.lw = [cx, cz]; B.place(cx, B.floorY(cx, cz, b.base + .3) + .02, cz, 0); for (let q = 0; q < 70; q++) B.upd(1 / 30); }
     for (const d of dirs) { const x = B.sprungTest(b, d, {}); delete x.tr; rec.runs.push([x.cls, x.end, x.why ? 1 : 0, x.mv ?? null, x.ov || 0]); }
+    if (rec.runs.every(r => r[0] === 'n/a')) { for (const d of [4, 5, 6, 7]) { const x = B.sprungTest(b, d, {}); delete x.tr; rec.runs.push([x.cls, x.end, x.why ? 1 : 0, x.mv ?? null, x.ov || 0]); } rec.alt = 1; } // alternative Anlaufrichtungen (Diagonalen)
     S.res.push(rec); }
   const done = S.i >= S.list.length;
   if (done || cfg.dumpAlways) return B.dump('C:/Users/GIGABYTE/_qa_bew/out/' + (cfg.name || 'obj') + '.json', { n: S.list.length, i: S.i, res: S.res });

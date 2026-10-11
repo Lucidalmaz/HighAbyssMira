@@ -6,10 +6,10 @@ Maßstab (Nutzer, 10.10.): bei allem mindestens Schulnote 2, Unprägnantes darf 
 
 | Punkt | prägnant | Note vorher | Note nachher | Messwert / Beleg |
 |---|---|---|---|---|
-| Fahrzeuge begehbar (Dach/Haube/Kofferraum, Sprung + Hochziehen aus 8 Richtungen, 4 davon im Sprint) | ja | 5 | 1 | 17 Fahrzeuge, 204 Läufe: oben 176 · abgeglitten/drüber 8 · Anlauf durch Nachbarn blockiert 15 · steckt 0 · gefangen 0 |
+| Fahrzeuge begehbar (Dach/Haube/Kofferraum, Sprung + Hochziehen aus 8 Richtungen, 4 davon im Sprint) | ja | 5 | 1 | 17 Fahrzeuge, 204 Läufe: oben 177 · abgeglitten/drüber 8 · Anlauf durch Nachbarn blockiert 14 · steckt 0 · gefangen 0 |
 | Fahrzeuge: nie hineinfallen / kein Hohlraum | ja | 4 | 1 | Hitbox = Höhenfeld des echten Netzes (15-cm-Zellen → Kisten, Oberkante = Dach/Haube); Freischieben aus dem Volumen: 27/27 Testlagen frei (3 Lagen je Fahrzeug: Mitte unten, vorn innen, Mitte hoch) |
 | Lukes Leihwagen (erste Minute des Spiels) | ja | 4 | 1 | alte Kiste `addCol(-77.2 … 3.75)` ohne Höhe = 99 m → Wand bis zum Himmel; jetzt Höhenfeld-Hitbox, 12/12 Läufe oben |
-| Requisiten/Kollisionskörper: Steckenbleiben (Stichprobe 300/Kapitel + alle Objekte Kap. 1) | ja | 3 | 1 | 1800 Objekte / 7200 Läufe in Kap. 1–6 + 465 Objekte / 1860 Läufe Vollmessung Kap. 1: steckt/gefangen = 0 (vorher 5 gefangene Fässer in 400 Objekten) |
+| Requisiten/Kollisionskörper: Steckenbleiben (Stichprobe 300/Kapitel + alle Objekte Kap. 1) | ja | 3 | 1 | 1800 Objekte / 7652 Läufe in Kap. 1–6 + 465 Objekte / 1860 Läufe Vollmessung Kap. 1: steckt/gefangen = 0 (vorher 5 gefangene Fässer in 400 Objekten) |
 | Hochziehen/Mantle-Höhe | ja | 3 (bis 2,0 m) | 1 (bis 2,4 m) | Kiste 1,6 × 1,6 m: 0,4 … 2,4 m aus 4 Richtungen oben (4/4), 2,6 m nicht (Sprung 0,98 m + Hochziehen) |
 | Hocken (Kollisionshöhe) | ja | 3 (1,15 m) | 1 (0,90 m) | `bodyH() = 1,7 − 0,8·crouchK − 0,25·crawlK`; Augenhöhe 0,85 m |
 | Kriechen durch Öffnungen | ja | 4 (nur ≥ 1,15 m) | 1 (ab 0,70 m) | Wand mit Loch, Kiste und Netz: 0,70 … 1,20 m durch, 0,55/0,60 gesperrt; Netz auch 0,65 m |
@@ -43,7 +43,7 @@ Je Fahrzeug 8 Richtungen (4 Achsen + 4 Diagonalen), Achsen zusätzlich im Sprint
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | Transporter/Bus (vans, auf Buslänge gestreckt) | 8 / -4 | 1.75 | 12 | 6 | 0 | 6 | 0 | 0 | 1 |
 | 3 | Wrack, überwachsen (car_rusty) | -10 / 204 | 1.35 | 12 | 11 | 0 | 0 | 0 | 0 | 1 |
-| 4 | Transporter/Bus (vans, auf Buslänge gestreckt) | 65 / 200 | 2.05 | 12 | 11 | 0 | 1 | 0 | 0 | 1 |
+| 4 | Transporter/Bus (vans, auf Buslänge gestreckt) | 65 / 200 | 2.05 | 12 | 12 | 0 | 0 | 0 | 0 | 1 |
 | 5 | Limousine (car_neu/sedan) | -75 / 3 | 1.45 | 12 | 12 | 0 | 0 | 0 | 0 | 1 |
 | 6 | Wrack, ausgebrannt (car_burned) | -8 / -12 | 1.25 | 12 | 9 | 1 | 0 | 0 | 0 | 1 |
 | 7 | Wrack, überwachsen (car_rusty) | -5 / -42 | 1.25 | 12 | 6 | 0 | 6 | 0 | 0 | 1 |
@@ -67,28 +67,37 @@ Alle Kollisionskisten (Höhe 0,5 … 2,2 m, Grundfläche ≤ 9 m) und alle feste
 
 | Kap. | Objekte | Läufe | oben | unten (drüber/abgeglitten) | Anlauf blockiert | innen frei (unter/neben Teilen, beweglich) | streift | steckt | gefangen |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | 300 | 1200 | 118 | 444 | 625 | 13 | 0 | 0 | 0 |
-| 2 | 300 | 1200 | 138 | 464 | 589 | 9 | 0 | 0 | 0 |
-| 3 | 300 | 1200 | 125 | 476 | 592 | 5 | 2 | 0 | 0 |
-| 4 | 300 | 1200 | 133 | 474 | 584 | 6 | 3 | 0 | 0 |
-| 5 | 300 | 1200 | 140 | 453 | 594 | 12 | 1 | 0 | 0 |
-| 6 | 300 | 1200 | 47 | 492 | 651 | 4 | 6 | 0 | 0 |
+| 1 | 300 | 1288 | 126 | 477 | 675 | 9 | 1 | 0 | 0 |
+| 2 | 300 | 1264 | 118 | 476 | 657 | 9 | 4 | 0 | 0 |
+| 3 | 300 | 1256 | 124 | 471 | 650 | 10 | 1 | 0 | 0 |
+| 4 | 300 | 1228 | 141 | 476 | 605 | 5 | 1 | 0 | 0 |
+| 5 | 300 | 1256 | 118 | 490 | 631 | 11 | 6 | 0 | 0 |
+| 6 | 300 | 1360 | 59 | 511 | 775 | 10 | 5 | 0 | 0 |
 | 1 (voll) | 465 | 1860 | 183 | 724 | 943 | 7 | 3 | 0 | 0 |
 
-Stand der Läufe: Kap. 2–5 mit dem Zwischenstand vom Vormittag (Füller mit 40 m Umkreis und 24-k-Dreiecksgrenze); Kap. 1, Kap. 6 und die Vollmessung mit dem Endstand (25 m, ≤ 5000 Dreiecke, Pool). Die Fahrzeugtests, Kriech-, Hochzieh-, Kanten- und Freischiebe-Messungen sind vom Endstand.
+Stand der Läufe: **alle** Kapitel 1–6 und die Vollmessung mit dem Endstand (Füller 25 m / ≤ 5000 Dreiecke / Pool, Interaktionsmodul mit Geräteteilen, Hinweis-Block). Wo in allen vier Achsrichtungen kein Anlauf möglich war (Wand, Zaun, Nachbarobjekt), wird der Lauf automatisch aus den vier Diagonalen wiederholt („Anlauf blockiert“ ist dann aufgelöst).
 
-Die Hälfte der Läufe ist „Anlauf blockiert“: viele Requisiten stehen an Wänden oder in Räumen ohne 1,7 m Anlauf. Das ist keine Aussage über diese Objekte; sie sind in den anderen Richtungen oder durch die Laufraster-Tests (`_qa_kol` Teil C) abgedeckt.
+| Kap. | Objekte | davon ohne gewerteten Lauf (alle Richtungen blockiert) | mit Diagonal-Wiederholung gerettet | Rest ohne Lauf | Ursache Rest |
+|---|---|---|---|---|---|
+| 1 | 300 | 22 | 4 | 18 | 9 davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |
+| 2 | 300 | 16 | 6 | 10 | 8 davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |
+| 3 | 300 | 14 | 7 | 7 | 3 davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |
+| 4 | 300 | 7 | 3 | 4 | 2 davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |
+| 5 | 300 | 14 | 6 | 8 | 6 davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |
+| 6 | 300 | 40 | 2 | 38 | 5 davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |
+
+Rest ohne Lauf: Kap. 6 enthält eine Reihe von 30 gleichen Kisten (0,4 × 0,6 m, Wald bei x −22, z 120), die einander den Anlauf versperren; sonst Objekte in abgelegenen Räumen (Nr. 4, Archiv, Messraum) oder zwischen Wand und Möbel. Keiner der gewerteten Läufe in Kap. 1–6 ergab „steckt“ oder „gefangen“.
 
 ### 3.3 Hohlraum-Füller
 
 | Kap. | geprüfte Netze (25 m um den Spieler) | Netze mit gefüllten Volumen | Kollisionskisten | Fehler |
 |---|---|---|---|---|
-| 1 | 7541 | 109 | 166 | 0 |
-| 2 | 8226 | 176 | 517 | 0 |
-| 3 | 8161 | 163 | 460 | 0 |
-| 4 | 8091 | 164 | 509 | 0 |
-| 5 | 8148 | 181 | 553 | 0 |
-| 6 | 8065 | 75 | 376 | 0 |
+| 1 | 6301 | 110 | 170 | 0 |
+| 2 | 6306 | 109 | 168 | 0 |
+| 3 | 6289 | 106 | 163 | 0 |
+| 4 | 6318 | 110 | 186 | 0 |
+| 5 | 6259 | 106 | 162 | 0 |
+| 6 | 7359 | 22 | 45 | 0 |
 | 1 (voll) | 7527 | 110 | 174 | 0 |
 
 (Die Kap.-1–6-Zeilen stammen aus dem Lauf vor der Umstellung auf 25 m Umkreis und das Dreiecksbudget; die Vollmessung zeigt den jetzigen Stand.)
@@ -162,9 +171,10 @@ Raster 0,5 m; Zelle frei = Körper (r 0,3 m, 1,7 m) überlappt weder Kisten noch
 ## 5. Grenzen und Offenes (ehrlich)
 
 * **Stichprobe:** Requisiten/Netze in Kap. 1–6 je 300 Objekte × 4 Richtungen (gleichmäßig über Kisten und feste Netze); Kap. 1 zusätzlich vollständig. Die Welt bleibt über alle Kapitel geladen, die Kapitel unterscheiden sich durch Sichtbarkeit und nachgebaute Räume – die Stichproben je Kapitel prüfen deshalb zum großen Teil dieselben Orte, Kap. 6 zusätzlich Dustwoods/Bus.
-* **Anlauf blockiert** (rund die Hälfte der Objektläufe) wird nicht als „bestanden“ gewertet, nur nicht gewertet.
+* **Anlauf blockiert** wird nicht als „bestanden“ gewertet: Läufe ohne mögliche Anlaufrichtung werden aus den Diagonalen wiederholt (Tabelle 3.2); der verbleibende Rest steht in abgelegenen Szenenräumen oder zwischen Wänden/Möbeln, wo es physisch keine 1,7 m Anlaufstrecke gibt – dort deckt der Laufraster-Test (`_qa_kol` Teil C, Flutfüllung Abschnitt 4) die Begehbarkeit ab.
 * Fahrzeuge **ohne** Spielerzugang nach innen: Bus (Kap. 6) und Transporter sind als massive Hitbox gebaut (Fenster sind nie Eingang); Innenräume sind reine Kulisse hinter Glas. Konsistent, keine Hohlräume ohne Ausgang.
-* Rätsel mit kleinen Löchern (Nutzer baut später): physikalisch bestätigt ab 0,70 m; **Spielhinweis** (Fibel/Tutorial „Strg/C: ducken, unter Öffnungen kriechen“) ist nicht geändert worden – der Text steht in `verstecke.js`/`fibeltour.js` unter „ducken“ und bleibt gültig.
+* Rätsel mit kleinen Löchern (Nutzer baut später): physikalisch bestätigt ab 0,70 m. **Spielhinweis ergänzt:** `bewegung.js` (Block BHINT) zeigt einmalig je Fähigkeit einen kurzen, überspringbaren Gedanken – Kriechen („Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg oder C hält dich unten.“) beim ersten Kriechzustand, Ducken („Geduckt passt du unter Tische, Äste und Rohre …“) beim ersten tiefen Hocken, Hochziehen („Eine Kante in Reichweite: Leertaste springt, Weiterdrücken zieht dich hoch …“) beim ersten erreichbaren Absatz; nicht blockierend (Gedankenzeile unten, läuft von selbst aus, nie im Dialog/Overlay); Fibel-/Tutorialtext steht unter „ducken“ in `verstecke.js`/`fibeltour.js` unverändert daneben.
+* **Kapitelwechsel in laufender Seite** (Zeitlimit der Testläufe): Ursache war der Testrahmen, nicht das Spiel – die Testläufe setzten `ui.paused = true`, und `startChapter*` wartet auf entpauste Bildschirme; `mk.js` setzt vor dem Kapitelstart `ui.paused=false`. Seit der Korrektur laufen alle sechs Kapitel nacheinander in einer Sitzung (Kap. 1 → 6 mit Neuladen nur zur Zustandsreinheit).
 * `raumklang.js` hält Kollisionsindizes: Kisten werden deshalb nur abgeschaltet/wiederverwendet. Wiederverwendete Fahrzeugkisten stehen im Schallraster in den alten Zellen (Verdeckung für parkende Fahrzeuge unverändert, bewegte Fahrzeuge sind selten).
 
 ## 6. Werkzeuge und Nachlauf

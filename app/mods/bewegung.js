@@ -152,3 +152,11 @@ function hohl_tick(dt) {
 }
 WORLD_TICK.push(dt => { try { hohl_tick(dt); } catch (e) { if (!HOHL.errT) { HOHL.errT = 1; console.warn('hohl', e); } } });
 window.__hohl = HOHL;
+
+// ---------------------------------------------------------------- Bewegungshinweise (Folgeauftrag 7, Tutorial): kurz, einmalig, als Gedanke (überspringbar wie alle Gedanken)
+const BHINT = { t: 0, done: new Set() };
+WORLD_TICK.push(dt => { try { BHINT.t -= dt; if (BHINT.t > 0 || !state.started || menu.attract || scripted || camOverride || mantle || state.talking || ui.overlay || typeof gedanke !== 'function') return; BHINT.t = .5;
+  const say = (k, t) => { if (BHINT.done.has(k)) return; BHINT.done.add(k); try { gedanke('bew_' + k, t); } catch (e) {} };
+  if (crawlK > .5) say('kriech', 'Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg oder C hält dich unten.');
+  else if (crouchK > .8) say('duck', 'Geduckt passt du unter Tische, Äste und Rohre. Strg oder C: ducken, Leertaste: aufstehen.');
+  else if (grounded && (keys.KeyW || keys.ArrowUp) && player.pos.y < 3 && mantleTarget()) say('hoch', 'Eine Kante in Reichweite: Leertaste springt, Weiterdrücken zieht dich hoch – auf Autos, Kisten, Mauern bis etwa zwei Meter.'); } catch (e) {} });

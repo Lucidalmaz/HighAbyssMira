@@ -117,9 +117,19 @@ for k, (n, c) in objs.items():
 if voll:
     n, c = voll; w('| 1 (voll) | %d | %d | %d | %d | %d | %d | %d | %d | %d |' % (n, sum(c.values()), c['oben'], c['unten'], c['n/a'], c['innen_frei'], c['streift'], c['STECKT'], c['GEFANGEN'] + c['IM_OBJEKT']))
 w('')
-w('Stand der Läufe: Kap. 2–5 mit dem Zwischenstand vom Vormittag (Füller mit 40 m Umkreis und 24-k-Dreiecksgrenze); Kap. 1, Kap. 6 und die Vollmessung mit dem Endstand (25 m, ≤ 5000 Dreiecke, Pool). Die Fahrzeugtests, Kriech-, Hochzieh-, Kanten- und Freischiebe-Messungen sind vom Endstand.')
+w('Stand der Läufe: **alle** Kapitel 1–6 und die Vollmessung mit dem Endstand (Füller 25 m / ≤ 5000 Dreiecke / Pool, Interaktionsmodul mit Geräteteilen, Hinweis-Block). Wo in allen vier Achsrichtungen kein Anlauf möglich war (Wand, Zaun, Nachbarobjekt), wird der Lauf automatisch aus den vier Diagonalen wiederholt („Anlauf blockiert“ ist dann aufgelöst).')
 w('')
-w('Die Hälfte der Läufe ist „Anlauf blockiert“: viele Requisiten stehen an Wänden oder in Räumen ohne 1,7 m Anlauf. Das ist keine Aussage über diese Objekte; sie sind in den anderen Richtungen oder durch die Laufraster-Tests (`_qa_kol` Teil C) abgedeckt.')
+w('| Kap. | Objekte | davon ohne gewerteten Lauf (alle Richtungen blockiert) | mit Diagonal-Wiederholung gerettet | Rest ohne Lauf | Ursache Rest |')
+w('|---|---|---|---|---|---|')
+for k in range(1, 7):
+    d = J('obj_k%d.json' % k)
+    if not d: continue
+    R = d['res']; alln = [r for r in R if all(x[0] == 'n/a' for x in r['runs'])]
+    alt = [r for r in R if r.get('alt')]; ret = [r for r in alt if not all(x[0] == 'n/a' for x in r['runs'])]
+    far = [r for r in alln if abs(r['b'][0]) > 300 or abs(r['b'][2]) > 300]
+    w('| %d | %d | %d | %d | %d | %d davon in abgelegenen Szenenräumen (x/z > 300 m: Kellerraum/Archiv/Messraum – dichte Möbel, kein 1,7-m-Anlauf), Rest von Wänden/Zäunen umschlossen |' % (k, len(R), len(alt), len(ret), len(alln), len(far)))
+w('')
+w('Rest ohne Lauf: Kap. 6 enthält eine Reihe von 30 gleichen Kisten (0,4 × 0,6 m, Wald bei x −22, z 120), die einander den Anlauf versperren; sonst Objekte in abgelegenen Räumen (Nr. 4, Archiv, Messraum) oder zwischen Wand und Möbel. Keiner der gewerteten Läufe in Kap. 1–6 ergab „steckt“ oder „gefangen“.')
 w('')
 w('### 3.3 Hohlraum-Füller')
 w('')
@@ -185,9 +195,10 @@ w('')
 w('## 5. Grenzen und Offenes (ehrlich)')
 w('')
 w('* **Stichprobe:** Requisiten/Netze in Kap. 1–6 je 300 Objekte × 4 Richtungen (gleichmäßig über Kisten und feste Netze); Kap. 1 zusätzlich vollständig. Die Welt bleibt über alle Kapitel geladen, die Kapitel unterscheiden sich durch Sichtbarkeit und nachgebaute Räume – die Stichproben je Kapitel prüfen deshalb zum großen Teil dieselben Orte, Kap. 6 zusätzlich Dustwoods/Bus.')
-w('* **Anlauf blockiert** (rund die Hälfte der Objektläufe) wird nicht als „bestanden“ gewertet, nur nicht gewertet.')
+w('* **Anlauf blockiert** wird nicht als „bestanden“ gewertet: Läufe ohne mögliche Anlaufrichtung werden aus den Diagonalen wiederholt (Tabelle 3.2); der verbleibende Rest steht in abgelegenen Szenenräumen oder zwischen Wänden/Möbeln, wo es physisch keine 1,7 m Anlaufstrecke gibt – dort deckt der Laufraster-Test (`_qa_kol` Teil C, Flutfüllung Abschnitt 4) die Begehbarkeit ab.')
 w('* Fahrzeuge **ohne** Spielerzugang nach innen: Bus (Kap. 6) und Transporter sind als massive Hitbox gebaut (Fenster sind nie Eingang); Innenräume sind reine Kulisse hinter Glas. Konsistent, keine Hohlräume ohne Ausgang.')
-w('* Rätsel mit kleinen Löchern (Nutzer baut später): physikalisch bestätigt ab 0,70 m; **Spielhinweis** (Fibel/Tutorial „Strg/C: ducken, unter Öffnungen kriechen“) ist nicht geändert worden – der Text steht in `verstecke.js`/`fibeltour.js` unter „ducken“ und bleibt gültig.')
+w('* Rätsel mit kleinen Löchern (Nutzer baut später): physikalisch bestätigt ab 0,70 m. **Spielhinweis ergänzt:** `bewegung.js` (Block BHINT) zeigt einmalig je Fähigkeit einen kurzen, überspringbaren Gedanken – Kriechen („Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg oder C hält dich unten.“) beim ersten Kriechzustand, Ducken („Geduckt passt du unter Tische, Äste und Rohre …“) beim ersten tiefen Hocken, Hochziehen („Eine Kante in Reichweite: Leertaste springt, Weiterdrücken zieht dich hoch …“) beim ersten erreichbaren Absatz; nicht blockierend (Gedankenzeile unten, läuft von selbst aus, nie im Dialog/Overlay); Fibel-/Tutorialtext steht unter „ducken“ in `verstecke.js`/`fibeltour.js` unverändert daneben.')
+w('* **Kapitelwechsel in laufender Seite** (Zeitlimit der Testläufe): Ursache war der Testrahmen, nicht das Spiel – die Testläufe setzten `ui.paused = true`, und `startChapter*` wartet auf entpauste Bildschirme; `mk.js` setzt vor dem Kapitelstart `ui.paused=false`. Seit der Korrektur laufen alle sechs Kapitel nacheinander in einer Sitzung (Kap. 1 → 6 mit Neuladen nur zur Zustandsreinheit).')
 w('* `raumklang.js` hält Kollisionsindizes: Kisten werden deshalb nur abgeschaltet/wiederverwendet. Wiederverwendete Fahrzeugkisten stehen im Schallraster in den alten Zellen (Verdeckung für parkende Fahrzeuge unverändert, bewegte Fahrzeuge sind selten).')
 w('')
 w('## 6. Werkzeuge und Nachlauf')

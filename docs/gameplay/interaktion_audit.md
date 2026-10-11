@@ -17,24 +17,28 @@ Neues Modul `app/mods/interaktion.js` (+ `interaktion_patch.py`): hängt sich an
 | Deckel, Kisten, Gullydeckel, Karteikasten | kippt um die Hinterkante (Gully: nächste Kante), zweites E schließt (ohne Text/Fund zu wiederholen) | 0,5 s · 74° | `woodSqueak2`/`woodClose2` | im Spielstand (`iap`) |
 | Schubladen | gleiten zum Spieler, 70 % der Tiefe (30–34 cm), zweites E schließt | 0,42 s | `woodSqueak1`/`woodClose1` | im Spielstand (`iap`) |
 | Gartentore (8), Briefkästen (8) | Modul-eigene Animation (83° bzw. 83–115°) – **neu:** offener Zustand im Spielstand (`tore`) | 0,7 s / 0,45 s | `doorOpen` / `metalOpen` | **neu** gespeichert |
+| Türen/Deckel/Schubladen/Klappen, die im Modell Teil eines Gesamtnetzes sind (Kapellentür, Müllcontainer, Kofferraum, Handschuhfach, Kinderkiste, Gullydeckel …) | **Laufzeit-Trennung** (`iap_trenne`): Dreiecke ganz innerhalb der Klickfläche (bzw. gemessener Region) werden zu eigenem Netz mit Scharnier/Gleitachse; Original zu Nulldreiecken (BVH bleibt gültig) | wie oben | wie oben | `iap` |
+| Geräte (Funkgerät, Radio, Kassettenrekorder) | Drehknöpfe drehen sich, Tasten drücken ein (`iap_geraetBedienen`), Auslösung zusätzlich zur Original-Aktion | 0,25 s | `switch1` | – |
+| Von der Story freigegebener Wagen (`userData.iapOffen`) | Tür klappt 66° auf (Scharnier vorn), zweites E schließt | 0,55 s | `carDoor` | – |
 
 ## 2. Inventar nach Typ (Kap. 1–6, je Fläche gemessen)
 
-Gemessen wurden **61** Klickflächen mit mechanischem Typ (nach Beschriftung + Lage dedupliziert). Davon bewegen jetzt 36 ein Bauteil sichtbar, 21 haben kein trennbares Bauteil (Klickfläche über einem Gesamtnetz oder einer Wand).
-Vorher (Modul abgeschaltet, Kap. 1, dieselben Flächen): 44 Flächen ausgelöst; bei 4 davon bewegte sich irgendetwas im 5-m-Umkreis (Figurenknochen, Raben, Teleport beim Gullydeckel) – das angeklickte Bauteil selbst bewegte sich bei **keiner**.
+Gemessen wurden **58** Klickflächen mit mechanischem Typ (nach Beschriftung + Lage dedupliziert). Davon bewegen jetzt 49 ein Bauteil sichtbar, 6 haben kein trennbares Bauteil (Klickfläche über einem Gesamtnetz oder einer Wand).
+Vorher (Modul abgeschaltet, Kap. 1, dieselben Flächen): 43 Flächen ausgelöst; bei 4 davon bewegte sich irgendetwas im 5-m-Umkreis (Figurenknochen, Raben, Teleport beim Gullydeckel) – das angeklickte Bauteil selbst bewegte sich bei **keiner**.
 
 | Verhalten | Flächen | Beispiele | mit Ton | größter Winkel |
 |---|---|---|---|---|
-| Verschlossene Tür/Tor: Klinke rüttelt | 16 | Stahltür (verriegelt), Garagentor, Kellertür, An Vegas’ Tür klopfen | 16 | 2° |
-| Fahrzeug ohne Tür-Teil: Karosserie wippt | 10 | Ausgebranntes Auto, Transporter, Schrottauto, Erster Transporter | 10 | – |
+| Verschlossene Tür/Tor: Klinke rüttelt | 20 | Stahltür (verriegelt), Garagentor, Kellertür, An Vegas’ Tür klopfen | 20 | 2° |
+| Deckel/Klappdeckel: kippt um die Hinterkante | 10 | Gullydeckel, Müllcontainer, Kofferraum, Pfandkisten | 10 | 74° |
+| Fahrzeug ohne Tür-Teil: Karosserie wippt | 8 | Ausgebranntes Auto, Schrottauto, Erster Transporter, Auto | 8 | – |
 | Durchgangstür (Raumwechsel): schwingt auf | 7 | Hinaus, Stalltür, Hinaus in den Vorgarten, Hinaus auf den Friedhof | 7 | 80° |
-| Deckel/Kiste ohne trennbares Bauteil | 6 | Gullydeckel, Müllcontainer, Kofferraum, Kinderkiste | 5 | – |
-| Tür/Tor ohne trennbares Bauteil im Modell | 6 | Eisentor, Kapellentür, Die Frage an der Tür, Unter das Tor leuchten | 6 | – |
-| Schublade ohne trennbares Bauteil | 6 | Kommodenschublade, Unterste Schublade, Hängeregistratur (Zahlenschlos, Schublade unter dem Tresen dur | 6 | – |
-| Deckel/Klappdeckel: kippt um die Hinterkante | 5 | Gullydeckel, Pfandkisten, Zigarrenkiste unter dem Bett, Karteikasten „VERSUCHSREIHE K“ | 5 | 74° |
+| Schublade: gleitet 30 cm | 3 | Unterste Schublade, Hängeregistratur (Zahlenschlos, Kommodenschublade | 3 | 2° |
+| Fahrzeug ohne Teil | 2 | Transporter, Zweiter Transporter (es klopft | 2 | – |
 | Fahrzeug: Autotür rüttelt am Scharnier | 2 | Autotür | 2 | 1° |
-| Klappe (Handschuhfach) ohne Bauteil | 2 | Handschuhfach | 2 | – |
-| Fahrzeug ohne Teil | 1 | Zweiter Transporter (es klopft | 1 | – |
+| Klappe: kippt | 2 | Handschuhfach | 2 | 80° |
+| Schublade ohne trennbares Bauteil | 2 | Kommodenschublade, Registraturschrank durchsuchen | 2 | – |
+| Deckel/Kiste ohne trennbares Bauteil | 1 | Blechkiste des Kommandos | 1 | – |
+| Tür/Tor ohne trennbares Bauteil im Modell | 1 | Die Tür der Villa aufschließen | 1 | – |
 
 ## 3. Objektliste mit Schulnote
 
@@ -44,19 +48,25 @@ prägnant: ja = Hauptrequisite/Haupttür/Fahrzeug in Story oder erster Minute, n
 |---|---|---|---|---|---|---|---|---|---|---|
 | Schwenktüren der Basis (`makeDoor`, 5 in Kap. 1 + Amt) – Tür öffnen/schließen | ja | ja (89°) | ja (89°) | Kiste schaltet: zu 1.2/1.2/1.2/1.2 m gesperrt, offen durchgelaufen | ja | ja (`doors` im Spielstand) | ja | 2 | 1 | door_k1.json (4 Durchgangstüren), ia_k1.json |
 | Durchgangstüren (Hinaus, Kellertür Nr. 4, Friedhof, Vorgarten) – 7 Flächen | ja | nein (Überblendung ohne Tür) | ja (80°, vom Spieler weg) | Netz folgt | ja | nein (Tür fällt zu) | nein (Beschriftung bleibt „Hinaus“) | 4 | 2 | iap_final.json (rot 80,2°, weg −0,8) |
-| Verschlossene Türen/Tore (Stahltür, Klopfen, Ladentür, Schuppen, Garagentor, Hintertür …) – 16 Flächen mit Bauteil | ja | nein (nur Text/Ton) | ja (Klinke rüttelt ±3°) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_final.json (rot 1,9°) |
-| Türen/Tore ohne trennbares Bauteil (Stalltür, Eisentor, Kapellentür, Villa-Tür …) – 6 Flächen | z. T. | nein | nein (Ton + Text) | n. a. | ja | n. a. | n. a. | 4 | 3 | Klickfläche über Gesamtnetz; Bauteil müsste im Modell getrennt werden (Blender) |
-| Autos/Transporter/Wracks (Klick „Auto“ …) – 13 Flächen | ja | nein | ja (Wippen/Türrütteln) | Hitbox bleibt | ja | n. a. | n. a. | 4 | 2 | iap_final.json |
+| Verschlossene Türen/Tore (Stahltür, Klopfen, Ladentür, Schuppen, Garagentor, Hintertür …) – 20 Flächen mit Bauteil | ja | nein (nur Text/Ton) | ja (Klinke rüttelt ±3°) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_final.json (rot 1,9°) |
+| Türen/Tore, deren Blatt im Gesamtnetz steckt (Kapellentür, Stalltür, Eisentor, Garagentor, Hintertür, Schuppen) – 8 Flächen | ja | nein (Ton + Text) | ja: Blatt per Laufzeit-Trennung herausgelöst, **rüttelt** (Story: abgeschlossen) | n. a. (bleibt zu) | ja | n. a. | n. a. | 4 | 2 | iap_k*.json (ctl dreh:tuer, rot 1,9°); Kapellentür: Blatt per Region (-53,8…-52,8 / 81,1) aus der Scan-Wand getrennt |
+| Villa-Tür (Eisenplatte mit acht Schlüssellöchern, Kap. 4) – 1 Flächen ohne Blatt | ja | nein | nein (Platte ist eine Textur-Decke, Wechsel per Überblendung) | n. a. | ja | n. a. | n. a. | 4 | 3 | Platte ohne Türblatt (`anwesen.js`): öffnet erst durch Szenenwechsel `anwesen_enterHall`; Wippen nur an der Wurzel |
+| Autos/Transporter/Wracks (Klick „Auto“ …) – 12 Flächen | ja | nein | ja (Wippen/Türrütteln) | Hitbox bleibt | ja | n. a. | n. a. | 4 | 2 | iap_final.json |
 | Autotür Lukes Leihwagen (strasse.js, Innenlicht + Warnsummen) | ja | ja (69°) | ja (69°, Innenlicht) | Netz folgt | ja (`carDoor`, Summen) | aus Story-Schlüssel abgeleitet | ja | 2 | 2 | ia_k1.json |
 | Lucys Auto Fahrertür (Proxy-Tween, gespiegelt nach außen) | ja | ja | ja | Netz folgt | ja | aus Story abgeleitet | ja | 2 | 2 | strasse.js |
-| Deckel/Gully/Karteikasten/Kiste mit Teil – 5 Flächen | nein/ja | nein | ja (74°, schließbar) | Netz folgt | ja | ja (`iap`) | ja („Schließen“) | 4 | 1 | iap_final.json |
-| Deckel/Container/Kofferraum/Kinderkiste ohne Teil – 6 Flächen | nein | nein | nein (Ton + Text/Fund) | n. a. | ja | n. a. | n. a. | 4 | 3 | Modell ohne trennbare Klappe |
-| Schubladen (Kommode, Besteck, Registratur, Tresen) – 6 Flächen | nein | nein | nein (kein Bauteil) | n. a. | ja | n. a. | n. a. | 4 | 3 | Möbel ohne eigene Schubladenteile (Fab-Modelle in einem Netz) |
+| Deckel/Gully/Karteikasten/Kiste mit Teil – 10 Flächen | nein/ja | nein | ja (74°, schließbar) | Netz folgt | ja | ja (`iap`) | ja („Schließen“) | 4 | 1 | iap_final.json |
+| Müllcontainer, Kofferraum (Wrack), Kinderkiste, Pfandkisten, Zigarrenkiste, Gullydeckel – aus Gesamtnetz herausgetrennt (Laufzeit) | ja (Container/Kofferraum) / nein | nein | ja (73–75°, schließbar, Gully mit dunklem Schacht) | Netz folgt | ja | ja (`iap`) | ja („Schließen“) | 4 | 2 | iap_k*.json (ctl dreh:deckel); Bild shots5_out/zu0–auf0 |
+| Blechkiste des Kommandos, Zweiter Transporter (es klopft) | nein | nein | nein (Ton + Text) | n. a. | ja | n. a. | n. a. | 4 | 3 | Klickfläche ohne eigenes Netz (Nebenobjekt) |
+| Kommodenschublade (Nr. 4, Hit nachgeführt), Unterste Schublade (Archiv) | ja | nein | ja (gleitet 30 cm, schließbar) | Netz folgt | ja (`woodSqueak1`/`woodClose1`) | ja (`iap`) | ja | 4 | 1 | iap_k*.json (gleit:schublade, shift 0,30) |
+| Hängeregistratur (Zahlenschloss), Aktenschrank (Doppeltürschrank) | ja | nein | rüttelt (verschlossen) / unverändert | n. a. | ja | n. a. | n. a. | 4 | 2 | Story: Zahlenschloss; Aktenschrank ist ein Türenschrank ohne Schublade (bewusst nicht typisiert, ein erster Versuch ließ die Griffleiste herausgleiten – verworfen) |
+| Registraturschrank (Archiv, Batterie), Tresen-Schublade, Besteck | ja / nein / nein | nein | nein (Ton + Text) | n. a. | ja | n. a. | n. a. | 4 | 3 | Registraturschrank: Modell als `InstancedMesh` (alle Schränke teilen ein Netz, Schubladen nur Textur) – Trennung nur per Blender-Export je Schrankmodell; Tresen-Schublade hat kein sichtbares Möbelteil (Hit auf der Theke; Typisierung gesperrt, weil sonst der Fernseher auf der Theke herausglitt); Besteck liegt lose |
 | Gartentore (8) | nein | ja (83°) | ja (83°) | Schaltkiste | ja | **neu: ja** (`tore`) | ja | 3 | 1 | ia_k1.json, `interaktion.js` |
 | Briefkästen (8) | nein | ja (83–115°) | ja | n. a. | ja | **neu: ja** (`tore`) | ja | 3 | 1 | ia_k1.json |
 | Schrank (Weiss-Raum, „Den Schrank öffnen“) | ja | ja (86°) | ja | Netz | ja (`doorCreak`) | ja | ja | 2 | 2 | ia_k1.json |
 | Kühlschrank Nr. 4 (Modell mit Tür) | nein | ja (100°) | ja | Netz | ja | nein | ja | 2 | 2 | ia_k1.json (Commit 6cad8a5) |
-| Geräte/Schalter: Radio, Fernseher, Funkgerät, Telefon (Hörer ✓), Kassettenrekorder, Spieluhr, Tonband | ja | teils (Hörer 8 cm, Spieluhr Deckel 100°) | unverändert | n. a. | ja | ja (Rätselzustände) | z. T. | 3 | 3 | ia_k1.json: Modelle sind ein Netz (Knöpfe nicht trennbar) – Klick löst Ton/Licht/Text aus |
+| Geräte: Funkgerät (Funkkasten), Radio, Rekorder, Fernseher | ja | nein (Ton/Licht/Text) | ja: Drehknöpfe drehen sich (Funkgerät 2 Regler, Radio 2 Regler), Taste drückt ein (2–23 mm), Antenne/Klappe wo im Netz getrennt vorhanden | n. a. | ja (`switch1`) | ja (Rätselzustände wie vorher) | z. T. | 4 | 2 (Funkgerät/Radio) · 3 (Fernseher: Röhrenkörper ohne Bedienteile) | device_test.json; Overlay des Funkkastens: shots5_out/auf1 |
+
+Bildpaare zu/auf (Kontaktbögen, `docs/gameplay/belege_interaktion/`): Müllcontainer (Deckel hebt ab), Funkgerät (Bedien-Overlay), Gartentor, Stalltür (Blatt gibt die Öffnung frei), Gullydeckel (steht auf, Schacht darunter).
 
 ## 4. Probleme, die beim Bauen auftraten (und gelöst wurden)
 
@@ -70,8 +80,10 @@ prägnant: ja = Hauptrequisite/Haupttür/Fahrzeug in Story oder erster Minute, n
 
 ## 5. Offen (mit Ursache)
 
-* **Schubladen, Kofferraum, Handschuhfach, Stalltür, Eisentor, Kapellentür, Villa-Tür** ohne trennbares Bauteil: die Fab-/Scan-Modelle liefern Möbel und Tore als ein Netz (Schubladen/Türen nicht getrennt). Fix wäre Blender-Nacharbeit je Modell (Nr. 4 Kommode/Küche, Registraturschrank, Tankstellen-Tresen, Villa-Portal); als Unprägnantes (Note 3) akzeptiert, Prägnantes (Villa-Tür, Kapellentür) ist über Klopfen/Ton und Überblendung geführt.
-* **Geräte** (Radio, Funkgerät, Kassettenrekorder): Knöpfe sind in einem Netz verschmolzen – keine Drehknöpfe; Klick löst Ton/Licht/Text aus (Note 3).
-* Autotüren der Limousinen **öffnen** nicht, sie rütteln: die Wagen sind abgeschlossen (Story); echtes Aufklappen mit Innenlicht gibt es nur bei Lukes und Lucys Wagen (Modul-eigen).
-* Zustand: nur Schubladen/Deckel/Klappen (`iap`) sowie Gartentore und Briefkästen (`tore`) werden gespeichert; rüttelnde/aufschwingende Türen sind flüchtig.
+* **Registraturschrank** (Archiv, Batterie-Fund): Modell wird als `InstancedMesh` mehrfach gestellt; die Schubladen sind Teil der Textur. Echte Schublade braucht Blender-Nacharbeit je Schrankmodell (Schublade als eigenes Objekt, GLB neu) – Nebenfund, Note 3. Alle anderen Haupt-Rätselmöbel (Kommode, Unterste Schublade, Karteikasten, Handschuhfächer, Kofferraum, Müllcontainer, Kinderkiste) bewegen ein echtes Bauteil.
+* **Verschlossene Türen** (Kapellentür, Stalltür, Eisentor, Garagentor, Ladentür, Hintertür, Schuppen) rütteln am echten Türblatt statt zu öffnen – das ist die Story (abgeschlossen); der Aufklapp-Mechanismus (`iapOffen`, 66° mit Innenlicht) ist für alle Wagen vorhanden, die eine Story-Aktion freigibt (heute: Lukes Leihwagen und Lucys Auto, beide mit eigenen Animationen). Transporter/Bus sind laut Story nicht zu öffnen.
+* **Villa-Tür**: Eisenplatte ohne Türblatt, Szenenwechsel per Überblendung – kein Türblatt zum Schwenken.
+* **Fernseher**: Röhrenkörper aus einem Netz ohne Bedienteile (Hintergrund, Note 3).
+* **Blender**: nicht verwendet. Die Trennung geschieht zur Laufzeit (Dreiecke ganz innerhalb der Klickfläche → eigenes Netz, Original zu Nulldreiecken), das hält GLB/KTX unverändert; ein Blender-Export wäre nur für den Registraturschrank nötig.
+* Zustand: Schubladen/Deckel/Klappen (`iap`) sowie Gartentore und Briefkästen (`tore`) werden gespeichert; rüttelnde/aufschwingende Durchgangstüren sind flüchtig.
 

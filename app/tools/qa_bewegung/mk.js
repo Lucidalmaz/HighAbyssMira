@@ -5,7 +5,7 @@ const START={1:'G.beginGame && G.beginGame();',2:'await G.startChapter2();',3:'a
 const steps=[];
 if(START) steps.push({name:'s0',shot:false,wait:300,timeout:600000,js:`(async()=>{for(let i=0;i<3000&&(typeof G==='undefined'||!window.__ready);i++)await new Promise(r=>setTimeout(r,200));
 const W=ms=>new Promise(r=>setTimeout(r,ms));
-if(window.__s0done){const k=window.__kap&&__kap.get(); if(k===${kap}||${kap}===1)return 's0 schon (Kapitel '+k+')'; ${START} await W(6000);try{if(window.__kino&&__kino.busy&&__kino.busy())__kino.skip();}catch(e){} await W(1500);G.state.talking=false;return 'Kapitelwechsel '+k+' -> '+(window.__kap&&__kap.get());}
+if(window.__s0done){const k=window.__kap&&__kap.get(); if(k===${kap}||${kap}===1)return 's0 schon (Kapitel '+k+')'; G.ui.paused=false; G.state.talking=false; ${START} await W(6000);try{if(window.__kino&&__kino.busy&&__kino.busy())__kino.skip();}catch(e){} await W(1500);G.state.talking=false;return 'Kapitelwechsel '+k+' -> '+(window.__kap&&__kap.get());}
 window.__errs=[];window.addEventListener('error',e=>__errs.push(String(e.message)));
 window.__testMove=true;const st=document.getElementById('start');st&&st.classList.remove('show');G.menu&&(G.menu.attract=false);document.body.classList.remove('menu');
 try{Object.defineProperty(document,'pointerLockElement',{get:()=>G.renderer.domElement,configurable:true});}catch(e){}
