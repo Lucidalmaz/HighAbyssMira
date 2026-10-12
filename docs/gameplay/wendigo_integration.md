@@ -124,3 +124,45 @@ Maßstab: prägnante Dinge ≥ 2, Unprägnantes 3 erlaubt. Die Noten sind meine 
 
 ## Koordinator-Vermerk 12.10.
 Vorbereitung abgenommen mit Auflagen für den Integrationslauf: (1) KTX2 für wendigo_*-Modelle erzeugen (cd app && node tools/ktx.mjs, nur ohne laufende Spielinstanz); (2) Fleisch/Haut (Note 3 im Standbild) im Spiel in Nahaufnahme erneut bewerten; sind sie prägnant (Kadaver-Funde nah), auf ≥ 2 bringen (Netz verfeinern/Textur-Variation/Geometriedetails), sonst 3 belassen; (3) Reh/Hirsch als Wendigo-Form: Risse bei grober Netzdichte schwach → Normalmap/Vertexfarben-Blut im Spiel prüfen; (4) Bewegung (Fußgleiten, Kopf-Folgen ohne Aufaddieren: anim_ueber), Hooks, Dosierung (Tabelle wendigo_konzept.md §3), Leistung (perf_gate.mjs, Asset-Budget) im Spiel messen; (5) Hofer-Fenster-Hook im Spiel prüfen.
+
+
+## Integrationslauf 12.10.2026 (Ergebnis, im Spiel gemessen)
+
+Eingebaut: `assemble.js` ORDER (`'wendigo'` nach `'kreaturen'`), KTX2 für alle `wendigo_*`-Modelle vorhanden (`ktx.mjs`, Liste `ktx2.json`). Das Modul lief in der Dauerinstanz ohne Fehler; alle 14 Ereignisse wurden einzeln ausgelöst (Kap. 1, 3, 4, 5 im Bild; Kap.-2-Texte nur ausgelöst).
+
+**Im Lauf gefundene und behobene Fehler**
+| Befund | Folge | Behebung |
+|---|---|---|
+| `wd_tag()` las `nat.night` (existiert nicht, `nat` ist die Natur-Regie) | „nur Nacht/nur Tag" wirkte nie | Tag = Kapitel 4 oder `WL.morgen`, sonst Nacht; `k3_reh` ohne Tagesbedingung (Kap. 3 spielt um 03:13) |
+| `wd_frei`: `leben_free(x,z,.5,r)` zählt Straßenschutt/Laub am Boden als Hindernis | Reh/Hirsch blieben beim Rückwärtsgehen stehen | Körperhöhe 0,95 m, r höchstens 0,5 |
+| Fund am Zaun war eine skalierte Kugel (Primitiv) | „generiert"-Optik | Modell `wendigo_haut` (abgelegte Haut, Death-Pose) + Klickfläche + Hufspuren |
+| Hufspur: zwei Ellipsen; Kratzer: schwarze Linien | Baukasten-Optik | Spalthuf-Decal (gespitzt, Wulstrand), Kratzer-Textur mit hellem Holzgrund und Fasern; Blutfleck unter Kadavern |
+| Körper sprang in 20°-Rasten; Mensch-im-Fenster setzte die Kopfdrehung einmal (vom Mixer sofort überschrieben) | Pop / wirkungslos | Kopf in Rasten über `anim_ueber` (jedes Bild auf Mixer-Pose zurück), Körper dreht nur außerhalb des Bildes; Fensterfigur: Überlagerung je Bild im `WORLD_TICK` |
+| Rückwärtsgehen 0,9 m/s gegen 1,04 m/s Clip | Fußgleiten | Tempo = Wurzelbewegung des Clips (Reh 1,037, Hirsch 1,145, Hirschding 1,2 m/s) |
+| Vorladen aller Formen 90 s nach Start | Grafikspeicher am Dorfkern-Peak | Modell wird erst rund 50 s vor dem Ereignis geladen |
+| `spannung_can('wd_ev')` ohne `spannung_did` | Familien-Abstand wirkungslos | `spannung_did('wd_ev')` beim Start; zusätzlich `beob_still` (wo er war, schweigt der Beobachter) |
+| Kap.-2-Ereignisse verlangten `wd_aussen()` (Amt ist „innen") | nie ausgelöst | Texte nur im Amt, Ort über `C2.x`-Abstand |
+| Aufnahmen `wd_*` wurden erst mit Kap. 6 geladen | Laute stumm in Kap. 1–5 | `kr_klang()` beim ersten Takt |
+
+**Neu**: Präsenz-Schicht (`wd_praesenz`): leise Laute am Rand (vier Hufschläge im 0,62-s-Metronomtakt, Knochen, Schnüffeln, nasse Schritte) alle 110–260 s je Kapitel, nur im Freien, danach 28 s Beobachter-Stille. Der Wendigo ist dauerhaft da, ohne dass etwas benannt oder gezeigt wird. Haken ohne Fremddateien: `lucy3_funk` (Kap. 3 → Tonband-Zeile nach dem Funk), Pells Heft (`pell_4` → `wissen`), Fensterwahl aus `fassaden_S.windows`.
+
+**Messungen** (Dauerinstanz, Grafik „Hoch")
+| Messung | Wert |
+|---|---|
+| Fußgleiten Reh rückwärts / Hirsch vorwärts | Tempo gemessen 1,04 / 1,15 m/s (Soll 1,037 / 1,145); vorzeichenbehaftete Hufgeschwindigkeit bei Bodenkontakt: Median +0,025 / −0,028 m/s (kein Bias); Betrag Median 0,20 / 0,23 m/s (Abrollen der Hufe, Clip-eigen) |
+| Weeping (Hirsch bewegt sich nur außerhalb des Bildes) | ging nur bei abgewandter Kamera (4,6 m in 4 s), stand im Bild |
+| Kopf in Rasten | Raste 0,35 rad, höchstens eine je 1,1 s, kein Aufaddieren |
+| Fenster Hofer (Kap. 4, Tag, 9,5 m) | Figur hinter der Scheibe sichtbar (Fade 0,86), nicht durch Glas/Wand; Kopfdrehung im Standbild nicht aufgelöst |
+
+**Noten**
+| Punkt | prägnant | Note | Beleg |
+|---|---|---|---|
+| Hirschding am Laternenmast (k1_mast, k5_stehen) | ja | 2 | aufrecht, Geweih, Glutaugen, neben dem Mast (`_wd/sheet_ev2a.jpg`, `sheet_k5.jpg`) |
+| Hirsch im Nebel (k5_nebel) | ja | 2 | Geweih im Nebel (`sheet_k5.jpg`) |
+| Reh rückwärts (k3_reh) | ja | 2− | `out_ev2k3`, `forms/f_reh_3.png` |
+| Fleisch (Kadaver k4_aas/k5_blut) | nein | 3 | Rippen als Bögen, Haut-Detail gering; nicht nachgebessert (je 1× und ≥ 10 m, Modellbau-Runde ohne Spielwirkung) |
+| Haut (abgelegte Haut k1_fell) | nein | 3 | `out_ev1b/ev_k1_fell_a.png` |
+| Dosierung/Regie | ja | 2 | Abstände 360–540 s (K1), max 3/3/2/3/6, `spannung_can/did`, nie in Dialog/Kino/Jagd |
+| Mensch im Fenster | ja | 3 | sichtbar, wirkt im Dunst zurückhaltend (`out_fe/fe.png`) |
+
+Offen mit Ursache: (1) Übergangsketten und Risse bei Reh/Hirsch nicht im Spiel fotografiert, weil kein Auftritt in Kap. 1–5 sie verwendet (Konzept §5.1: Übergang erst Kap. 6, `hungrige.js`). (2) Fleisch/Haut-Netz (Note 3) unverändert. (3) Tag/Nacht: Nacht in Kap. 1/3/5, Tag nur das Fenster in Kap. 4. (4) Kap.-2-Texte nur ausgelöst, nicht im Amt gespielt.
