@@ -139,3 +139,6 @@ Gemeinsame Gesetze: nie in der Nähe von Luke bei Dialog/Kino/Tod (`spannung_can
 
 Siehe Abschnitt „Modelle“ im Integrationsdokument und die Vorschaubilder in `game/assets/ms/wendigo_vorschau/` (mit Schulnoten). Basis aller Formen: die im Spiel vorhandenen Tiermodelle `animal_deerdoe` / `animal_deerstag` (gleiches Skelett,
 31 Knochen, Clips bleiben erhalten) plus eigene Blender-Arbeit (Geometrie, Backen, Geweih, Rippen, Zähne, Morphs, Clips).
+
+## ENTSCHEIDUNGEN zu 1.2 (Koordinator im Auftrag des Autors, 12.10.; Empfehlung = Entscheidung)
+Alle 9 Umsetzungsvorschläge aus 1.2 werden angenommen (1 Fressen→Führen gestaffelt, 2 nur Reflexe, 3 Dorfauftritte nur an Rändern mit Verlust, 4 Wendigo ab Kap. 1 fern sichtbar, 5 keine Körperauftritte unter der Erde, 6 Name erst nach Hofers Seite 1, 7 Formenreihenfolge wie vorgeschlagen, 8 Hofer-Gesicht nur nach Kap. 4 als Wiedererkennen, 9 wandernde Stille). Die Autorenbeschreibung (dauerhaft präsent/unerkannt, Spiegelbild des Beobachters, Experiment, will Luke zu den Kindern führen, Blutdurst, keine eigenen Gedanken) bleibt maßgeblich.
