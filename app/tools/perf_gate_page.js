@@ -16,8 +16,13 @@
   };
   const W = ms => new Promise(r => setTimeout(r, ms));
   // Zeichenaufrufe/Dreiecke je Bild: renderer.render() wird mehrfach je Bild gerufen (Schatten, Nachbearbeitung) – Summen je Bild über Umhüllung (info.autoReset bleibt an)
-  const C = [], TR = []; let fc = 0, ft = 0; const R0 = G.renderer, rr = R0.render.bind(R0);
-  R0.render = function (s, c) { rr(s, c); fc += R0.info.render.calls; ft += R0.info.render.triangles; };
+  // 12.10.2026: Zeichenaufrufe/Dreiecke direkt an den GL-Zeichenbefehlen zählen. renderer.info.render ist unzuverlässig: three.js setzt die Zähler in JEDEM render()-Aufruf zurück, auch in
+  // verschachtelten (Fensterfiguren zeichnen in onBeforeRender in einen eigenen Puffer) – das Hauptbild zählte dann nur die Aufrufe nach dem verschachtelten Zeichnen (817 ↔ 148 je nach Reihenfolge).
+  // Gezählt wird alles, was die Grafikkarte bekommt (Schattenpässe + Hauptbild + Nachbearbeitung).
+  const C = [], TR = []; let fc = 0, ft = 0; const R0 = G.renderer, gl0 = R0.getContext();
+  { const de = gl0.drawElements.bind(gl0), da = gl0.drawArrays.bind(gl0), dei = gl0.drawElementsInstanced.bind(gl0), dai = gl0.drawArraysInstanced.bind(gl0), tri = (mode, n) => mode === 4 ? n / 3 : mode === 5 || mode === 6 ? Math.max(0, n - 2) : 0;
+    gl0.drawElements = function (m, n, t, o) { fc++; ft += tri(m, n); return de(m, n, t, o); }; gl0.drawArrays = function (m, f, n) { fc++; ft += tri(m, n); return da(m, f, n); };
+    gl0.drawElementsInstanced = function (m, n, t, o, k) { fc++; ft += tri(m, n) * k; return dei(m, n, t, o, k); }; gl0.drawArraysInstanced = function (m, f, n, k) { fc++; ft += tri(m, n) * k; return dai(m, f, n, k); }; }
   const fr2 = () => { C.push(fc); TR.push(ft); fc = 0; ft = 0; if (C.length > 400000) { C.splice(0, 100000); TR.splice(0, 100000); } requestAnimationFrame(fr2); };
   requestAnimationFrame(fr2);
   const med = a => { if (!a.length) return 0; const s = a.slice().sort((x, y) => x - y); return s[s.length >> 1]; };

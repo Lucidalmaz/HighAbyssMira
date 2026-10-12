@@ -59,6 +59,11 @@ app.whenReady().then(() => {
     // nur Dateien INNERHALB des Spielordners (Trennzeichen nach dem Ordnernamen: „game2\…“ zählt nicht als „game\…“)
     if (!file.startsWith(ROOT + path.sep)) return new Response('verboten', { status: 403 });
     if (!fs.existsSync(file)) { console.warn('FEHLT: ' + rel); log('FEHLT', rel); return new Response('fehlt', { status: 404 }); }
+    // Bereichsabfragen (Range: bytes=a-b): das Textur-Streaming holt einzelne Bilder aus großen Modelldateien, ohne die ganze Datei zu lesen (12.10.2026)
+    const rg = req.headers.get('range'), mm = rg && /^bytes=(\d+)-(\d*)$/.exec(rg);
+    if (mm) { try { const st = fs.statSync(file), a = +mm[1], z = Math.min(st.size - 1, mm[2] === '' ? st.size - 1 : +mm[2]);
+        if (a <= z) { const fd = fs.openSync(file, 'r'); try { const buf = Buffer.alloc(z - a + 1); fs.readSync(fd, buf, 0, buf.length, a);
+            return new Response(buf, { status: 206, headers: { 'Content-Range': `bytes ${a}-${z}/${st.size}`, 'Content-Length': String(buf.length), 'Accept-Ranges': 'bytes', 'Content-Type': 'application/octet-stream' } }); } finally { fs.closeSync(fd); } } } catch (e) {} }
     return net.fetch(pathToFileURL(file).toString());
   });
   const win = new BrowserWindow({

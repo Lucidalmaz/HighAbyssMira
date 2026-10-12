@@ -47,13 +47,23 @@ function ff_neu(parent, lx, ly, lz, ry, pw, ph, id, opt = {}) {
       // von hinten beleuchtetes Zimmer: Figur dunkler, nie voll ausgeleuchtet
       g.traverse(o => { if (o.isMesh) { o.frustumCulled = false; o.castShadow = o.receiveShadow = false; [].concat(o.material).forEach(m => { if (m && m.color) m.color.multiplyScalar(opt.dunkel ?? .72); }); } });
       P.look = 'cam'; if (P.mv) P.mv.autoLook = null; rec.P = P; rec.fig = g; rec.wrap = wrap;
+      // Programme der Fensterfigur vorübersetzen: ihre Szene hat eigene Lichter (1 Hemisphäre, 1 Richtung, 1 Punkt) und damit eigene Programm-Varianten, die sonst erst beim ersten Zeichnen
+      // in ff_zeichne blockierend entstehen (gemessen: 6 Programme, 485 ms Standbild beim Ankommen an der Straße, 12.10.2026). Während des Ladens landet der Aufruf in der Sammelübersetzung der Basis.
+      // ff_zeichne wartet auf das Ergebnis (rec.compiling), sonst käme das erste Zeichnen dem asynchronen Übersetzen zuvor und würde doch blockieren.
+      // Ein Teil je Bild (ein neues Programm kostet ~25 ms Shadertext auf dem Hauptfaden; alle sechs auf einmal waren 160 ms Standbild).
+      rec.compiling = true; const fertig = () => { rec.compiling = false; };
+      try { const todo = [], seen = new Set(); wrap.traverse(o => { if (o.isMesh && o.material && !seen.has(o.material)) { seen.add(o.material); todo.push(o); } });
+        const step = () => { if (!todo.length || !rec.alive) return fertig(); const o = todo.shift(), rt0 = renderer.getRenderTarget(); renderer.setRenderTarget(FF.rt);
+          let p; try { p = renderer.compileAsync(o, camera, FF.scene); } catch (e) { p = null; } finally { renderer.setRenderTarget(rt0); }
+          if (p && p.then) p.then(() => requestAnimationFrame(step), () => requestAnimationFrame(step)); else requestAnimationFrame(step); };
+        step(); } catch (e) { fertig(); }
       try { figuren_lookAt(P, 'cam', .65); } catch (e) {}
     } catch (e) { rec.fail = true; console.warn('Fensterfigur: Figur', id, e); }
   })();
   return rec;
 }
 function ff_zeichne(rec, r, cam) {
-  rec.calls = (rec.calls || 0) + 1; if (!rec.wrap || rec.fade < .01 || FF.drawing) return; FF.drawing = true; rec.draws = (rec.draws || 0) + 1;
+  rec.calls = (rec.calls || 0) + 1; if (!rec.wrap || rec.compiling || rec.fade < .01 || FF.drawing) return; FF.drawing = true; rec.draws = (rec.draws || 0) + 1;
   const sz = r.getDrawingBufferSize(FF.sz); const tw = Math.max(64, Math.round(sz.x * .6)), th = Math.max(64, Math.round(sz.y * .6)); if (FF.rt.width !== tw || FF.rt.height !== th) FF.rt.setSize(tw, th);
   // nur diese Figur zeigen, warmes Rücklicht je nach Fenster
   for (const o of FF.recs) if (o.wrap) o.wrap.visible = (o === rec);
