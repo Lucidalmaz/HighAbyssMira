@@ -216,6 +216,27 @@ function wd_kratz() {
   const onX = Math.abs(P.x - cx) > Math.abs(P.z - cz); m.position.set(onX ? (P.x < cx ? r.x0 : r.x1) + (P.x < cx ? -.02 : .02) : cx, 2.3, onX ? cz : (P.z < cz ? r.zb - .02 : r.zf + .02)); m.rotation.y = onX ? Math.PI / 2 : 0; m.userData.noCol = true; scene.add(m); wd_S.dec.push(m); return true;
 }
 
+// ---------------------------------------------------------------- Mensch im Fenster (Hofers Gesicht auf falschem Körper)
+// Nutzt fensterfigur.js (ff_neu: echter 3D-Körper hinter dem Glas) mit dem Menschenmodell 'polizist' (figuren.js: HOFER → 'polizist'): der Körper steht, der Kopf ist 2,1 rad zu weit gedreht
+// und folgt Luke mit Verzögerung. Gesicht „Hofer“ = das Polizisten-Gesicht des Spiels (Beweis-7-Foto), dunkel und ohne Atem (Mikroatmung wird abgeschaltet).
+// Auslöser: nach Kapitel 4 (S.wissen) als Wiedererkennen, davor nur als „Mensch“ – Entscheidung 8 in wendigo_konzept.md.
+function wd_fensterHofer(dauer = 3.4) {
+  try {
+    if (typeof ff_neu !== 'function' || typeof beob_fenster !== 'function') return false;
+    const P = player.pos, f = beob_fenster(P.x, P.z, 28); if (!f) return false;
+    const W = f.W, nx = Math.sin(W.ry), nz = Math.cos(W.ry);
+    const rec = ff_neu(W.g, W.x + nx * .058, W.y, W.z + nz * .058, W.ry, W.pw, W.ph, 'polizist', { warm: false, tief: .55, dunkel: .5 }); if (!rec) return false;
+    rec.ziel = 1; wd_S.fenster = rec;
+    const t0 = performance.now(); const twist = () => { try {
+      const hd = rec.P && rec.P.rig && rec.P.rig.head;
+      if (hd && !rec.wdTw) { rec.wdTw = 1; if (rec.P.mv) rec.P.mv.autoLook = null; if (typeof anim_ueber === 'function') anim_ueber(hd, () => { hd.rotation.y += 2.1 * Math.min(1, (performance.now() - t0) / 1800); }); }
+    } catch (e) {} }; const iv = setInterval(twist, 250);
+    setTimeout(() => { rec.ziel = 0; }, dauer * 1000);
+    setTimeout(() => { clearInterval(iv); try { if (rec.quad && rec.quad.parent) rec.quad.parent.remove(rec.quad); const i = FF.recs.indexOf(rec); if (i >= 0) FF.recs.splice(i, 1); } catch (e) {} wd_S.fenster = null; }, dauer * 1000 + 3500);
+    return true;
+  } catch (e) { console.warn('Wendigo: Fenster', e); return false; }
+}
+
 // ---------------------------------------------------------------- Takt
 function wd_tick(dt) {
   const S = wd_S; if (!S.ready || !state.started || menu.attract) return; S.t += dt; const k = wd_k();
@@ -261,11 +282,17 @@ WORLD_MODS.push(['Wendigo (Präsenz, Vorboten, Formen Kap. 1–5)', async () => 
     auftritt: id => { const e = WD_AUFTRITTE.find(x => x.id === id); return e ? wd_start(e, true) : false; },
     zettel: id => { const e = WD_AUFTRITTE.find(x => x.id === 'k2_' + id); if (e) { wd_text(e); wd_fertig(e); } },
     tonband: () => { try { subtitle('<i>' + WENDIGO_TEXTE.t_band + '</i>', 4200, 'BAND?'); } catch (e) {} const e = WD_AUFTRITTE.find(x => x.id === 'k3_funk'); if (e) { wd_text(e); wd_fertig(e); } },
-    fenster: () => { const e = WD_AUFTRITTE.find(x => x.id === 'k4_fenster'); if (e) { wd_ton('knochen', [player.pos.x + 6, 3, player.pos.z], .3); wd_text(e); wd_fertig(e); } },
+    fenster: () => { const e = WD_AUFTRITTE.find(x => x.id === 'k4_fenster'); const ok = wd_fensterHofer(); if (e) { wd_ton('knochen', [player.pos.x + 6, 3, player.pos.z], .3); setTimeout(() => wd_text(e), ok ? 1500 : 0); wd_fertig(e); } return ok; },
     spur: was => wd_spurReihe(was), kadaver: g => wd_kadaver(!!g, wd_spot(10, 18) || [player.pos.x + 10, 0, player.pos.z]),
     form: async (f, o) => { const sp = wd_spot(14, 24) || [player.pos.x + 14, 0, player.pos.z]; return wd_zeige(f, sp, o || {}); },
-    uebergang: async (von, zu) => { const A = wd_S.A; if (!A) return false; const t0 = performance.now(); wd_morph(A, 'riss', 1); wd_play(A, 'uebergang', .1, 1, true);
-      setTimeout(async () => { const p = A.g.position.toArray(); await wd_zeige(zu || 'fleisch', p, { clip: 'idle' }); }, 1400); return true; },
+    uebergang: async (von, zu, kette) => {
+      // Kette: bekleidet (reh/hirsch) → Clip „uebergang“ (Riss über Rücken/Bauch/Flanke/Hals, Knochen schieben, Kopf falsch, Maul, Geweih wächst) → Fleisch → (optional) Hirschding mit „aufstieg“
+      const A = wd_S.A; if (!A) return false; const p = A.g.position.toArray(), ry = A.g.rotation.y;
+      wd_play(A, 'uebergang', .1, 1, true); try { wd_ton('knochen', [p[0], 1.2, p[2]], .5); } catch (e) {}
+      const warte = ms => new Promise(r => setTimeout(r, ms));
+      await warte(2200); const M2 = await wd_zeige(zu || 'fleisch', p, { clip: 'idle' }); if (M2) M2.g.rotation.y = ry;
+      if (kette && M2) { await warte(1800); try { wd_ton('ruf', [p[0], 1.5, p[2]], .6); } catch (e) {} const M3 = await wd_zeige('hirschding', p, { clip: 'idle' }); if (M3) { M3.g.rotation.y = ry; wd_play(M3, 'uebergang', .1, 1, true); } }
+      return true; },
     aus: () => { wd_hide(); S.ev = null; }, nah: wd_nah,
   };
 }]);

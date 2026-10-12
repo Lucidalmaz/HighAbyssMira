@@ -57,7 +57,10 @@ class Warp:
     # Hals strecken (Kopf wandert mit)
     s = sstep(0, 1, np.clip(t, 0, 1.0)) * self.neck_k
     s = np.where(t > 1.0, self.neck_k, s) * (P[:, 1] < self.n0[1] + .12)  # nur vor dem Brustbein
-    Q += self.dir[None, :] * s[:, None] * np.array([0, 1, 1])[None, :] * 0 + self.dir[None, :] * s[:, None]
+    Q += self.dir[None, :] * s[:, None]
+    # Schnauze länger (wirkt weniger „niedlich“): Streckung entlang der Kopfachse vor der Kopfmitte
+    hdir = np.array([0, -.97, -.24]); hc = self.hd + self.dir * self.neck_k + np.array([0, 0, 0])
+    pr = (Q - hc) @ hdir; Q = Q + hdir[None, :] * (.4 * np.clip(pr - .12, 0, .5) * (t > .85))[:, None]
     return Q
   def pt(self, p): return self.points(np.asarray(p, float)[None, :], thin=False)[0]
 
@@ -136,6 +139,7 @@ def bast_strips(paths, rs_):
 
 def build_hirschding():
   arm, me = load_base('stag'); strip_fur(me); drop_antlers(me); weld(me)
+  densify(me, .55)   # mehr Fläche für Kopf-/Rippenpinsel (vor Verformung und Pinseln)
   W_ = Warp(arm, me)
   P0 = verts_np(me, False); P = W_.points(P0); set_verts(me, P)
   # Knochen verformen (Edit-Modus): Köpfe/Schwänze mit derselben Abbildung
@@ -148,10 +152,11 @@ def build_hirschding():
   def f(p, r, amt, mir=True, d=None):
     F.append((np.array(p, float), r, amt, d))
     if mir and abs(p[0]) > 1e-4: F.append((np.array((-p[0], p[1], p[2]), float), r, amt, d))
-  f((hd[0] + .082, hd[1] - .13, hd[2] + .035), .06, -.06); f((hd[0] + .078, hd[1] - .125, hd[2] + .03), .03, -.04)       # Augenhöhlen
+  f((hd[0] + .082, hd[1] - .13, hd[2] + .035), .075, -.085); f((hd[0] + .076, hd[1] - .125, hd[2] + .03), .04, -.06)       # Augenhöhlen (tief)
   f((hd[0] + .085, hd[1] - .12, hd[2] + .085), .05, .016); f((hd[0] + .09, hd[1] - .22, hd[2] - .03), .06, .015)            # Brauen, Jochbein
   f((hd[0] + .075, hd[1] - .22, hd[2] - .075), .06, -.03)                                                                  # Wangenmulde
-  f((hd[0] + .03, hd[1] - .44, hd[2] - .14), .035, -.03)                                                                   # Nasenöffnung
+  f((hd[0] + .03, hd[1] - .44, hd[2] - .14), .05, -.055); f((hd[0], hd[1] - .47, hd[2] - .12), .05, -.04, False)         # Nasenöffnung (aufgerissen)
+  f((hd[0] + .07, hd[1] - .30, hd[2] - .045), .05, -.03)                                                                   # Schnauzenseite eingefallen
   f((hd[0], hd[1] - .26, hd[2] + .04), .05, .012, False)                                                                  # Nasenrücken
   # Gelenke nach der Streckung: Knie, Sprunggelenk, Ellbogen, Handwurzel
   for nm, amt, r in (('-L-Calf', .025, .06), ('-L-HorseLink', .03, .05), ('-L-Forearm', .02, .05), ('-L-Hand', .022, .045)):
@@ -159,12 +164,12 @@ def build_hirschding():
   apply_feats(P, Nn, F); set_verts(me, P); smooth(me)
   return arm, me, W_
 
-def hi_part(o, knochen=1., blut=.1, fett=0., disp=.0, seed=0):
+def hi_part(o, knochen=1., blut=.1, fett=0., disp=.0, seed=0, kante=0.):
   """Teil für die hohe Fassung: Attribute wie make_hi, Rauhigkeit (Rinde/Riefen) als Verschiebung."""
   P = verts_np(o); N = normals_np(o)
   if disp: P = P + N * ((fbm(P * 55, 3, seed) - .5) * disp + (np.sin(P[:, 2] * 140 + fbm(P * 8, 2, seed) * 9) * .5 + .5) * disp * .5)[:, None]; set_verts(o, P)
-  n = len(P); fb = fbm(P * 5, 3, 1)
-  for k, v in dict(zell=fbm(P * 9, 2, 3), kante=np.zeros(n), ader=np.zeros(n), knochen=np.full(n, knochen) * (.75 + .25 * fb), blut=np.full(n, blut) * (.4 + .9 * fb), fett=np.full(n, fett), mott=fb).items(): add_attr(o, k, v)
+  n = len(P); fb = fbm(P * 5, 3, 1); ev = lambda a: a(P) if callable(a) else np.full(n, a)
+  for k, v in dict(zell=fbm(P * 9, 2, 3), kante=ev(kante), ader=np.zeros(n), knochen=ev(knochen) * (.8 + .2 * fb), blut=ev(blut) * (.4 + .9 * fb), fett=ev(fett), mott=fb).items(): add_attr(o, k, np.clip(v, 0, 1))
   return o
 
 def finish_hirschding(arm, me, W_):
@@ -175,7 +180,9 @@ def finish_hirschding(arm, me, W_):
     paths = antler_paths(base_o * np.array([side, 1, 1]), side, S, True, 3)
     paths = [(W_.points(C, thin=False), R) for C, R in paths]
     g = build_antler_mesh(paths, 6, 'geweih'); low.append(g)
-    gh = build_antler_mesh(paths, 12, 'geweih_hi'); subsurf(gh, 1); hi.append(hi_part(gh, 1., .12, 0., .0035, 3 + side))
+    gh = build_antler_mesh(paths, 12, 'geweih_hi'); subsurf(gh, 1)
+    # Farbvariation: Knochenweiß, braune Trockenblut-Schlieren (kante), frisches Blut an Spitzen und Ansatz, gelblicher Bast-Rest (fett) am Ansatz
+    hi.append(hi_part(gh, 1., lambda P_: .75 * sstep(.45, .8, fbm(P_ * 14, 3, 21)) + .6 * sstep(P_[:, 2].max() - .25, P_[:, 2].max(), P_[:, 2]), lambda P_: .6 * sstep(P_[:, 2].min() + .35, P_[:, 2].min(), P_[:, 2]), .0035, 3 + side, kante=lambda P_: .85 * sstep(.5, .75, fbm(P_ * 6 + 3, 3, 17))))
     bl = bast_strips(paths, np.random.RandomState(5 + side)); low.append(bl)
     bh = bast_strips(paths, np.random.RandomState(5 + side)); subsurf(bh, 1); hi.append(hi_part(bh, 0., .45, .8, .002, 9))
   up, lo = [], []; tl = []; th = []
@@ -197,13 +204,13 @@ def jaw_and_bones(arm, me, parts):
     b = E.new('STAG_-Antler' + nm); b.head = Vector((side * .09, hd[1] + .02, hd[2] + .12)); b.tail = b.head + Vector((side * .06, .06, .5)); b.parent = headb; ab[nm] = b.head.copy()
   bpy.ops.object.mode_set(mode='OBJECT')
   # Unterkiefer-Gewichte am Körper: Kopfpunkte unter der Mundlinie → Jaw (weich über 2,5 cm)
-  jw = np.where(wH > .5, sstep(zm + .012, zm - .02, P[:, 2]) * sstep(hd[1] - .05, hd[1] - .13, P[:, 1]), 0.)
+  jw = np.where(wH > .5, sstep(zm + .012, zm - .02, P[:, 2]) * sstep(hd[1] - .08, hd[1] - .16, P[:, 1]) * (1 - sstep(P[:, 2].min() + 0.0, P[:, 2].min() + .0, P[:, 2]) * 0), 0.)
   idx = np.nonzero(jw > .02)[0]
   gJ = me.vertex_groups.new(name='STAG_-Jaw'); gH = next(g for g in me.vertex_groups if g.name.endswith('-Head'))
   for i in idx:
     wv = float(jw[i]); gJ.add([int(i)], wv, 'REPLACE'); cur = [g.weight for g in me.data.vertices[i].groups if g.group == gH.index]
     if cur: gH.add([int(i)], max(0., cur[0] * (1 - wv)), 'REPLACE')
-  return zm, ab
+  return zm, ab, jw, tip
 
 def assign_parts(parts, arm, ab, zm):
   for o in parts:

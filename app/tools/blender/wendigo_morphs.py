@@ -16,7 +16,7 @@ def morphs(me, arm, kind, antler_ids=None, riss=True):
   hd = bone_pos(arm, '-Head'); n1 = bone_pos(arm, '-Neck1'); nk = bone_pos(arm, '-Neck'); sp = bone_pos(arm, '-Spine'); hip = bone_pos(arm, 'Pelvis')
   wN = np.clip(group_weight(me, ['-Neck1']) * .35 + group_weight(me, ['-Neck2']) * .7 + group_weight(me, ['-Head', 'Ponytail1']), 0, 1)
   # Kopf falsch: Hals dehnt sich, Kopf kippt zur Seite und dreht zu weit (der Kopf „sitzt nie richtig“)
-  P = rot_about(P0, n1, (0, 0, 1), .62 * wN); P = rot_about(P, hd, (0, 1, 0), .38 * wN); P = P + np.array([0, -.10, 0.]) * wN[:, None]
+  P = rot_about(P0, n1, (0, 0, 1), 1.1 * wN); P = rot_about(P, hd, (0, 1, 0), .62 * wN); P = rot_about(P, hd, (1, 0, 0), .25 * wN); P = P + np.array([0, -.2, .04]) * wN[:, None]
   add_shape(me, 'kopf_falsch', P)
   # Maul auf: Punkte des Kopfes unterhalb der Mundlinie klappen um das Kiefergelenk
   y = P0[:, 1]; z = P0[:, 2]; wH = group_weight(me, ['-Head', 'Ponytail1'])
@@ -30,8 +30,18 @@ def morphs(me, arm, kind, antler_ids=None, riss=True):
   add_shape(me, 'knochen', P0 + N0 * ((rib * .028 + spine * .035)[:, None]))
   if riss:  # Haut reißt: entlang der Rückenlinie klaffen die Schalen auf, das Fleisch darunter wird sichtbar
     prof = sstep(.2, .0, rx) * (1 - sstep(hip[1] + .3, hip[1] + .5, ry)) * sstep(hd[1] + .1, hd[1] + .45, ry) * sstep(hip[2] - .45, hip[2] - .1, rz)
-    Q = P0.copy(); Q[:, 0] += np.sign(P0[:, 0] + 1e-6) * .07 * prof; Q[:, 2] -= .02 * prof
-    add_shape(me, 'riss', Q)
+    sg = np.sign(P0[:, 0] + 1e-6); R_ = np.zeros_like(P0); R_[:, 0] += sg * .13 * prof; R_[:, 2] -= .03 * prof
+    # Bauchnaht: unterer Rumpf klafft nach beiden Seiten
+    bm = sstep(.16, .0, rx) * sstep(hip[2] * .78, hip[2] * .55, rz) * sstep(hip[2] * .35, hip[2] * .5, rz) * (1 - sstep(sp[1] + .0, sp[1] + .12, ry)) * sstep(nk[1] + .1, nk[1] + .25, ry) * sstep(-.15, -.55, N0[:, 2])   # nur Bauchunterseite (Normale nach unten), nicht die Läufe
+    B_ = np.zeros_like(P0); B_[:, 0] += sg * .15 * bm; B_[:, 2] += .05 * bm
+    # Flankenschlitz: Fläche seitlich, oberer Rand hebt, unterer senkt, Mitte schwillt nach außen
+    fc = np.array([.2, sp[1] - .08, hip[2] * .84]); fd = np.linalg.norm((P0 - fc) * np.array([1, .6, 1.2]), axis=1); fm = sstep(.28, .0, fd) * sstep(.04, .2, rx)
+    F_ = np.zeros_like(P0); F_ += N0 * (.03 * fm)[:, None]; F_[:, 2] += np.sign(rz - fc[2]) * .075 * fm
+    # Halsriss: seitlich entlang des Halses
+    hm = sstep(.11, .0, rx - .0) * sstep(hd[1] + .12, hd[1] + .3, ry) * (1 - sstep(nk[1] - .0, nk[1] + .12, ry)) * sstep(hip[2] * .7, hip[2] * .95, rz)
+    H_ = np.zeros_like(P0); H_[:, 0] += sg * .1 * hm
+    add_shape(me, 'riss_ruecken', P0 + R_); add_shape(me, 'riss_bauch', P0 + B_); add_shape(me, 'riss_flanke', P0 + F_); add_shape(me, 'riss_hals', P0 + H_)
+    add_shape(me, 'riss', P0 + R_ + B_ + F_ + H_)
   if antler_ids is not None:  # Geweih „wächst“: Schlüssel = klein (Wert 1), 0 = voll
     base = np.array([0, hd[1] + .03, hd[2] + .22]); Q = P0.copy(); m = antler_ids; Q[m] = base + (P0[m] - base) * .18
     add_shape(me, 'geweih_klein', Q)
@@ -73,6 +83,15 @@ def build_dressed(kind, tag):
   P = verts_np(me_f, False); Nn = normals_np(me_f); set_verts(me_f, P - Nn * .014); me_f.name = 'fleisch_innen'
   # 3) Details
   vertex_color_blut(me, arm)
+  # milchige Augen (blassblau-weiße Kugeln in den Höhlen, nass, kein Glühen – das Tier ist „nicht mehr da“)
+  hd = bone_pos(arm, '-Head'); sc_ = 1.0 if kind == 'doe' else 1.12
+  eyes = eye_parts(arm, hd, .062 * sc_, -.085 * sc_, .045 * sc_, .017 * sc_, False)
+  for e_ in eyes:
+    e_.data.materials[0].node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (.62, .66, .66, 1)
+    vg = e_.vertex_groups.new(name=[g.name for g in me.vertex_groups if g.name.endswith('-Head')][0]); vg.add(list(range(len(e_.data.vertices))), 1.0, 'REPLACE')
+  me = merge([me] + eyes, me.name); me.parent = arm; me.matrix_parent_inverse = Matrix.Identity(4)
+  if not any(m_.type == 'ARMATURE' for m_ in me.modifiers):
+    m_ = me.modifiers.new('Armature', 'ARMATURE'); m_.object = arm
   ids = antler_mask(me) if kind == 'stag' else None
   morphs(me, arm, kind, ids)
   morphs(me_f, arm, kind, None, riss=False)

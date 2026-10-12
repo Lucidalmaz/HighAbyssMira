@@ -131,7 +131,7 @@ class HD:
     R.ik2('Neck1', 'Neck2', 'Head', c + fwd * g('nf', .42) + EZ * g('nu', .3), EZ + Vector((0, .3, 0)))
     qe = Euler((g('hp'), g('hr'), g('hyaw')), 'XYZ').to_quaternion()
     R.set_wq('Head', qe @ R.restQ[R.key['Head']])
-    if 'Jaw' in R.key: R.set_wq('Jaw', Quaternion(EX, g('jaw', .03)) @ R.wq('Head'))
+    if 'Jaw' in R.key: R.set_wq('Jaw', (R.wq('Head') @ R.restQ[R.key['Head']].inverted()) @ Quaternion(EX, g('jaw', .03)) @ R.restQ[R.key['Jaw']])  # Kopfbewegung + Öffnungswinkel um die Ruhelage des Kiefers
     if 'Tail' in R.key: R.turn('Tail', EX, g('tail', .3))
     legs = g('legs', {})
     for s in 'LR':
@@ -172,12 +172,12 @@ def clip_defs():
   D['beobachten'] = (8, True, 0, beobachten)
   def schrei(R, H, t, T):
     a = _sm(t / .35) * (1 - _sm((t - 1.6) / .6)); sh = math.sin(t * 38) * .03 * a
-    H.pose(dict(th=1.12 + .15 * a, b2=-.15 * a, nf=.42 - .1 * a, nu=.3 + .25 * a, hp=-.7 * a + sh, hr=sh, jaw=.04 + .7 * a, legs={'L': (.13, 0, 0, 1), 'R': (-.13, 0, 0, 1)},
+    H.pose(dict(th=1.12 + .15 * a, b2=-.15 * a, nf=.42 - .1 * a, nu=.3 + .25 * a, hp=-.7 * a + sh, hr=sh, jaw=.04 + .42 * a, legs={'L': (.13, 0, 0, 1), 'R': (-.13, 0, 0, 1)},
       arms={'L': dict(out=.1 + .6 * a, fw=.12 + .2 * a), 'R': dict(out=.1 + .6 * a, fw=.12 + .2 * a)}))
   D['schrei'] = (2.2, False, 0, schrei)
   def fressen(R, H, t, T):
     j = abs(math.sin(t * 7.0)) ** 3; a = _sm(t / .5)
-    H.pose(dict(th=.9, bend=.2 * a, nf=.5, nu=-.55 * a, hp=.8 * a + .15 * j, hyaw=.18 * math.sin(t * 3.1), jaw=.1 + .5 * j, legs={'L': (.13, .05, 0, 1.1), 'R': (-.13, -.05, 0, 1.1)}, arms={'L': dict(fw=.5 * a), 'R': dict(fw=.5 * a)}))
+    H.pose(dict(th=.9, bend=.2 * a, nf=.5, nu=-.55 * a, hp=.8 * a + .15 * j, hyaw=.18 * math.sin(t * 3.1), jaw=.1 + .3 * j, legs={'L': (.13, .05, 0, 1.1), 'R': (-.13, -.05, 0, 1.1)}, arms={'L': dict(fw=.5 * a), 'R': dict(fw=.5 * a)}))
   D['fressen'] = (3.0, True, 0, fressen)
   def sturm(R, H, t, T):
     TT = .62; v = 4.6; ph = t / TT; fl = math.sin(ph * 2 * PI)
@@ -189,12 +189,12 @@ def clip_defs():
   def flucht(R, H, t, T):
     TT = .66; v = -3.2; LL = dict(x=.14, z=.05, off=0, duty=.45, lift=.2); LR = dict(x=-.14, z=.05, off=.5, duty=.45, lift=.2)
     fL = foot(LL, t, TT, v); fR = foot(LR, t, TT, v); ph = t / TT * 2 * PI; side = math.sin(ph); jolt = abs(side)
-    H.pose(dict(hx=.07 * side, th=.95, roll=.1 * side, b1=-.1, b2=-.15, bend=.05, nf=.2, nu=.38, hp=-.55, hyaw=.25 * side, hr=.2 * side, jaw=.45, tail=.9, h=H.f0['L'].z + H.hl_off['L'].z + (H.L1 + H.L2) * (.82 - .05 * jolt),
+    H.pose(dict(hx=.07 * side, th=.95, roll=.1 * side, b1=-.1, b2=-.15, bend=.05, nf=.2, nu=.38, hp=-.55, hyaw=.25 * side, hr=.2 * side, jaw=.3, tail=.9, h=H.f0['L'].z + H.hl_off['L'].z + (H.L1 + H.L2) * (.82 - .05 * jolt),
       legs={'L': (fL['x'], fL['z'], fL['y'], .7 - .3 * fL['lift']), 'R': (fR['x'], fR['z'], fR['y'], .7 - .3 * fR['lift'])}, arms={'L': dict(sw=.35 * side - .2, out=.35, el=.3), 'R': dict(sw=-.35 * side - .2, out=.35, el=.3)}))
   D['flucht'] = (.66, True, -3.2, flucht)
   def zurueck(R, H, t, T):
     a = _sm(t / .18); up = _sm((t - .05) / .3) * (1 - _sm((t - 1.3) / .5)); st = _sm((t - .25) / .45)
-    H.pose(dict(hz=-.12 * a - .2 * st, th=1.12 + .22 * a - .1 * st, b2=-.12 * a, hp=-.2 * a + .25 * up, hyaw=-.5 * up, hr=-.25 * up, jaw=.3 * a * (1 - st * .6), tail=.6,
+    H.pose(dict(hz=-.12 * a - .2 * st, th=1.12 + .22 * a - .1 * st, b2=-.12 * a, hp=-.2 * a + .25 * up, hyaw=-.5 * up, hr=-.25 * up, jaw=.2 * a * (1 - st * .6), tail=.6,
       legs={'L': (.13, 0, 0, 1), 'R': (-.13, _lerp(.0, -.4, st), .12 * math.sin(PI * _clamp((t - .25) / .45, 0, 1)), 1)}, arms={'L': dict(out=.2, fw=.5 * up, el=.4 * up), 'R': dict(sw=-.2 * a, out=.2)}))
   D['zurueck'] = (1.8, False, 0, zurueck)
   def aufstieg(R, H, t, T):
@@ -205,13 +205,13 @@ def clip_defs():
   D['aufstieg'] = (3.2, False, 0, aufstieg)
   def packen(R, H, t, T):
     a = _sm(t / .25); b = _sm((t - .2) / .3)
-    H.pose(dict(hz=.25 * a, th=1.12 - .45 * a, b2=.2 * b, nf=.42 + .25 * b, nu=.3 - .5 * b, hp=.6 * b, jaw=.04 + .6 * a, legs={'L': (.13, .3 * a, 0, 1), 'R': (-.13, 0, 0, 1 + .3 * a)},
+    H.pose(dict(hz=.25 * a, th=1.12 - .45 * a, b2=.2 * b, nf=.42 + .25 * b, nu=.3 - .5 * b, hp=.6 * b, jaw=.04 + .36 * a, legs={'L': (.13, .3 * a, 0, 1), 'R': (-.13, 0, 0, 1 + .3 * a)},
       arms={'L': dict(fw=.8 * b, out=.3), 'R': dict(fw=.8 * b, out=.3)}))
   D['packen'] = (1.1, False, 0, packen)
   def uebergang(R, H, t, T):
     k = _sm(t / 3.0); sh = math.sin(t * 31) * .02 * (1 - k) * (1 if t < 2.2 else 0)
     base_h = H.f0['L'].z + H.hl_off['L'].z + (H.L1 + H.L2) * .93
-    H.pose(dict(h=_lerp(base_h * .8, base_h, k), th=_lerp(.5, 1.12, k), bend=_lerp(.35, .12, k), nf=_lerp(.3, .42, k), nu=_lerp(-.2, .3, k), hp=_lerp(.5, 0, k) + sh, hr=sh * 2, jaw=.04 + .55 * math.sin(PI * min(1, t / 2.4)) ** 2,
+    H.pose(dict(h=_lerp(base_h * .8, base_h, k), th=_lerp(.5, 1.12, k), bend=_lerp(.35, .12, k), nf=_lerp(.3, .42, k), nu=_lerp(-.2, .3, k), hp=_lerp(.5, 0, k) + sh, hr=sh * 2, jaw=.04 + .36 * math.sin(PI * min(1, t / 2.4)) ** 2,
       legs={'L': (.15, 0, 0, _lerp(1.3, 1, k)), 'R': (-.15, 0, 0, _lerp(1.3, 1, k))}))
     g_ = _sm((t - .3) / 2.2)
     for nm in ('AntlerL', 'AntlerR'):

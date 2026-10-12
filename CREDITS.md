@@ -169,6 +169,11 @@ Lizenz: https://creativecommons.org/licenses/by/4.0/ · Alle hier genannten Werk
 - Weitere Requisiten (Autowrack, Amtsbus, Schaukel, Möbel u. a.): siehe jeweilige Fab-Seite
 
 ## Eigene Arbeit (Blender)
+- **Wendigo-Formen** (`game/assets/ms/wendigo_hirschding|fleisch|haut|reh|hirsch/model.glb`, Modul `wendigo.js`, Folgeauftrag 8) – eigene Arbeit in Blender 4.5 (`app/tools/blender/wendigo_tiere_bau.py`, `wendigo_hirschding_bau.py`,
+  `wendigo_morphs.py`, `wendigo_clips.py`, `wendigo_details.py`): Basisnetze und Skelett der **PROTOFACTOR Animal Variety Pack**-Tiere `animal_deerdoe` (Reh) und `animal_deerstag` (Hirsch; Fab, Epic-gesponserte
+  „Permanent Collection“), verändert: Fell/Geweih entfernt, Läufe und Hals gestreckt, abgemagert, Pinselmodellierung (Augenhöhlen, Gelenke, Becken), eigenes asymmetrisches Geweih mit Bast, Rippen, Wirbel, Gebiss,
+  Augen, Kiefer-/Geweihknochen, Fleisch-/Haut-/Knochentexturen vollständig rechnerisch erzeugt und gebacken (Normal, Grundfarbe, Rauheit), Morphs (Riss, Knochen, Kopf falsch, Maul, Geweih), 12 + 5 eigene Clips.
+  Keine Fremdtexturen in diesen fünf Modellen außer dem Originalfell von Reh/Hirsch (Animal Variety Pack).
 - **Warnschild „FORBIDDEN DUSTWOODS“** (`game/assets/ms/schild_warn/model.glb`, `gruen.js`): Emailleschild als Blender-Modell, Schrift (Arial) als Geometrie, Rahmen, Abplatzer, Schrauben, halb abgekratztes Auge; `app/tools/blender/schild_warn_bau.py` (nach `schild_bau.py`). **Kioskband Tankstelle Kranz** (`game/assets/ms/schild_band/model.glb`, `ausbau_ost_west.js`; `schild_band_bau.py`): Blechband mit Schrift als Geometrie. **Strichwände Nr. 9** (`fassaden.js`): jeder Strich echte Geometrie statt Canvas-Karte.
 - **Kolkrabe Whiskey und Rabenkrähen** (`game/assets/ms/rabe_whiskey/model.glb`, `game/assets/ms/rabe_kraehe/model.glb`; Module `whiskey.js`, `traum.js`, `menue.js`, `kino.js`, `leben.js`, `hungrige.js`):
   Körper aus dem Museumsscan **„Common raven“** (Corvus corax, Krystyna-und-Włodzimierz-Tomek-Naturkundemuseum Ciężkowice, Inv. MP 040) – Wirtualne Muzea Małopolski, **CC0 1.0**,

@@ -49,13 +49,13 @@ Vorschau: `… -P wendigo_vorschau.py -- <glb> <Präfix> <studio|nacht> <ansicht
 
 ## 3. Leistungsbudget (Soll) und Messwerte der Modelle
 
-| Form | Dreiecke (gemessen, GLB) | Knochen | Texturen | Bemerkung |
+| Form | Dreiecke (gemessen, GLB) | Knochen | Texturen / Materialien | Bemerkung |
 |---|---|---|---|---|
-| hirschding | 16 770 | 34 (31 + Kiefer + 2 Geweih) | 3 × 2048² (Farbe, Normal, Rauheit/AO), 1 Material | 12 eigene Clips, Meta in `scene.extras.motion` |
-| fleisch | 5 416 | 31 | 3 × 2048², 1 Material | Morphs `knochen`, `kopf_falsch`, `maul_auf`; 5 eigene + 22 Original-Clips |
-| haut | 5 416 | 31 | 3 × 2048², 1 Material | wie fleisch |
-| reh | 15 960 (Körper 5 416 + Fell 5 128 + Fleischschicht 5 416) | 31 | Original (Körper, Fell) + 3 × 2048² innen, 3 Materialien | zusätzlich Morph `riss`, Vertexfarbe `Col` |
-| hirsch | 16 074 | 31 | wie reh | zusätzlich Morph `geweih_klein` |
+| hirschding | 20 794 (≤ 25 000 ✓) | 34 (31 + Kiefer + 2 Geweih) | 3 × 2048² (Farbe, Normal, Rauheit/AO), 2 Materialien (Körper, Augen) | 12 eigene Clips (Meta in `scene.extras.motion`), Rippen/Wirbel/Gebiss als Geometrie |
+| fleisch | 7 036 | 31 | 3 × 2048², 1 Material | Rippen/Wirbel als Geometrie; Morphs `knochen`, `kopf_falsch`, `maul_auf`; 5 eigene + 22 Original-Clips |
+| haut | 7 036 | 31 | 3 × 2048², 1 Material | wie fleisch |
+| reh | 16 200 (Körper 5 416 + Fell 5 128 + Fleischschicht 5 416 + Augen) | 31 | Original (Körper, Fell) + 3 × 2048² innen, 4 Materialien | Morphs `riss` (+ `riss_ruecken/_bauch/_flanke/_hals`), `kopf_falsch`, `maul_auf`, `knochen`; milchige Augen; Vertexfarbe `Col` (Blut) |
+| hirsch | 16 314 | 31 | wie reh | zusätzlich `geweih_klein` |
 
 Regeln des Moduls: höchstens **eine** Form sichtbar, **ein** Akteur, Kadaver als eigene Instanz (je ≤ 5 400 Dreiecke, höchstens 2 gleichzeitig, beim Kapitelwechsel entfernt); keine eigenen Shader; keine Lichter; kein
 Schatten (`castShadow = false`); Mixer läuft nur, wenn die Form sichtbar ist; Vorladen nacheinander im Leerlauf (90 s nach Start, 2,5 s Abstand), `renderer.compileAsync` je Modell (Shader-Wache); Decals ≤ 40 (Plane,
@@ -86,27 +86,38 @@ geteilte Geometrie/Material). Erwartete Mehrkosten: ≈ 60–90 MB Grafikspeiche
 ## 6. Offenes (ehrlich)
 
 * **Nicht im Spiel getestet.** Alle Hooks sind aus dem Code gelesen, nicht ausgeführt; Fehler im Takt fängt `try/catch` (setzt das Modul still aus).
-* **Zähne** des Hirschdings fehlen (Platzierung an der Mundspalte nicht sauber gelöst); der Kiefer ist als Knochen (`STAG_-Jaw`) vorhanden, Zähne nachbauen (Blender: Kegelreihen an Kieferkante).
-* **Augen:** Höhlen sind tief modelliert, der Glutpunkt „hinter Milchglas“ fehlt als Teil; im Spiel über `emissive`-Sprite/Mesh in der Höhle setzen (wie `kr_hirschding`: Material `eye`).
+* **Zähne** des Hirschdings: Gebiss vorhanden (zweite Runde), aber Zahnfleisch/Lippen fehlen als Geometrie.
+* **Augen:** Glutkugeln (`wd_auge`, emissiv) in den Höhlen; Milchglas-Optik nicht gesondert modelliert.
 * **Rippen** sind nur als Normalmap (nicht als Silhouette); Silhouette des Rumpfes bleibt Hirschrumpf.
 * **Rig:** Gewichte stammen vom Original (Hals gestreckt: leichte Dehnung am Halsansatz möglich); Kieferknochen mit hartem Übergang; Hufe/Geweih ohne Pendelknochen (Geweihknochen existieren, nur im Clip `uebergang` benutzt).
 * **Clips der Tierformen** sind einfach (Hals/Kopf/Körperhöhe); Beobachten/Lauern/Brüllen/Fressen/Übergang ohne Fußfixierung bei `lauern`.
-* **Mensch im Fenster** (Hofers Gesicht): kein eigenes Modell; Hook `__wd.fenster()` liefert nur Ton/Gedanke; Silhouette über `fensterfigur.js` zu setzen.
-* **Lizenz/Herkunft:** Basisnetze aus `animal_deerdoe`/`animal_deerstag` (bereits im Spiel/CREDITS); Textur, Geweih, Verformung, Rig-Erweiterung, Clips sind eigene Arbeit. CREDITS.md-Eintrag „Wendigo-Formen: eigene Arbeit auf Basis Animal Variety Pack“ ergänzen
-  (CREDITS.md liegt außerhalb des Auftragsumfangs dieses Laufs).
+* **Mensch im Fenster:** über `fensterfigur.js` mit dem vorhandenen Figurenmodell `polizist`; Kopfdrehung und Wirkung im Spiel zu prüfen.
+* **Lizenz/Herkunft:** Basisnetze aus `animal_deerdoe`/`animal_deerstag` (bereits im Spiel/CREDITS); Textur, Geweih, Verformung, Rig-Erweiterung, Clips sind eigene Arbeit. CREDITS.md-Eintrag ist ergänzt.
 
-## 7. Selbstbewertung der Vorschaubilder (Schulnoten; Bilder in `game/assets/ms/wendigo_vorschau/`)
+## 7. Selbstbewertung der Vorschaubilder (Schulnoten; Bilder in `game/assets/ms/wendigo_vorschau/`, Stand 12.10. nach der zweiten Runde)
 
-Maßstab: prägnante Dinge ≥ 2, Unprägnantes 3 erlaubt. Ehrlich: **keine Form erreicht durchgängig die 2; das Hirschding (die prägnanteste Form) steht bei 3+**, die Gründe stehen unter „Mängel“.
+Maßstab: prägnante Dinge ≥ 2, Unprägnantes 3 erlaubt. Die Noten sind meine Einschätzung der Standbilder (Blender-Studio-/Nachtlicht), nicht der Bewegung im Spiel.
 
-| Form | Bild(er) | Gesamt | Silhouette/Pose | Material/Textur | Gesicht/Kopf | Mängel (Nacharbeit) |
+| Form | Bild(er) | Gesamt | Silhouette/Pose | Material/Textur | Gesicht/Kopf | Rest-Mängel |
 |---|---|---|---|---|---|---|
-| hirschding | `hirschding_stehen_{seite,34,vorn,kopf,geweih}`, `_gehen_34`, `_schrei_34`, `_sturm_34`, `_lauern_34`, `_uebergang_34`, `_nacht_{34,kopf}`, `_ruhe_{34,hinten}` | **3+** | 2 (aufrecht, lange Glieder, Geweih groß/schief; Posen glaubwürdig) | 3 (Muskel/Fasziennetz sauber, aber gleichförmig; Geweih einfarbig) | 3 (Schädel organisch, Augenhöhlen tief; **Zähne und Glutaugen fehlen**, Kiefer wirkt wie Lappen) | Zähne, Augenglut, Geweih-Farbvariation/Bast kräftiger, Rippensilhouette, Fingerhufe, Gewichte Kiefer |
-| fleisch | `fleisch_{34,seite,kopf}`, `_nacht_34`, `_bruellen_34` | 2− (Ferne) / 3 (Nahaufnahme) | 3 (Reh-Silhouette, keine Rippen) | 2 | 3 | Rippenrelief als Geometrie, Lippen weg/Zähne, Wunde mit Knochen |
-| haut | `haut_{34,kopf}`, `_nacht_34` | 3 | 3 | 3 (zu gleichmäßig, Blutergüsse rosa) | 3 | Falten stärker, lose Haut als Geometrie, Bauchnaht |
-| reh | `reh_{34,kopf}`, `_nacht_34`, `_uebergang_34` | 2− (Tier) / 3 (als Wendigo-Form) | 2 | 2 (Original-Fell) | 2 | milchige Augen, Blutflecken sind Vertexfarbe (in Blender-Vorschau unsichtbar, im Spiel sichtbar prüfen) |
-| hirsch | `hirsch_{34,geweih}`, `_nacht_34`, `_uebergang_34` | 2− / 3 | 2 | 2 | 2 | Bast-Streifen am Original-Geweih fehlen (nur am Hirschding), Geweih-Wachstum als Skalierung |
-| Übergänge (Morphs/Clips) | `reh_uebergang_34`, `hirsch_uebergang_34`, `hirschding_uebergang_34` | 3 | | | | Rissmorph öffnet nur die Rückenlinie; kein Haut-Fetzen-Partikel; Clip `uebergang` einfach |
-| Animationen | `hirschding_*` | 3 | Bewegung aus Clip-Posen mit IK/Gangplaner geprüft (Standbilder), **nicht in Bewegung/Spiel gesehen** | | | Fußgleiten ungemessen |
+| **hirschding** (prägnant) | `hirschding_stehen_{seite,34,vorn,kopf,geweih}`, `_gehen_34`, `_schrei_34`, `_sturm_34`, `_lauern_34`, `_uebergang_34`, `_nacht_{34,kopf}`, `_ruhe_{34,hinten}` | **2−** | 2 (aufrecht, gestreckter Hals/Läufe, Rippen und Wirbel als Geometrie, großes asymmetrisches Geweih) | 2−/3 (Fleisch-/Faszienzellen organisch verzerrt, Geweih mit Schlieren/Blut, Adern/Nässe gering) | 2−/3 (tiefe Höhlen, Schädelknochen freigelegt, unregelmäßiges Gebiss mit Lücken, Glutaugen; Kiefer als Lappen nicht ganz weg, Zahnfleisch fehlt als Geometrie) | Augenglut in Studiolicht rosa (erst im Dunkeln stimmig), Schnauze nur gestreckt, keine Muskelstränge als Geometrie (Versuch verworfen: rissen im Clip „schrei“) |
+| fleisch | `fleisch_{34,seite,kopf}`, `_nacht_34`, `_bruellen_34` | 3 (Ferne 2−) | 3 (Rippen als gerade Stäbe, unnatürlich regelmäßig) | 2 | 3 | Rippen als gebogene, schräge Bögen mit Knorpel; Zähne/Lippenreste |
+| haut | `haut_{34,kopf}`, `_nacht_34` | 3 | 3 | 3 (grau, aber weich, Blutergüsse wenig) | 3 | Falten als Geometrie, Bauchnaht, Texturvariation |
+| reh (Tier / als Wendigo-Form) | `reh_{34,kopf}`, `_nacht_34`, `_uebergang_{34,seite}` | 2 / 3 | 2 | 2 (Original-Fell) | 2 (milchige Augen klein, in Blender-Vorschau kaum lesbar) | Blutflecken sind Vertexfarbe (Vorschau unsichtbar), Risse über Bauch/Flanke/Hals existieren (je 90–215 bewegte Punkte), wirken bei der groben Netzdichte schwach |
+| hirsch (Tier / als Wendigo-Form) | `hirsch_{34,geweih}`, `_nacht_34`, `_uebergang_{34,seite}` | 2 / 3 | 2 | 2 | 2 | wie reh; Bast nur am Hirschding |
+| Übergänge (Morphs/Clips) | `*_uebergang_*` | 3 | | | | zusammenhängend als Clip `uebergang` (Riss → Knochen → Kopf falsch → Maul → Geweih wächst); optisch dezent |
+| Animationen Hirschding | `hirschding_*` (Clip-Posen) | 2− (Standbild) | Fußplanung über Gangplaner/IK; Bewegung **nicht gesehen** | | | Fußgleiten ungemessen |
 
-Punkte mit Note ≥ 4: keine; **offen mit Note 3 bei prägnanten Dingen** (Hirschding Kopf, Material): im Integrationslauf mit Kontaktbogen aus 3/6/12 m nachbessern.
+**Ergebnis:** Das Hirschding erreicht nach der zweiten Runde in meiner Bewertung knapp die 2 (2−). **Offen mit Note 3:** Fleisch und Haut (Rippenbögen, Haut-Detail) – sie sind nur Zwischenformen, aber in Kap. 6 sichtbar; die Ursache ist die Netzdichte der Basistiere
+(5 416 Dreiecke) und die rein rechnerische Textur ohne Fotovorlage. Reh/Hirsch als *Wendigo-Form* bleiben bei 3: ihre Wirkung hängt am Zusammenspiel der Morphs im Spiel.
+
+## 8. Zweite Runde (12.10., Auftrag des Koordinators) – was sich geändert hat
+
+* **Hirschding:** Rumpf verdichtet, Pinsel für tiefe Augenhöhlen/Nasenöffnung/Schnauzenseite, Schnauze gestreckt, freiliegender Schädelknochen (Fleck-Maske), unregelmäßiges Gebiss aus den Grenzpunkten Kopf/Kiefer (Lücken, schief, 3–7,5 cm), Glutaugen (eigenes Material `wd_auge`), 10 Rippenbögen
+  je Seite + 12 Dornfortsätze als Geometrie (aus dem Körper gemessen, mit den Hautgewichten des nächsten Körperpunktes), Geweihfarbe (Knochenweiß, Trockenblut-Schlieren, Blut an Spitzen/Ansatz), Kiefer-Rotation korrigiert (Fehler: Kieferknochen wurde absolut statt relativ zur Ruhelage gesetzt → Lappen).
+* **Fleisch/Haut:** Rippenbögen + Wirbel als Geometrie, Haut-Farbe weniger rosa, Blutflecken zurückgenommen.
+* **Reh/Hirsch:** milchige Augen (eigene Kugeln), Morphs `riss_ruecken`, `riss_bauch`, `riss_flanke`, `riss_hals` (+ `riss` als Summe), stärkerer `kopf_falsch` (Yaw 1,1 rad, Roll 0,65, Neigung 0,25, Streckung), Fleischschicht an den Läufen tiefer (kein Rot durch die Haut).
+* **Mensch im Fenster:** `wd_fensterHofer()` in `wendigo.js`: nutzt `fensterfigur.js` (`ff_neu`, Figur `polizist` = Körper „Mall Cop“, das Hofer-Modell aus `figuren.js`), Kopf per `anim_ueber` 2,1 rad zu weit gedreht, ohne Mikroatmung, 3,4 s sichtbar; Hook `__wd.fenster()`. **Ungetestet** (kein Spiel).
+* **Übergangskette** `__wd.uebergang('reh', 'fleisch', true)`: Clip `uebergang` (Riss/Knochen/Geweih) → Fleisch → Hirschding (`uebergang`/`aufstieg`).
+* **CREDITS.md:** Eintrag „Wendigo-Formen“ ergänzt.
+* **KTX2:** nicht erzeugt – eine Spielinstanz (`normal1`) lief bei der Prüfung (`_live.sh status`). Nach Freigabe: `cd app && node tools/ktx.mjs`.

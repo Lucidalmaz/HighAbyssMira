@@ -64,7 +64,7 @@ def flesh_fields(P, N, arm, style):
   rib = (.5 + .5 * np.cos((ry - sp[1]) / .052 * 2 * np.pi + .6 * fb)) ** 3
   # Knochenmaske: Rippenkämme, Wirbelsäule, Beckenspitzen, Gelenke, Schädel vorn
   spine = sstep(.035, .012, rx) * sstep(hip[2] + .02, hip[2] + .10, rz) * sstep(hd[1] + .1, hd[1] + .4, ry)
-  skull = sstep(hd[1] + .15, hd[1] + .02, ry) * sstep(hd[2] - .12, hd[2] + .05, rz) * .28 * sstep(.4, .7, fn)
+  skull = sstep(hd[1] + .15, hd[1] + .02, ry) * sstep(hd[2] - .12, hd[2] + .05, rz) * (.28 + .5 * sstep(.45, .7, fbm(P * 11, 3, 31))) * sstep(.35, .65, fn + .25 * fbm(P * 20, 2, 33))
   pelvic = np.exp(-(((rx - .11) / .06) ** 2 + ((ry - hip[1]) / .08) ** 2 + ((rz - hip[2] - .08) / .08) ** 2))
   low = sstep(.12, .03, rz)  # Hufe/Fesseln unten
   joint = sstep(.06, .0, np.abs(rz - .47)) * .0
@@ -185,7 +185,7 @@ def export_glb(path, objs):
   log('GLB', path, '%.1f MB' % (os.path.getsize(path) / 1e6))
 
 # ================================================================ Formen
-def build_fleisch(kind='doe', style='fleisch', tag='fleisch', apply_to_arm=True):
+def build_fleisch(kind='doe', style='fleisch', tag='fleisch', apply_to_arm=True, ribs=False):
   arm, me = load_base(kind); strip_fur(me)
   if kind == 'stag':
     bm = bmesh.new(); bm.from_mesh(me.data); bm.verts.ensure_lookup_table()
@@ -203,18 +203,27 @@ def build_fleisch(kind='doe', style='fleisch', tag='fleisch', apply_to_arm=True)
     bmesh.ops.delete(bm, geom=kill, context='VERTS'); bm.to_mesh(me.data); bm.free(); me.data.update()
   weld(me)
   P = verts_np(me, False); Nn = normals_np(me); apply_feats(P, Nn, doe_features(arm)); set_verts(me, P); smooth(me)
+  hi = make_hi(me, arm, style, HI_LEVEL)
+  if ribs:   # Rippen und Dornfortsätze als Geometrie (Silhouette), eigene hohe Fassung
+    off, rad = (.006, .011) if style == 'fleisch' else (.0, .0095)
+    rl, rh = rib_parts(me, arm, 9, off, rad); skin_like(rl, me)
+    for o in rh: hi_part(o, 0.55 if style == 'fleisch' else 0.0, .2, 0., .0012, 5); o.data.materials.clear(); o.data.materials.append(hi.data.materials[0])
+    hi = merge([hi] + rh, 'hi_r'); me = merge([me] + rl, me.name); smooth(me)
+    me.parent = arm; me.matrix_parent_inverse = Matrix.Identity(4)
+    if not any(m_.type == 'ARMATURE' for m_ in me.modifiers):
+      m_ = me.modifiers.new('Armature', 'ARMATURE'); m_.object = arm
   uv_unwrap(me)
   log(tag, 'Körper', tris(me), 'Dreiecke')
-  hi = make_hi(me, arm, style, HI_LEVEL)
   return arm, me, hi
 
 exec(open(os.path.join(HERE, 'wendigo_morphs.py'), encoding='utf8').read())
 exec(open(os.path.join(HERE, 'wendigo_hirschding_bau.py'), encoding='utf8').read())
 exec(open(os.path.join(HERE, 'wendigo_clips.py'), encoding='utf8').read())
+exec(open(os.path.join(HERE, 'wendigo_details.py'), encoding='utf8').read())
 
 def main():
   if FORM in ('fleisch', 'haut'):
-    arm, me, hi = build_fleisch('doe', FORM, FORM)
+    arm, me, hi = build_fleisch('doe', FORM, FORM, ribs=True)
     c, n, orm = bake_set(me, hi, FORM)
     bpy.data.objects.remove(hi, do_unlink=True)
     final_material(me, c, n, orm, FORM)
@@ -230,11 +239,23 @@ def main():
     export_glb(OUTDIR + 'model.glb', [arm, me, mf])
   elif FORM in ('hd_form', 'hirschding'):
     arm, me, W_ = build_hirschding()
-    hib = make_hi(me, arm, 'fleisch', HI_LEVEL) if FORM == 'hirschding' else None   # Körper getrennt hochrechnen (vor der Verdichtung)
-    densify(me, .5)
+    hib = make_hi(me, arm, 'fleisch', max(2, HI_LEVEL - 1)) if FORM == 'hirschding' else None   # Körper getrennt hochrechnen
     low_parts, hi_parts = finish_hirschding(arm, me, W_)
-    zm, ab = jaw_and_bones(arm, me, low_parts)
+    zm, ab, jw, tip = jaw_and_bones(arm, me, low_parts)
     assign_parts(low_parts, arm, ab, zm)
+    # Gesicht und Rumpf: Rippen, Wirbel, Gebiss (Lücken, schief), Sehnenstränge am Kiefer
+    rl, rh = rib_parts(me, arm, 10, .008, .013); skin_like(rl, me)
+    tl, th = teeth_from_boundary(me, arm, zm, tip, jw, np.random.RandomState(4)); skin_like(tl, me)
+    hd_ = bone_pos(arm, '-Head'); hinge = np.array([0, hd_[1] + .02, zm - .02]); chin = np.array([0, tip + .06, zm - .05])
+    pairs = []
+    for s_ in (1, -1):
+      pairs.append(((s_ * .085, hd_[1] + .06, hd_[2] + .03), (s_ * .03, chin[1], chin[2]), (s_, 0, -.2)))
+      pairs.append(((s_ * .07, hd_[1] - .02, hd_[2] - .05), (s_ * .035, tip + .10, zm - .03), (s_, 0, 0)))
+    cl, ch = [], []   # Sehnenstränge als Geometrie verworfen (Gewichte rissen im Clip „schrei“); Fasern/Sehnen stecken in Textur und Normalmap
+    for o in rh: hi_part(o, .62, .25, 0., .0012, 5)
+    for o in th: hi_part(o, 1., .05, 0., .0015, 11)
+    for o in ch: hi_part(o, 0., .15, .85, .001, 13)
+    low_parts += rl + tl + cl; hi_parts += rh + th + ch
     log('Körper', tris(me), 'Dreiecke; Teile', sum(tris(o) for o in low_parts))
     if FORM == 'hd_form':
       bpy.ops.wm.save_as_mainfile(filepath=W + 'hd_form.blend')
@@ -250,6 +271,12 @@ def main():
     hi_all = merge([hib] + hi_parts, 'hi_all')
     c, n, orm = bake_set(low, hi_all, 'hirschding'); bpy.data.objects.remove(hi_all, do_unlink=True)
     final_material(low, c, n, orm, 'hirschding')
+    eyes = eye_parts(arm, hd_, .07, -.125, .03, .02, True)
+    for e_ in eyes:
+      vg = e_.vertex_groups.new(name=[g.name for g in low.vertex_groups if g.name.endswith('-Head')][0]); vg.add(list(range(len(e_.data.vertices))), 1.0, 'REPLACE')
+    low = merge([low] + eyes, 'wendigo_hirschding'); low.parent = arm; low.matrix_parent_inverse = Matrix.Identity(4)
+    if not any(m_.type == 'ARMATURE' for m_ in low.modifiers):
+      m_ = low.modifiers.new('Armature', 'ARMATURE'); m_.object = arm
     arm.data.pose_position = 'POSE'; R, Hh, meta = build_clips(arm)
     log('Clips', list(meta))
     bpy.ops.wm.save_as_mainfile(filepath=W + 'hirschding.blend')
