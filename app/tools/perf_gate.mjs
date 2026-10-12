@@ -130,7 +130,8 @@ const step = (name, js, wait = 100, timeout) => ({ name, js, shot: false, wait, 
 async function restartInstance(dir) {
   const t0 = Date.now(); bash(`bash ${LIVE_SH} stop`); await sleep(3000);
   for (let i = 0; i < 30; i++) { const l = cp.spawnSync('tasklist', ['/fo', 'csv', '/nh'], { encoding: 'utf8' }).stdout || ''; if (!/"electron\.exe"/i.test(l)) break; await sleep(1000); }
-  const r = bash(`bash ${LIVE_SH} start normal`); const st = statusOf(dir);
+  const r = bash(`bash ${LIVE_SH} start normal`); let st = statusOf(dir);
+  for (let i = 0; i < 90 && !/bereit|läuft/.test(st.state || ''); i++) { await sleep(2000); st = statusOf(dir); } // status.json wird nach der Ausgabe von „bereit“ noch nachgeführt
   if (!/bereit|läuft/.test(st.state || '')) throw new Error('Neustart: Instanz nicht bereit: ' + (r.stdout || '').slice(-200));
   return { ok: true, seconds: +((Date.now() - t0) / 1000).toFixed(1), start: st.startSeconds, mode: 'neustart' };
 }
