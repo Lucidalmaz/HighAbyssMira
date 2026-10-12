@@ -50,7 +50,7 @@ function vram_diet() {
     try { if (!g.boundingBox) g.computeBoundingBox(); e.bb = g.boundingBox; const uv = g.attributes && g.attributes.uv;
       if (uv && uv.array && uv.count) { let a = 1e9, b = -1e9, c = 1e9, d = -1e9; const A = uv.array, st = uv.itemSize || 2, step = Math.max(1, Math.floor(uv.count / 20000));
         for (let i = 0; i < uv.count; i += step) { const x = A[i * st], y = A[i * st + 1]; if (x < a) a = x; if (x > b) b = x; if (y < c) c = y; if (y > d) d = y; }
-        e.u = Math.max(.05, Math.min(64, Math.max(b - a, d - c))); } } catch (er) {} GE.set(g, e); return e; };
+        e.u = Math.max(.05, Math.min(64, Math.max(b - a, d - c))); } } catch (er) {} g.__vu = e.u; GE.set(g, e); return e; };
   scene.updateMatrixWorld(true);
   scene.traverse(o => {
     if (!o.isMesh || !o.geometry || !o.material || o.isBatchedMesh) return; const haut = !!o.isSkinnedMesh;

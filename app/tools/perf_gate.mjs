@@ -5,6 +5,10 @@
 //   node app/tools/perf_gate.mjs --write-baseline schreibt die Messwerte dieses Laufs als neue Referenz (nur nach bewusster Verbesserung!)
 //   node app/tools/perf_gate.mjs --cold           vorher Instanz beenden, GPU-/Shader-Cache des Testprofils leeren, frisch starten (kalte Ladezeit)
 //   node app/tools/perf_gate.mjs --start          startet die Instanz, falls keine läuft (sonst Abbruch mit Hinweis)
+//   node app/tools/perf_gate.mjs --runs=1         nur ein Messlauf (Entwicklung; Standard sind 3 Läufe mit Median nach einem Vorlauf)
+//   node app/tools/perf_gate.mjs --no-quiet       ohne Ruhe-Erkennung (Standard: warten, bis CPU-Fremdlast < 15 % und kein blender/ktx-Prozess läuft, max. 10 min)
+// STABILITÄT (12.10.2026): (1) Ruhe-Erkennung vor jedem Lauf, (2) ein ungemessener Vorlauf (Neuladen) wärmt GPU-Shader-Cache und Dateicache, (3) drei Messläufe, verglichen wird der MEDIAN
+// je Messgröße; ein Lauf, in dem währenddessen Fremdlast auftrat, wird einmal wiederholt.
 // Regel: Jeder Block (Requisiten, Räume, Wendigo, Items, Modelle …) muss dieses Gate vor Commit/Release bestehen. Siehe docs/gameplay/performance_budget.md.
 import fs from 'fs';
 import os from 'os';
@@ -21,6 +25,32 @@ const LAST = path.join(HERE, 'perf_last.json');
 const args = new Set(process.argv.slice(2));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const bash = c => cp.spawnSync('bash', ['-c', c], { encoding: 'utf8' });
+const argNum = (n, d) => { const a = process.argv.slice(2).find(x => x.startsWith('--' + n + '=')); return a ? +a.split('=')[1] : d; };
+
+// ---------- Ruhe-Erkennung: Fremdlast = CPU-Zeit aller Prozesse außer dem Spiel (electron) / Leerlauf, in % der Gesamtleistung
+const BLOCKER = /^(blender|blender-launcher|ktx|toktx|basisu|ktx2-encoder|ffmpeg|whisper|piper|tts)(\.exe)?$/i;
+const NOISE_MAX = 15, QUIET_S = 30, QUIET_MAX_MIN = 10;
+function externalLoad() {
+  const r = cp.spawnSync('powershell', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command',
+    "$c=(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors; $p=Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Where-Object { $_.Name -ne '_Total' -and $_.Name -ne 'Idle' -and $_.Name -notmatch '^electron' -and $_.Name -notmatch '^(powershell|node|conhost)' }; " +
+    "$s=($p | Measure-Object PercentProcessorTime -Sum).Sum; Write-Output ([math]::Round($s/$c,1).ToString([cultureinfo]::InvariantCulture))"], { encoding: 'utf8' });
+  const v = parseFloat(String(r.stdout || '').trim());
+  const procs = cp.spawnSync('tasklist', ['/fo', 'csv', '/nh'], { encoding: 'utf8' }).stdout || '';
+  const blockers = [...new Set(procs.split(/\r?\n/).map(l => (l.split('","')[0] || '').replace(/"/g, '')).filter(n => BLOCKER.test(n)))];
+  return { cpu: Number.isFinite(v) ? v : 0, blockers };
+}
+async function waitQuiet(label) {
+  if (args.has('--no-quiet')) return { waited: 0, quiet: null };
+  const t0 = Date.now(); let okSince = null, last = null;
+  for (;;) {
+    last = externalLoad(); const ruhig = last.cpu < NOISE_MAX && !last.blockers.length;
+    if (ruhig) { if (okSince === null) okSince = Date.now(); if (Date.now() - okSince >= QUIET_S * 1000) return { waited: Math.round((Date.now() - t0) / 1000), quiet: true, cpu: last.cpu }; }
+    else okSince = null;
+    if (Date.now() - t0 > QUIET_MAX_MIN * 60000) { console.log(`  [${label}] Rechner nicht ruhig nach ${QUIET_MAX_MIN} min (Fremdlast ${last.cpu} %, ${last.blockers.join(',') || 'keine Blocker'}): messe trotzdem, Lauf gilt als „unruhig“`); return { waited: Math.round((Date.now() - t0) / 1000), quiet: false, cpu: last.cpu, blockers: last.blockers }; }
+    await sleep(2000);
+  }
+}
+const median = a => { const s = a.filter(v => v !== null && v !== undefined && Number.isFinite(v)).sort((x, y) => x - y); return s.length ? (s.length % 2 ? s[s.length >> 1] : +((s[s.length / 2 - 1] + s[s.length / 2]) / 2).toFixed(1)) : null; };
 
 // ---------- feste Messpunkte (Reihenfolge ist Teil des Vertrags: Villa/Amt zuletzt, weil sie Kapitelauslöser berühren können)
 // (x, y, z, Blick x, y, z) – Werte aus den bisherigen Messläufen (_int1_steps.json, _abn56_fps.json)
@@ -93,19 +123,20 @@ function vramMB() {
 }
 const step = (name, js, wait = 100, timeout) => ({ name, js, shot: false, wait, ...(timeout ? { timeout } : {}) });
 
-async function main() {
-  const dir = await ensureInstance();
-  const lib = fs.readFileSync(path.join(HERE, 'perf_gate_page.js'), 'utf8');
-  const M = {}; const info = { start: new Date().toISOString(), instanz: path.basename(dir) };
+async function reloadPage(dir) {
+  const rj = path.join(dir, 'reload.json'); fs.rmSync(rj, { force: true });
+  fs.writeFileSync(path.join(dir, 'in', 'reload.tmp'), ''); fs.renameSync(path.join(dir, 'in', 'reload.tmp'), path.join(dir, 'in', 'reload.cmd'));
+  const t0 = Date.now(); while (!fs.existsSync(rj) && Date.now() - t0 < 900000) await sleep(500);
+  if (!fs.existsSync(rj)) throw new Error('Neuladen ohne Ergebnis'); const r = JSON.parse(fs.readFileSync(rj, 'utf8'));
+  if (!r.ok) throw new Error('Neuladen-Zeitlimit'); return r;
+}
+async function measureOnce(dir, lib) {
+  const M = {}; const info = { start: new Date().toISOString(), instanz: path.basename(dir), noise: [] };
+  const noisy = tag => { if (args.has('--no-quiet')) return; const l = externalLoad(); info.noise.push([tag, l.cpu, l.blockers.join(',')]); };
 
   // 1) Neu laden (frischer Zustand) → Ladezeit
-  if (!args.has('--no-reload')) {
-    const rj = path.join(dir, 'reload.json'); fs.rmSync(rj, { force: true });
-    fs.writeFileSync(path.join(dir, 'in', 'reload.tmp'), ''); fs.renameSync(path.join(dir, 'in', 'reload.tmp'), path.join(dir, 'in', 'reload.cmd'));
-    const t0 = Date.now(); while (!fs.existsSync(rj) && Date.now() - t0 < 600000) await sleep(500);
-    if (!fs.existsSync(rj)) throw new Error('Neuladen ohne Ergebnis'); info.reload = JSON.parse(fs.readFileSync(rj, 'utf8'));
-    if (!info.reload.ok) throw new Error('Neuladen-Zeitlimit');
-  }
+  if (!args.has('--no-reload')) info.reload = await reloadPage(dir);
+  noisy('nach Neuladen');
   // Ladeprotokoll: __log hat „Phase @12.3s“ je Abschnitt
   const L = await runSteps(dir, 'pg_log_' + Date.now(), [step('log', 'JSON.stringify({ log: window.__log || [], started: !!G.state.started })')]);
   const lg = JSON.parse(L.log); const at = re => { const e = lg.log.find(s => re.test(s)); return e ? +/@([\d.]+)s/.exec(e)[1] : null; };
@@ -122,7 +153,7 @@ async function main() {
       window.__testMove = true; const st = document.getElementById('start'); st && st.classList.remove('show'); G.menu && (G.menu.attract = false); document.body.classList.remove('menu');
       await pg.W(8000); /* wie im Betrieb: Menü steht einige Sekunden, bevor „Neues Spiel“ geklickt wird (Nachbilder/Programme übersetzen dort) */ const i0 = pg.mark(), p0 = pg.info().programs, la = pg.progLater(); G.beginGame(); await pg.W(60000); const s = pg.stat(i0);
       return JSON.stringify({ s, newPrograms: pg.info().programs - p0, later: pg.progLater() - la, heap: pg.heapMB() }); })()`, 100, 120000)]);
-    const n = JSON.parse(R.ng); M.ng_p95 = n.s.p95; M.ng_worst = n.s.worst; M.ng_over100 = n.s.over100; info.newGame = n;
+    noisy('Neues Spiel'); const n = JSON.parse(R.ng); M.ng_p95 = n.s.p95; M.ng_worst = n.s.worst; M.ng_over100 = n.s.over100; info.newGame = n;
     // Intro/Gespräch beenden, damit die Messpunkte nicht von einer Sequenz blockiert werden
     await runSteps(dir, 'pg_ng2_' + Date.now(), [step('clean', `(async () => { const s = document.getElementById('introSeq'); s && s.classList.remove('show'); G.state.talking = false; try { if (window.__kino && __kino.busy()) { __kino.S.T = 99; __kino.skip(); } } catch (e) {} await __pg.W(3000); return 'ok'; })()`)]);
   } else info.newGame = 'übersprungen (Spiel lief schon)';
@@ -133,7 +164,7 @@ async function main() {
   for (const [n, x, y, z, lx, ly, lz] of PT) {
     const r = await runSteps(dir, 'pg_pt_' + n + '_' + Date.now(), [step(n, `(async () => { return JSON.stringify(await __pg.point(${JSON.stringify(n)}, ${x}, ${y}, ${z}, ${lx}, ${ly}, ${lz})); })()`, 100, 120000)]);
     const p = JSON.parse(r[n]); pts.push(p);
-    p.vramMB = vramMB(); M[n + '_vram'] = p.vramMB;
+    p.vramMB = vramMB(); M[n + '_vram'] = p.vramMB; noisy(n);
     M[n + '_p95'] = p.steady.p95; M[n + '_worst'] = Math.max(p.arrival.worst, p.steady.worst); M[n + '_calls'] = p.calls; M[n + '_tris'] = p.tris;
   }
   info.points = pts;
@@ -141,12 +172,39 @@ async function main() {
   M.vram_mb = vramMB(); M.heap_mb = fin.heap; M.tex_mb = fin.tex.mb; M.textures = fin.i.textures; M.geometries = fin.i.geometries; M.programs = fin.i.programs;
   M.recompiles = Math.max(0, fin.i.programs - prog0.p) + Math.max(0, fin.later - prog0.l);
   info.fin = fin;
-
-  fs.writeFileSync(LAST, JSON.stringify({ info, metrics: M }, null, 1));
-  report(M, info);
+  return { M, info };
 }
 
-function report(M, info) {
+async function main() {
+  const dir = await ensureInstance();
+  const lib = fs.readFileSync(path.join(HERE, 'perf_gate_page.js'), 'utf8');
+  const runs = args.has('--no-reload') ? 1 : argNum('runs', 3);
+  const all = []; const meta = { start: new Date().toISOString(), runs, quiet: [] };
+  if (!args.has('--no-reload') && !args.has('--no-warmup') && runs > 1) {
+    // ungemessener Vorlauf: warmer GPU-Shader-Cache, Dateicache, JIT – verfälscht sonst den ersten Messlauf
+    const q = await waitQuiet('Vorlauf'); meta.quiet.push(q); console.log(`Vorlauf (Neuladen, nicht gemessen) … Ruhe: ${q.quiet === null ? 'aus' : q.quiet ? 'ok nach ' + q.waited + ' s' : 'NICHT erreicht'}`);
+    const t0 = Date.now(); await reloadPage(dir); console.log(`  Vorlauf fertig nach ${Math.round((Date.now() - t0) / 1000)} s`);
+  }
+  for (let i = 1; i <= runs; i++) {
+    let tries = 0;
+    for (;;) {
+      const q = await waitQuiet('Lauf ' + i); meta.quiet.push(q);
+      console.log(`Messlauf ${i}/${runs} … Ruhe: ${q.quiet === null ? 'aus' : q.quiet ? 'ok nach ' + q.waited + ' s (Fremdlast ' + q.cpu + ' %)' : 'NICHT erreicht'}`);
+      const t0 = Date.now(); const r = await measureOnce(dir, lib);
+      const post = args.has('--no-quiet') ? { cpu: 0, blockers: [] } : externalLoad(); r.info.fremdlastNach = post; const nmax = Math.max(post.cpu, ...r.info.noise.map(x => x[1])); r.info.noiseMax = nmax;
+      console.log(`  Lauf ${i} fertig nach ${Math.round((Date.now() - t0) / 1000)} s: Ladezeit ${r.M.load_s} s, Kreuzung p95 ${r.M.kreuzung_p95} ms, Grafikspeicher ${r.M.vram_mb} MB (Fremdlast danach ${post.cpu} %${post.blockers.length ? ', ' + post.blockers.join(',') : ''})`);
+      if ((nmax >= 22 || post.blockers.length || r.info.noise.some(x => x[2])) && tries < 2 && !args.has('--no-quiet')) { tries++; console.log(`  gestört (Fremdlast bis ${nmax} % während des Laufs${post.blockers.length ? ', ' + post.blockers.join(',') : ''}) → Lauf wird wiederholt (${tries}/2)`); continue; }
+      all.push(r); break;
+    }
+  }
+  const keys = [...new Set(all.flatMap(r => Object.keys(r.M)))];
+  const M = {}; for (const k of keys) M[k] = median(all.map(r => r.M[k]));
+  const info = { ...all[all.length - 1].info, meta, runs: all.map(r => ({ M: r.M, start: r.info.start, stages: r.info.stages, newGame: r.info.newGame, fremdlastNach: r.info.fremdlastNach, noiseMax: r.info.noiseMax })) };
+  fs.writeFileSync(LAST, JSON.stringify({ info, metrics: M }, null, 1));
+  report(M, info, all);
+}
+
+function report(M, info, all = []) {
   if (args.has('--write-baseline')) {
     const metrics = {}; for (const k in M) if (M[k] !== null) metrics[k] = { value: M[k], ...TOL[k] };
     fs.writeFileSync(BASELINE, JSON.stringify({ geschrieben: info.start, hinweis: 'Referenz des Leistungs-Gates; nur nach bewusster, gemessener Verbesserung neu schreiben (perf_gate.mjs --write-baseline).', metrics }, null, 1));
@@ -157,10 +215,12 @@ function report(M, info) {
   for (const k of Object.keys(B)) {
     const b = B[k], v = M[k]; const tol = TOL[k] || b; const lim = +(b.value * (1 + (tol.rel ?? b.rel ?? 0)) + (tol.abs ?? b.abs ?? 0)).toFixed(1);
     const fail = v === null || v === undefined ? true : v > lim; if (fail) bad++;
-    rows.push([fail ? 'FEHLER' : 'ok', (tol.label || k).slice(0, 46).padEnd(46), String(b.value).padStart(9), String(v ?? '–').padStart(9), String(lim).padStart(9), tol.unit || '']);
+    const einzel = all.length > 1 ? '  [' + all.map(r => r.M[k] ?? '–').join(' / ') + ']' : '';
+    rows.push([fail ? 'FEHLER' : 'ok', (tol.label || k).slice(0, 46).padEnd(46), String(b.value).padStart(9), String(v ?? '–').padStart(9), String(lim).padStart(9), (tol.unit || '').padEnd(3) + einzel]);
   }
   console.log('\nLEISTUNGS-GATE  (Referenz ' + fs.statSync(BASELINE).mtime.toISOString().slice(0, 16) + ')');
-  console.log(['     ', 'Messwert'.padEnd(46), 'Referenz'.padStart(9), 'jetzt'.padStart(9), 'Grenze'.padStart(9)].join('  '));
+  console.log(`(Median aus ${all.length} Lauf/Läufen; Einzelwerte in eckigen Klammern)`);
+  console.log(['     ', 'Messwert'.padEnd(46), 'Referenz'.padStart(9), 'Median'.padStart(9), 'Grenze'.padStart(9)].join('  '));
   for (const r of rows) console.log(r.join('  '));
   console.log(bad ? `\nGATE NICHT BESTANDEN: ${bad} Wert(e) über der Grenze.` : '\nGATE BESTANDEN.');
   process.exit(bad ? 1 : 0);
