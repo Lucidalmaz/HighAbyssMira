@@ -67,6 +67,21 @@ RD.bau.kapelle = async c => { const r = c.r, S = rd_sammler(c), cx = (r.x0 + r.x
   for (let i = 0; i < 7; i++) for (const sx of [-1, 1]) { if ((i * 3 + (sx > 0 ? 1 : 0)) % 4 === 0) continue; await c.A('buchL', cx + sx * 1.7 + sx * ((i * 7) % 5) * .05, r.z0 + 2.2 + i * 1.38 + ((i * 3) % 4) * .03, { r: .12, min: .3, max: .7, ry: i * 1.3 + sx }); } // Gesangbücher auf den Bänken, nicht auf jeder
   await c.b('tafel', r.x0 + 1.1, r.z0 + 3.4, { r: .4, ry: PI / 2 + .3 });                                          // Liednummern-Tafel neben der ersten Bank
   for (const dz of [2.2, 5.6, 9.0]) { const z = r.z0 + dz; await c.fix('kaefiglampe', cx, c.y0 + 4.5, z, { ry: dz }); c.kabel([[cx, c.y0 + 6.0, z], [cx + .01, c.y0 + 5.2, z], [cx, c.y0 + 4.82, z]], .006); } // Pendelleuchten über dem Mittelgang, stromlos
+  // 12.10.2026 Architektur (Kapelle war die nackte Quaderhülle mit Putzwänden, Note 3): Holzvertäfelung mit Handlauf, Wandpfeiler mit Sockel und Kapitell, Deckenbalken über den Pfeilern,
+  // Chorbogen (zwei Pfeiler + Sturzbalken) vor dem Altar, Steinplatten-Streifen im Mittelgang. Alles aus Scan-Oberflächen (Holz, Putz), zusammengefasst (3 Zeichenaufrufe), ohne Kollision (Wandstärken ≤ 12 cm).
+  { const y0 = c.y0, H = c.H || 6, wood = rd_mat('rdt_old_wooden_floor_02', { tint: 0x8a7a68, nrm: .5, rough: .75 }), wood2 = rd_mat('rdt_wood_floor_worn', { tint: 0x6e6256, nrm: .5, rough: .8 }), stone = rd_mat('rdt_interior_tiles', { tint: 0x9a9690, nrm: .5 });
+    const plas = rd_mat('wall_plaster', { tint: 0xbdb2a2, nrm: .25 }); const zA = r.z0 + 2.45, zE = r.z1 - 1.9;
+    for (const [fx, n] of [[r.x0, 1], [r.x1, -1]]) {
+      S.add(wood, rd_box(.035, 1.1, r.z1 - r.z0 - .6, fx + n * .0175, y0 + .55, (r.z0 + r.z1) / 2, 0, 1.2));       // Vertäfelung
+      S.add(wood2, rd_box(.09, .06, r.z1 - r.z0 - .6, fx + n * .045, y0 + 1.13, (r.z0 + r.z1) / 2));              // Handlauf
+      S.add(wood2, rd_box(.05, .14, r.z1 - r.z0 - .6, fx + n * .025, y0 + .07, (r.z0 + r.z1) / 2));              // Fußleiste
+      for (let z = zA; z <= zE; z += 2.7) {                                                                       // Wandpfeiler
+        S.add(plas, rd_box(.34, H - .5, .12, fx + n * .06, y0 + (H - .5) / 2, z)); S.add(wood2, rd_box(.44, .16, .16, fx + n * .08, y0 + .08, z)); S.add(wood2, rd_box(.46, .2, .2, fx + n * .1, y0 + H - .6, z)); } }
+    for (let z = zA; z <= zE; z += 2.7) S.add(wood, rd_box(r.x1 - r.x0 - .1, .26, .24, cx, y0 + H - .15, z, 0, 1.2));  // Deckenbalken (Querbalken)
+    S.add(wood, rd_box(r.x1 - r.x0 - .1, .22, .2, cx, y0 + H - .45, r.z0 + 2.45));                                // Chorbogen: Sturz
+    S.add(plas, rd_box(.5, H - .9, .3, r.x0 + .75, y0 + (H - .9) / 2, r.z0 + 2.45)); S.add(plas, rd_box(.5, H - .9, .3, r.x1 - .75, y0 + (H - .9) / 2, r.z0 + 2.45)); // Chorpfeiler
+    S.add(stone, rd_plane(1.5, r.z1 - r.z0 - 1.2, cx, y0 + .024, (r.z0 + r.z1) / 2 + .1, 1.2));                     // Steinplatten im Mittelgang
+    S.add(stone, rd_plane(r.x1 - r.x0 - 1.6, 2.2, cx, y0 + .025, r.z0 + 1.2, 1.2)); }                               // Altarplatte
   S.fertig(); };
 
 // ================= Günthers Schuppen: Werkbank, Regal, Reifen; dazu Kisten, Werkzeug, Öllampe
