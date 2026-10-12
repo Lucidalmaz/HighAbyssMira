@@ -121,3 +121,6 @@ Maßstab: prägnante Dinge ≥ 2, Unprägnantes 3 erlaubt. Die Noten sind meine 
 * **Übergangskette** `__wd.uebergang('reh', 'fleisch', true)`: Clip `uebergang` (Riss/Knochen/Geweih) → Fleisch → Hirschding (`uebergang`/`aufstieg`).
 * **CREDITS.md:** Eintrag „Wendigo-Formen“ ergänzt.
 * **KTX2:** nicht erzeugt – eine Spielinstanz (`normal1`) lief bei der Prüfung (`_live.sh status`). Nach Freigabe: `cd app && node tools/ktx.mjs`.
+
+## Koordinator-Vermerk 12.10.
+Vorbereitung abgenommen mit Auflagen für den Integrationslauf: (1) KTX2 für wendigo_*-Modelle erzeugen (cd app && node tools/ktx.mjs, nur ohne laufende Spielinstanz); (2) Fleisch/Haut (Note 3 im Standbild) im Spiel in Nahaufnahme erneut bewerten; sind sie prägnant (Kadaver-Funde nah), auf ≥ 2 bringen (Netz verfeinern/Textur-Variation/Geometriedetails), sonst 3 belassen; (3) Reh/Hirsch als Wendigo-Form: Risse bei grober Netzdichte schwach → Normalmap/Vertexfarben-Blut im Spiel prüfen; (4) Bewegung (Fußgleiten, Kopf-Folgen ohne Aufaddieren: anim_ueber), Hooks, Dosierung (Tabelle wendigo_konzept.md §3), Leistung (perf_gate.mjs, Asset-Budget) im Spiel messen; (5) Hofer-Fenster-Hook im Spiel prüfen.
