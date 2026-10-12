@@ -1,0 +1,2675 @@
+{
+ "version": 1,
+ "stand": "2026-10-11",
+ "beschreibung": "Neue/überarbeitete Führungs-, Tutorial- und Ortsschild-Texte (Konzeption, noch nicht eingebaut). Jede Zeile ≤ 90 Zeichen. 'ersetzt' nennt den Bestandstext. Kanon unverändert.",
+ "felder": {
+  "id": "FS-<Kapitel>-<Art>-<Nr>",
+  "kapitel": "1–6, 'alle', 0 = Prolog",
+  "art": "zielzeile | warum | gedanke_faden | kapitelkarte_* | bisher | phase | ortsmarke | sprecher_kennung | tipp | ortsschild | …",
+  "ausloeser": "wann der Text erscheint",
+  "text": "Text (bei mehreren Zeilen mit ' / ' verbunden)",
+  "zeilen": "optional: Zeilen einzeln",
+  "ziel": "Datei/Funktion der Einbindung",
+  "sprecher": "Anzeigename in der Textspur",
+  "ersetzt": "Bestandstext",
+  "regex": "Schlüssel für ZIELE_WARUM / GEDANKEN_FADEN"
+ },
+ "eintraege": [
+  {
+   "id": "FS-1-KK-01",
+   "kapitel": 1,
+   "art": "kapitelkarte_kopf",
+   "ausloeser": "Kapitelbeginn · Kurzkarte (Lower-Third, 6 s, ohne Klick)",
+   "text": "KAPITEL 1 · KELLER BLEIBT ZU",
+   "ziel": "traum.js traum_awake() (nach Mailbox, Kurzkarte) · neu: fuehrung_kapitelkarte(1)",
+   "sprecher": "",
+   "bem": "neu"
+  },
+  {
+   "id": "FS-1-KK-02",
+   "kapitel": 1,
+   "art": "kapitelkarte_ortzeit",
+   "ausloeser": "direkt unter der Kopfzeile",
+   "text": "Lost Eyengless · Mittwoch, 4. November · kurz nach elf Uhr abends",
+   "ziel": "traum.js traum_awake() (nach Mailbox, Kurzkarte) · neu: fuehrung_kapitelkarte(1)",
+   "sprecher": "",
+   "bem": "Ort · Wochentag, Datum · Uhrzeit; Zeit nur, wo der Kanon sie nennt"
+  },
+  {
+   "id": "FS-1-KK-03",
+   "kapitel": 1,
+   "art": "kapitelkarte_ziel",
+   "ausloeser": "unter dem Erzähltext, vor 'KLICK · WEITER'",
+   "text": "ZIEL: Finde Haus Nr. 7. Lucy hat dort etwas hinterlassen.",
+   "ziel": "traum.js traum_awake() (nach Mailbox, Kurzkarte) · neu: fuehrung_kapitelkarte(1)",
+   "sprecher": "",
+   "bem": "gleicher Wortlaut wie die erste Zielzeile des Kapitels (FS-1-ZL-*)"
+  },
+  {
+   "id": "FS-2-KK-01",
+   "kapitel": 2,
+   "art": "kapitelkarte_kopf",
+   "ausloeser": "Kapitelbeginn · Kurzkarte (Lower-Third, 6 s, ohne Klick)",
+   "text": "KAPITEL 2 · DAS ACHTE KIND",
+   "ziel": "uebergang.js Z.77 (chapter2Begin, ersetzt questPop 'KAPITEL 2') · _base startChapter2 Z.4108 (Vollkarte)",
+   "sprecher": "",
+   "bem": "neu"
+  },
+  {
+   "id": "FS-2-KK-02",
+   "kapitel": 2,
+   "art": "kapitelkarte_ortzeit",
+   "ausloeser": "direkt unter der Kopfzeile",
+   "text": "Amt für Rückführung · Ebene −2 · Donnerstag, 5. November · kurz nach eins",
+   "ziel": "uebergang.js Z.77 (chapter2Begin, ersetzt questPop 'KAPITEL 2') · _base startChapter2 Z.4108 (Vollkarte)",
+   "sprecher": "",
+   "bem": "Ort · Wochentag, Datum · Uhrzeit; Zeit nur, wo der Kanon sie nennt"
+  },
+  {
+   "id": "FS-2-KK-03",
+   "kapitel": 2,
+   "art": "kapitelkarte_ziel",
+   "ausloeser": "unter dem Erzähltext, vor 'KLICK · WEITER'",
+   "text": "ZIEL: Finde Lucy. Irgendwo hier unten summt sie.",
+   "ziel": "uebergang.js Z.77 (chapter2Begin, ersetzt questPop 'KAPITEL 2') · _base startChapter2 Z.4108 (Vollkarte)",
+   "sprecher": "",
+   "bem": "gleicher Wortlaut wie die erste Zielzeile des Kapitels (FS-2-ZL-*)"
+  },
+  {
+   "id": "FS-2-BI-01",
+   "kapitel": 2,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Lucy ist seit dem 23. Oktober weg. Ihr Anruf hat mich nach Nr. 7 geholt.",
+   "ziel": "uebergang.js Z.77 (chapter2Begin, ersetzt questPop 'KAPITEL 2') · _base startChapter2 Z.4108 (Vollkarte)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-2-BI-02",
+   "kapitel": 2,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Im Keller war etwas eingesperrt, mit Lucys Stimme. Ich habe die Tür aufgemacht.",
+   "ziel": "uebergang.js Z.77 (chapter2Begin, ersetzt questPop 'KAPITEL 2') · _base startChapter2 Z.4108 (Vollkarte)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-2-BI-03",
+   "kapitel": 2,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Jetzt ist Frau Wendt fort. Und hinter der Zeichnungswand beginnt ein Gang.",
+   "ziel": "uebergang.js Z.77 (chapter2Begin, ersetzt questPop 'KAPITEL 2') · _base startChapter2 Z.4108 (Vollkarte)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-3-KK-01",
+   "kapitel": 3,
+   "art": "kapitelkarte_kopf",
+   "ausloeser": "Kapitelbeginn · Vollkarte (Tafel, Klick = weiter)",
+   "text": "KAPITEL 3 · ICH KOMME",
+   "ziel": "lucy3.js Z.113 / _base C3_INTRO Z.4632 (Vollkarte)",
+   "sprecher": "",
+   "bem": "Kopfzeile in Versalien; bleibt wie im Bestand"
+  },
+  {
+   "id": "FS-3-KK-02",
+   "kapitel": 3,
+   "art": "kapitelkarte_ortzeit",
+   "ausloeser": "direkt unter der Kopfzeile",
+   "text": "Lost Eyengless · Donnerstag, 5. November · 03:13",
+   "ziel": "lucy3.js Z.113 / _base C3_INTRO Z.4632 (Vollkarte)",
+   "sprecher": "",
+   "bem": "Ort · Wochentag, Datum · Uhrzeit; Zeit nur, wo der Kanon sie nennt"
+  },
+  {
+   "id": "FS-3-KK-03",
+   "kapitel": 3,
+   "art": "kapitelkarte_ziel",
+   "ausloeser": "unter dem Erzähltext, vor 'KLICK · WEITER'",
+   "text": "ZIEL: Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist.",
+   "ziel": "lucy3.js Z.113 / _base C3_INTRO Z.4632 (Vollkarte)",
+   "sprecher": "",
+   "bem": "gleicher Wortlaut wie die erste Zielzeile des Kapitels (FS-3-ZL-*)"
+  },
+  {
+   "id": "FS-3-BI-01",
+   "kapitel": 3,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Unter Nr. 7 liegt ein Amt. Es hat 2009 sieben Kinder ausgelost. Die Eltern unterschrieben.",
+   "ziel": "lucy3.js Z.113 / _base C3_INTRO Z.4632 (Vollkarte)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-3-BI-02",
+   "kapitel": 3,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Akte 08 bin ich: Rückläufer, braune Augen. Der Hund hieß Flocke. Das wusste ich nicht.",
+   "ziel": "lucy3.js Z.113 / _base C3_INTRO Z.4632 (Vollkarte)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-3-BI-03",
+   "kapitel": 3,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Lucy war im Tank. Dann war sie fort, und das graue Gesicht hat durch meine Augen gesehen.",
+   "ziel": "lucy3.js Z.113 / _base C3_INTRO Z.4632 (Vollkarte)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-4-KK-01",
+   "kapitel": 4,
+   "art": "kapitelkarte_kopf",
+   "ausloeser": "Kapitelbeginn · Vollkarte (Tafel, Klick = weiter)",
+   "text": "KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN",
+   "ziel": "anwesen.js C4_INTRO Z.192 + bisherHtml(4)",
+   "sprecher": "",
+   "bem": "Kopfzeile in Versalien; bleibt wie im Bestand"
+  },
+  {
+   "id": "FS-4-KK-02",
+   "kapitel": 4,
+   "art": "kapitelkarte_ortzeit",
+   "ausloeser": "direkt unter der Kopfzeile",
+   "text": "Lost Eyengless · Donnerstag, 5. November · Morgen, Nebel",
+   "ziel": "anwesen.js C4_INTRO Z.192 + bisherHtml(4)",
+   "sprecher": "",
+   "bem": "Ort · Wochentag, Datum · Uhrzeit; Zeit nur, wo der Kanon sie nennt"
+  },
+  {
+   "id": "FS-4-KK-03",
+   "kapitel": 4,
+   "art": "kapitelkarte_ziel",
+   "ausloeser": "unter dem Erzähltext, vor 'KLICK · WEITER'",
+   "text": "ZIEL: Sieh nach Lucy. Dann die Villa Seiler: acht Schlüsselteile.",
+   "ziel": "anwesen.js C4_INTRO Z.192 + bisherHtml(4)",
+   "sprecher": "",
+   "bem": "gleicher Wortlaut wie die erste Zielzeile des Kapitels (FS-4-ZL-*)"
+  },
+  {
+   "id": "FS-4-BI-01",
+   "kapitel": 4,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Lucy ist zurück. Sie friert.",
+   "ziel": "anwesen.js C4_INTRO Z.192 + bisherHtml(4)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-4-BI-02",
+   "kapitel": 4,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Ein Ritter sucht seit 700 Jahren seine Tochter. Sie hat durch meine Augen gesucht.",
+   "ziel": "anwesen.js C4_INTRO Z.192 + bisherHtml(4)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-4-BI-03",
+   "kapitel": 4,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Ich bin nicht der, mit dem Lucy geboren ist.",
+   "ziel": "anwesen.js C4_INTRO Z.192 + bisherHtml(4)",
+   "sprecher": "LUKE",
+   "bem": "überarbeitet, gleiche Fakten wie Endkarte des Vorgängers"
+  },
+  {
+   "id": "FS-5-KK-01",
+   "kapitel": 5,
+   "art": "kapitelkarte_kopf",
+   "ausloeser": "Kapitelbeginn · Vollkarte (Tafel, Klick = weiter)",
+   "text": "KAPITEL 5 · ISS AUF, BRUDER",
+   "ziel": "kapitel5.js C5_INTRO Z.518 + bisherHtml(5)",
+   "sprecher": "",
+   "bem": "Kopfzeile in Versalien; bleibt wie im Bestand"
+  },
+  {
+   "id": "FS-5-KK-02",
+   "kapitel": 5,
+   "art": "kapitelkarte_ortzeit",
+   "ausloeser": "direkt unter der Kopfzeile",
+   "text": "Lost Eyengless · Donnerstag, 5. November · Abend",
+   "ziel": "kapitel5.js C5_INTRO Z.518 + bisherHtml(5)",
+   "sprecher": "",
+   "bem": "Ort · Wochentag, Datum · Uhrzeit; Zeit nur, wo der Kanon sie nennt"
+  },
+  {
+   "id": "FS-5-KK-03",
+   "kapitel": 5,
+   "art": "kapitelkarte_ziel",
+   "ausloeser": "unter dem Erzähltext, vor 'KLICK · WEITER'",
+   "text": "ZIEL: Lucy schläft bei Vegas. Bleib in ihrer Nähe.",
+   "ziel": "kapitel5.js C5_INTRO Z.518 + bisherHtml(5)",
+   "sprecher": "",
+   "bem": "gleicher Wortlaut wie die erste Zielzeile des Kapitels (FS-5-ZL-*)"
+  },
+  {
+   "id": "FS-5-BI-01",
+   "kapitel": 5,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Die vom Amt haben ein Bett für mich gemacht.",
+   "ziel": "kapitel5.js C5_INTRO Z.518 + bisherHtml(5)",
+   "sprecher": "LUKE",
+   "bem": "unverändert aus RECAP/V-8 (Kanon)"
+  },
+  {
+   "id": "FS-5-BI-02",
+   "kapitel": 5,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Ein Ring passt in meine Narbe.",
+   "ziel": "kapitel5.js C5_INTRO Z.518 + bisherHtml(5)",
+   "sprecher": "LUKE",
+   "bem": "unverändert aus RECAP/V-8 (Kanon)"
+  },
+  {
+   "id": "FS-5-BI-03",
+   "kapitel": 5,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Oben in der Villa hat eine Frau meinen Namen gesagt.",
+   "ziel": "kapitel5.js C5_INTRO Z.518 + bisherHtml(5)",
+   "sprecher": "LUKE",
+   "bem": "unverändert aus RECAP/V-8 (Kanon)"
+  },
+  {
+   "id": "FS-6-KK-01",
+   "kapitel": 6,
+   "art": "kapitelkarte_kopf",
+   "ausloeser": "Kapitelbeginn · Vollkarte (Tafel, Klick = weiter)",
+   "text": "KAPITEL 6 · WENDIGO",
+   "ziel": "kapitel6.js K6_INTRO Z.31 + bisherHtml(6)",
+   "sprecher": "",
+   "bem": "Kopfzeile in Versalien; bleibt wie im Bestand"
+  },
+  {
+   "id": "FS-6-KK-02",
+   "kapitel": 6,
+   "art": "kapitelkarte_ortzeit",
+   "ausloeser": "direkt unter der Kopfzeile",
+   "text": "Forbidden Dustwoods · Freitag, 6. November · kurz nach zwei Uhr nachts",
+   "ziel": "kapitel6.js K6_INTRO Z.31 + bisherHtml(6)",
+   "sprecher": "",
+   "bem": "Ort · Wochentag, Datum · Uhrzeit; Zeit nur, wo der Kanon sie nennt"
+  },
+  {
+   "id": "FS-6-KK-03",
+   "kapitel": 6,
+   "art": "kapitelkarte_ziel",
+   "ausloeser": "unter dem Erzähltext, vor 'KLICK · WEITER'",
+   "text": "ZIEL: Finde den Jungen mit deinem Namen. Er ist im Wald.",
+   "ziel": "kapitel6.js K6_INTRO Z.31 + bisherHtml(6)",
+   "sprecher": "",
+   "bem": "gleicher Wortlaut wie die erste Zielzeile des Kapitels (FS-6-ZL-*)"
+  },
+  {
+   "id": "FS-6-BI-01",
+   "kapitel": 6,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Der Junge im Stall ist der, der ich sein sollte.",
+   "ziel": "kapitel6.js K6_INTRO Z.31 + bisherHtml(6)",
+   "sprecher": "LUKE",
+   "bem": "unverändert aus RECAP/V-8 (Kanon)"
+  },
+  {
+   "id": "FS-6-BI-02",
+   "kapitel": 6,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Ich hab ihn angesehen, und sie hat es gesehen.",
+   "ziel": "kapitel6.js K6_INTRO Z.31 + bisherHtml(6)",
+   "sprecher": "LUKE",
+   "bem": "unverändert aus RECAP/V-8 (Kanon)"
+  },
+  {
+   "id": "FS-6-BI-03",
+   "kapitel": 6,
+   "art": "bisher",
+   "ausloeser": "Block 'BISHER' über dem Kapiteltext (Lukes Stimme, kursiv)",
+   "text": "Er ist in einen Wald gelaufen, der kein Echo hat.",
+   "ziel": "kapitel6.js K6_INTRO Z.31 + bisherHtml(6)",
+   "sprecher": "LUKE",
+   "bem": "unverändert aus RECAP/V-8 (Kanon)"
+  },
+  {
+   "id": "FS-1-PH-01",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 1 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "ANKOMMEN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 1 VON 7 · ANKOMMEN"
+  },
+  {
+   "id": "FS-1-PH-02",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 2 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DAS HAUS",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 2 VON 7 · DAS HAUS"
+  },
+  {
+   "id": "FS-1-PH-03",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 3 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE KELLERTÜR",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 3 VON 7 · DIE KELLERTÜR"
+  },
+  {
+   "id": "FS-1-PH-04",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 4 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER KELLER",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 4 VON 7 · DER KELLER"
+  },
+  {
+   "id": "FS-1-PH-05",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 5 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DAS LICHT",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 5 VON 7 · DAS LICHT"
+  },
+  {
+   "id": "FS-1-PH-06",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 6 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "VERSTECKEN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 6 VON 7 · VERSTECKEN"
+  },
+  {
+   "id": "FS-1-PH-07",
+   "kapitel": 1,
+   "art": "phase",
+   "ausloeser": "Phase 7 von 7 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE WAND",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 1 · 7 VON 7 · DIE WAND"
+  },
+  {
+   "id": "FS-2-PH-01",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 1 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER TUNNEL",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 1 VON 8 · DER TUNNEL"
+  },
+  {
+   "id": "FS-2-PH-02",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 2 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DAS ARCHIV",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 2 VON 8 · DAS ARCHIV"
+  },
+  {
+   "id": "FS-2-PH-03",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 3 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER STROM",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 3 VON 8 · DER STROM"
+  },
+  {
+   "id": "FS-2-PH-04",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 4 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE ZELLE",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 4 VON 8 · DIE ZELLE"
+  },
+  {
+   "id": "FS-2-PH-05",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 5 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER LANGE GANG",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 5 VON 8 · DER LANGE GANG"
+  },
+  {
+   "id": "FS-2-PH-06",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 6 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE BLECHMÄNNER",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 6 VON 8 · DIE BLECHMÄNNER"
+  },
+  {
+   "id": "FS-2-PH-07",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 7 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER MESSRAUM",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 7 VON 8 · DER MESSRAUM"
+  },
+  {
+   "id": "FS-2-PH-08",
+   "kapitel": 2,
+   "art": "phase",
+   "ausloeser": "Phase 8 von 8 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER SCHACHT",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 2 · 8 VON 8 · DER SCHACHT"
+  },
+  {
+   "id": "FS-3-PH-01",
+   "kapitel": 3,
+   "art": "phase",
+   "ausloeser": "Phase 1 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE KREUZUNG",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 3 · 1 VON 6 · DIE KREUZUNG"
+  },
+  {
+   "id": "FS-3-PH-02",
+   "kapitel": 3,
+   "art": "phase",
+   "ausloeser": "Phase 2 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "JUSTIN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 3 · 2 VON 6 · JUSTIN"
+  },
+  {
+   "id": "FS-3-PH-03",
+   "kapitel": 3,
+   "art": "phase",
+   "ausloeser": "Phase 3 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "FUNK UND ZÄHLBUCH",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 3 · 3 VON 6 · FUNK UND ZÄHLBUCH"
+  },
+  {
+   "id": "FS-3-PH-04",
+   "kapitel": 3,
+   "art": "phase",
+   "ausloeser": "Phase 4 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE LATERNEN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 3 · 4 VON 6 · DIE LATERNEN"
+  },
+  {
+   "id": "FS-3-PH-05",
+   "kapitel": 3,
+   "art": "phase",
+   "ausloeser": "Phase 5 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "NIMMERHEIM",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 3 · 5 VON 6 · NIMMERHEIM"
+  },
+  {
+   "id": "FS-3-PH-06",
+   "kapitel": 3,
+   "art": "phase",
+   "ausloeser": "Phase 6 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER HOHE ABGRUND",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 3 · 6 VON 6 · DER HOHE ABGRUND"
+  },
+  {
+   "id": "FS-4-PH-01",
+   "kapitel": 4,
+   "art": "phase",
+   "ausloeser": "Phase 1 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER MORGEN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 4 · 1 VON 6 · DER MORGEN"
+  },
+  {
+   "id": "FS-4-PH-02",
+   "kapitel": 4,
+   "art": "phase",
+   "ausloeser": "Phase 2 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DAS AMT KOMMT",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 4 · 2 VON 6 · DAS AMT KOMMT"
+  },
+  {
+   "id": "FS-4-PH-03",
+   "kapitel": 4,
+   "art": "phase",
+   "ausloeser": "Phase 3 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "ACHT SCHLÜSSEL",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 4 · 3 VON 6 · ACHT SCHLÜSSEL"
+  },
+  {
+   "id": "FS-4-PH-04",
+   "kapitel": 4,
+   "art": "phase",
+   "ausloeser": "Phase 4 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE VILLA",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 4 · 4 VON 6 · DIE VILLA"
+  },
+  {
+   "id": "FS-4-PH-05",
+   "kapitel": 4,
+   "art": "phase",
+   "ausloeser": "Phase 5 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER KÜHLRAUM",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 4 · 5 VON 6 · DER KÜHLRAUM"
+  },
+  {
+   "id": "FS-4-PH-06",
+   "kapitel": 4,
+   "art": "phase",
+   "ausloeser": "Phase 6 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE TREPPE",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 4 · 6 VON 6 · DIE TREPPE"
+  },
+  {
+   "id": "FS-5-PH-01",
+   "kapitel": 5,
+   "art": "phase",
+   "ausloeser": "Phase 1 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER ABEND",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 5 · 1 VON 6 · DER ABEND"
+  },
+  {
+   "id": "FS-5-PH-02",
+   "kapitel": 5,
+   "art": "phase",
+   "ausloeser": "Phase 2 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "HAUS NR. 1",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 5 · 2 VON 6 · HAUS NR. 1"
+  },
+  {
+   "id": "FS-5-PH-03",
+   "kapitel": 5,
+   "art": "phase",
+   "ausloeser": "Phase 3 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DIE SPIELUHR",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 5 · 3 VON 6 · DIE SPIELUHR"
+  },
+  {
+   "id": "FS-5-PH-04",
+   "kapitel": 5,
+   "art": "phase",
+   "ausloeser": "Phase 4 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER STALL",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 5 · 4 VON 6 · DER STALL"
+  },
+  {
+   "id": "FS-5-PH-05",
+   "kapitel": 5,
+   "art": "phase",
+   "ausloeser": "Phase 5 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DAS TAPPEN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 5 · 5 VON 6 · DAS TAPPEN"
+  },
+  {
+   "id": "FS-5-PH-06",
+   "kapitel": 5,
+   "art": "phase",
+   "ausloeser": "Phase 6 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DAS BETT",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 5 · 6 VON 6 · DAS BETT"
+  },
+  {
+   "id": "FS-6-PH-01",
+   "kapitel": 6,
+   "art": "phase",
+   "ausloeser": "Phase 1 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER ZAUN",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 6 · 1 VON 6 · DER ZAUN"
+  },
+  {
+   "id": "FS-6-PH-02",
+   "kapitel": 6,
+   "art": "phase",
+   "ausloeser": "Phase 2 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER WALD",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 6 · 2 VON 6 · DER WALD"
+  },
+  {
+   "id": "FS-6-PH-03",
+   "kapitel": 6,
+   "art": "phase",
+   "ausloeser": "Phase 3 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "ZAYNS HÜTTE",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 6 · 3 VON 6 · ZAYNS HÜTTE"
+  },
+  {
+   "id": "FS-6-PH-04",
+   "kapitel": 6,
+   "art": "phase",
+   "ausloeser": "Phase 4 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "TIEFER WALD",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 6 · 4 VON 6 · TIEFER WALD"
+  },
+  {
+   "id": "FS-6-PH-05",
+   "kapitel": 6,
+   "art": "phase",
+   "ausloeser": "Phase 5 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER BAU",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 6 · 5 VON 6 · DER BAU"
+  },
+  {
+   "id": "FS-6-PH-06",
+   "kapitel": 6,
+   "art": "phase",
+   "ausloeser": "Phase 6 von 6 (Auslöser: Tabelle in fuehrung_story.md §2.2)",
+   "text": "DER HOCHSITZ",
+   "ziel": "ziele.js ziele_dom() #objective (neue Zeile #objPhase) · Fibel 'WAS JETZT?' ziele_rJetzt()",
+   "sprecher": "",
+   "anzeige": "KAPITEL 6 · 6 VON 6 · DER HOCHSITZ"
+  },
+  {
+   "id": "FS-1-OM-01",
+   "kapitel": 1,
+   "art": "ortsmarke",
+   "ausloeser": "erster Schritt hinter dem Ortsschild (nach Kurzkarte)",
+   "text": "AHORNSTRASSE · Ortsschild · 23 Uhr",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "AHORNSTRASSE",
+   "zeile2": "Ortsschild · 23 Uhr"
+  },
+  {
+   "id": "FS-1-OM-02",
+   "kapitel": 1,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Nr. 7, innen",
+   "text": "NR. 7 · Hildes Haus",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NR. 7",
+   "zeile2": "Hildes Haus"
+  },
+  {
+   "id": "FS-1-OM-03",
+   "kapitel": 1,
+   "art": "ortsmarke",
+   "ausloeser": "Kellertreppe unten",
+   "text": "NR. 7 · KELLER · unter der Erde",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NR. 7 · KELLER",
+   "zeile2": "unter der Erde"
+  },
+  {
+   "id": "FS-1-OM-04",
+   "kapitel": 1,
+   "art": "ortsmarke",
+   "ausloeser": "erster Betritt der Kreuzung",
+   "text": "KREUZUNG · Telefonzelle · Funkkasten",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "KREUZUNG",
+   "zeile2": "Telefonzelle · Funkkasten"
+  },
+  {
+   "id": "FS-2-OM-05",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "Tür fällt ins Schloss (UK1)",
+   "text": "AMT FÜR RÜCKFÜHRUNG · Ebene −2 · Tunnel",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "AMT FÜR RÜCKFÜHRUNG",
+   "zeile2": "Ebene −2 · Tunnel"
+  },
+  {
+   "id": "FS-2-OM-06",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Archiv (UK2)",
+   "text": "ARCHIV · Ordnungstafel · Akten",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "ARCHIV",
+   "zeile2": "Ordnungstafel · Akten"
+  },
+  {
+   "id": "FS-2-OM-07",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Zimmer 7 (UK3)",
+   "text": "ZIMMER 7 · Hildes Büro",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "ZIMMER 7",
+   "zeile2": "Hildes Büro"
+  },
+  {
+   "id": "FS-2-OM-08",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Sicherungsraum (UK4)",
+   "text": "SICHERUNGSRAUM · ohne Strom",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "SICHERUNGSRAUM",
+   "zeile2": "ohne Strom"
+  },
+  {
+   "id": "FS-2-OM-09",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Prüfraum (UK5)",
+   "text": "PRÜFRAUM 3 · Zelle",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "PRÜFRAUM 3",
+   "zeile2": "Zelle"
+  },
+  {
+   "id": "FS-2-OM-10",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "Stahltür fällt zu (UK6)",
+   "text": "DER LANGE GANG · Rohre · Ölfass",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "DER LANGE GANG",
+   "zeile2": "Rohre · Ölfass"
+  },
+  {
+   "id": "FS-2-OM-11",
+   "kapitel": 2,
+   "art": "ortsmarke",
+   "ausloeser": "P.x > X+107 (tod.js 'messraum')",
+   "text": "MESSRAUM · acht Stühle · ein Tank",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "MESSRAUM",
+   "zeile2": "acht Stühle · ein Tank"
+  },
+  {
+   "id": "FS-3-OM-12",
+   "kapitel": 3,
+   "art": "ortsmarke",
+   "ausloeser": "nach Intro-Tafel (UK1)",
+   "text": "KREUZUNG · 03:13 · alle Uhren stehen",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "KREUZUNG · 03:13",
+   "zeile2": "alle Uhren stehen"
+  },
+  {
+   "id": "FS-3-OM-13",
+   "kapitel": 3,
+   "art": "ortsmarke",
+   "ausloeser": "erster Betritt Ostende (UK4)",
+   "text": "OSTENDE · Nebel",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "OSTENDE",
+   "zeile2": "Nebel"
+  },
+  {
+   "id": "FS-3-OM-14",
+   "kapitel": 3,
+   "art": "ortsmarke",
+   "ausloeser": "weiss.js Raum 1",
+   "text": "NIMMERHEIM · RAUM 1 · Kinderzimmer, Juli 2009",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NIMMERHEIM · RAUM 1",
+   "zeile2": "Kinderzimmer, Juli 2009"
+  },
+  {
+   "id": "FS-3-OM-15",
+   "kapitel": 3,
+   "art": "ortsmarke",
+   "ausloeser": "weiss.js Raum 2",
+   "text": "NIMMERHEIM · RAUM 2 · Hildes Küche",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NIMMERHEIM · RAUM 2",
+   "zeile2": "Hildes Küche"
+  },
+  {
+   "id": "FS-3-OM-16",
+   "kapitel": 3,
+   "art": "ortsmarke",
+   "ausloeser": "weiss.js Raum 3",
+   "text": "NIMMERHEIM · RAUM 3 · die Nacht von 1312",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NIMMERHEIM · RAUM 3",
+   "zeile2": "die Nacht von 1312"
+  },
+  {
+   "id": "FS-3-OM-17",
+   "kapitel": 3,
+   "art": "ortsmarke",
+   "ausloeser": "weiss.js Teil 2",
+   "text": "DER HOHE ABGRUND",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "DER HOHE ABGRUND",
+   "zeile2": ""
+  },
+  {
+   "id": "FS-4-OM-18",
+   "kapitel": 4,
+   "art": "ortsmarke",
+   "ausloeser": "nach Intro-Tafel",
+   "text": "AHORNSTRASSE · MORGEN · Nebel, die Laternen sind aus",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "AHORNSTRASSE · MORGEN",
+   "zeile2": "Nebel, die Laternen sind aus"
+  },
+  {
+   "id": "FS-4-OM-19",
+   "kapitel": 4,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Nr. 3 / Veranda",
+   "text": "NR. 3 · Vegas",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NR. 3",
+   "zeile2": "Vegas"
+  },
+  {
+   "id": "FS-4-OM-20",
+   "kapitel": 4,
+   "art": "ortsmarke",
+   "ausloeser": "Garagentor Nr. 9",
+   "text": "NR. 9 · vernagelt seit 2009",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NR. 9",
+   "zeile2": "vernagelt seit 2009"
+  },
+  {
+   "id": "FS-4-OM-21",
+   "kapitel": 4,
+   "art": "ortsmarke",
+   "ausloeser": "Tor Villa Seiler",
+   "text": "VILLA SEILER · GARTEN · Prägepresse",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "VILLA SEILER · GARTEN",
+   "zeile2": "Prägepresse"
+  },
+  {
+   "id": "FS-4-OM-22",
+   "kapitel": 4,
+   "art": "ortsmarke",
+   "ausloeser": "anwesen_enterHall()",
+   "text": "VILLA SEILER · HALLE · acht Schlösser",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "VILLA SEILER · HALLE",
+   "zeile2": "acht Schlösser"
+  },
+  {
+   "id": "FS-4-OM-23",
+   "kapitel": 4,
+   "art": "ortsmarke",
+   "ausloeser": "Kellertür in der Anrichte",
+   "text": "ZELLE OST · KÜHLRAUM · Nicht öffnen",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "ZELLE OST · KÜHLRAUM",
+   "zeile2": "Nicht öffnen"
+  },
+  {
+   "id": "FS-5-OM-24",
+   "kapitel": 5,
+   "art": "ortsmarke",
+   "ausloeser": "nach Intro-Tafel",
+   "text": "NR. 3 · VERANDA · Abend",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NR. 3 · VERANDA",
+   "zeile2": "Abend"
+  },
+  {
+   "id": "FS-5-OM-25",
+   "kapitel": 5,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Nr. 1",
+   "text": "NR. 1 · Küche · vier Gedecke",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NR. 1",
+   "zeile2": "Küche · vier Gedecke"
+  },
+  {
+   "id": "FS-5-OM-26",
+   "kapitel": 5,
+   "art": "ortsmarke",
+   "ausloeser": "Schwelle Kinderzimmer",
+   "text": "KINDERZIMMER · Lucys Spieluhr",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "KINDERZIMMER",
+   "zeile2": "Lucys Spieluhr"
+  },
+  {
+   "id": "FS-5-OM-27",
+   "kapitel": 5,
+   "art": "ortsmarke",
+   "ausloeser": "Hof · Stall",
+   "text": "STALL AM HOF · Brot, Augen zu",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "STALL AM HOF",
+   "zeile2": "Brot, Augen zu"
+  },
+  {
+   "id": "FS-5-OM-28",
+   "kapitel": 5,
+   "art": "ortsmarke",
+   "ausloeser": "Friedhofstor",
+   "text": "FRIEDHOF · Gedenkfeld · offenes Grab",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "FRIEDHOF",
+   "zeile2": "Gedenkfeld · offenes Grab"
+  },
+  {
+   "id": "FS-6-OM-29",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "nach Intro-Tafel",
+   "text": "NORDZAUN · das Gitter",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "NORDZAUN",
+   "zeile2": "das Gitter"
+  },
+  {
+   "id": "FS-6-OM-30",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "wald_in",
+   "text": "DUSTWOODS · Lichtung",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "DUSTWOODS",
+   "zeile2": "Lichtung"
+  },
+  {
+   "id": "FS-6-OM-31",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "WALD.hut",
+   "text": "ZAYNS HÜTTE",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "ZAYNS HÜTTE",
+   "zeile2": ""
+  },
+  {
+   "id": "FS-6-OM-32",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "TIEF.stand",
+   "text": "TIEFER WALD · Hochsitz",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "TIEFER WALD",
+   "zeile2": "Hochsitz"
+  },
+  {
+   "id": "FS-6-OM-33",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "TIEF.bus",
+   "text": "AMTSBUS · sieben Kindersitze",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "AMTSBUS",
+   "zeile2": "sieben Kindersitze"
+  },
+  {
+   "id": "FS-6-OM-34",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "HUNGRIGE.spuren (Stille-Zone)",
+   "text": "FRASSSTELLE · hier ist es still",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "FRASSSTELLE",
+   "zeile2": "hier ist es still"
+  },
+  {
+   "id": "FS-6-OM-35",
+   "kapitel": 6,
+   "art": "ortsmarke",
+   "ausloeser": "TIEF.wreck",
+   "text": "DER BAU · Wrack",
+   "ziel": "neu: fuehrung_ortsmarke(id) · Anzeige unten links, 3 s, einmal je Ort und Spielstand",
+   "sprecher": "",
+   "zeile1": "DER BAU",
+   "zeile2": "Wrack"
+  },
+  {
+   "id": "FS-ALLE-SP-01",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 1 Ostende '… Lu–?'; Kap. 3 Ruf aus dem Nebel",
+   "text": "STIMME VON DRAUSSEN",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "STIMME VON DRAUSSEN",
+   "wer": "Figur unbekannt, nicht sichtbar, im Freien",
+   "manifest": "kein Eintrag in ST.wer nötig (Zeile ohne Aufnahme) – bei Aufnahme: 'welt' räumlich",
+   "stil": "kind-blass"
+  },
+  {
+   "id": "FS-ALLE-SP-02",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 1 Telefonzelle (bisher 'DAS KIND'), Kap. 5 Zelle (bisher 'ANRUF')",
+   "text": "STIMME AM TELEFON",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "STIMME AM TELEFON",
+   "wer": "Figur unbekannt, aus dem Hörer",
+   "manifest": "Anzeige-Alias auf 'DAS KIND' / 'ANRUF' (Manifest-Schlüssel bleiben)",
+   "stil": "funk"
+  },
+  {
+   "id": "FS-ALLE-SP-03",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 3 vor dem ersten Namen; Amt Kap. 2 AG-06",
+   "text": "STIMME IM FUNK",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "STIMME IM FUNK",
+   "wer": "Figur unbekannt, Funkkasten / Funkgerät",
+   "manifest": "Alias auf 'FUNK' (→ funk_blechmann)",
+   "stil": "funk"
+  },
+  {
+   "id": "FS-ALLE-SP-04",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 3 Funk-Rätsel",
+   "text": "FUNK · LUCY",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "FUNK · LUCY",
+   "wer": "Lucy, nicht sichtbar, Kanal A/B",
+   "manifest": "'LUCY · FUNK' und 'LUCY · KANAL B' sind im Manifest",
+   "stil": "funk"
+  },
+  {
+   "id": "FS-ALLE-SP-05",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 1 UK5",
+   "text": "TONBAND · LUCY",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "TONBAND · LUCY",
+   "wer": "Lucy, nicht sichtbar, Band im Keller",
+   "manifest": "'LUCY · TONBAND' ist im Manifest",
+   "stil": "band"
+  },
+  {
+   "id": "FS-ALLE-SP-06",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 4/5 Villa (Marion 2009)",
+   "text": "TONBAND · MAMA",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "TONBAND · MAMA",
+   "wer": "Mama, nicht sichtbar, Band",
+   "manifest": "'MAMA (BAND)' ist im Manifest",
+   "stil": "band"
+  },
+  {
+   "id": "FS-ALLE-SP-07",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 6 Pells Heft/Band",
+   "text": "TONBAND · PELL",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "TONBAND · PELL",
+   "wer": "Pell, nicht sichtbar, Band",
+   "manifest": "'PELL (BAND)' ist im Manifest",
+   "stil": "band"
+  },
+  {
+   "id": "FS-ALLE-SP-08",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Prolog Aufwachen",
+   "text": "MAILBOX · KÜHN",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "MAILBOX · KÜHN",
+   "wer": "Kommissar Kühn, nicht sichtbar, Handy",
+   "manifest": "'KÜHN · MAILBOX' ist im Manifest",
+   "stil": "funk"
+  },
+  {
+   "id": "FS-ALLE-SP-09",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 2 Sicherungsraum, Gänge",
+   "text": "LAUTSPRECHER · AMT",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "LAUTSPRECHER · AMT",
+   "wer": "Amtsstimme, nicht sichtbar, Lautsprecher",
+   "manifest": "Alias auf 'AMTSSTIMME'/'LAUTSPRECHER'",
+   "stil": "funk"
+  },
+  {
+   "id": "FS-ALLE-SP-10",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 2 Messraum",
+   "text": "LUCY · IM TANK",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "LUCY · IM TANK",
+   "wer": "Lucy, sichtbar hinter Glas (gedämpft)",
+   "manifest": "im Manifest",
+   "stil": "welt"
+  },
+  {
+   "id": "FS-ALLE-SP-11",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 1, 4, 5",
+   "text": "VEGAS · HINTER DER TÜR",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "VEGAS · HINTER DER TÜR",
+   "wer": "Vegas, nicht sichtbar, Türspalt/Briefschlitz",
+   "manifest": "im Manifest ('HERR VEGAS · HINTER DER TÜR')",
+   "stil": "welt"
+  },
+  {
+   "id": "FS-ALLE-SP-12",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Traum",
+   "text": "DER RABE",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "DER RABE",
+   "wer": "Miras Stimme aus Whiskeys Schnabel (nur Traum/Prolog)",
+   "manifest": "im Manifest ('DER RABE' → mira)",
+   "stil": "rabe"
+  },
+  {
+   "id": "FS-ALLE-SP-13",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 1–3 bis Raum 'Luna' (justin.js luna/name)",
+   "text": "KINDERSTIMME",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "KINDERSTIMME",
+   "wer": "das Kind, bis Justin den Namen 'Luna' sagt",
+   "manifest": "im Manifest",
+   "stil": "kind-blass"
+  },
+  {
+   "id": "FS-ALLE-SP-14",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 3 ab UK 8, Kap. 5, Kap. 6",
+   "text": "LUNA",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "LUNA",
+   "wer": "dasselbe Kind, ab dem Namen",
+   "manifest": "im Manifest",
+   "stil": "kind-blass"
+  },
+  {
+   "id": "FS-ALLE-SP-15",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "alle Nachbilder",
+   "text": "NACHBILD · 2009",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "NACHBILD · 2009",
+   "wer": "Szene aus der Vergangenheit, Stimmen ohne Figur",
+   "manifest": "vorhanden",
+   "stil": "echo"
+  },
+  {
+   "id": "FS-ALLE-SP-16",
+   "kapitel": "alle",
+   "art": "sprecher_kennung",
+   "ausloeser": "Kap. 2",
+   "text": "DRUCKER (Papier)",
+   "ziel": "oberflaeche.js subShow-Wrapper (Anzeige) · stimmen.js ST.wer (Voice-Schlüssel unverändert)",
+   "sprecher": "DRUCKER (Papier)",
+   "wer": "kein Sprecher: Nadeldrucker druckt am Gerät",
+   "manifest": "bleibt am Gerät, nicht in der Textspur",
+   "stil": "papier"
+  },
+  {
+   "id": "FS-ALLE-UI-01",
+   "kapitel": "alle",
+   "art": "textspur_hinweis",
+   "ausloeser": "erste drei say()-Blöcke eines Spielstands",
+   "text": "KLICK · WEITER      X · ALLES ÜBERSPRINGEN",
+   "ziel": "stimmen.js say_hinweis() Z.~78 (jetzt immer sichtbar)",
+   "sprecher": "",
+   "ersetzt": "KLICK · WEITER      X · ÜBERSPRINGEN"
+  },
+  {
+   "id": "FS-ALLE-UI-02",
+   "kapitel": "alle",
+   "art": "textspur_hinweis",
+   "ausloeser": "danach nur noch bei Blöcken mit mehr als drei Zeilen",
+   "text": "ENTER · WEITER",
+   "ziel": "stimmen.js say_hinweis()",
+   "sprecher": "",
+   "bem": "kleiner, 0,5 Deckkraft"
+  },
+  {
+   "id": "FS-ALLE-UI-03",
+   "kapitel": "alle",
+   "art": "richtungsmarke",
+   "ausloeser": "Quelle nicht im Blickfeld (Winkel > 60° zur Blickrichtung)",
+   "text": "◀  ▶  ▲  ▼  ●",
+   "ziel": "oberflaeche.js subShow + stimmen.js ST.pos / st_ort()",
+   "sprecher": "",
+   "bem": "● = hinter dir; Marke steht vor dem Namen, z. B. '◀ STIMME VON DRAUSSEN'"
+  },
+  {
+   "id": "FS-1-ZL-01",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Finde Haus Nr. 7. Lucy hat dich dorthin gerufen.",
+   "ziel": "kapitel1.js Z.590 MAIN[0]",
+   "sprecher": "",
+   "ersetzt": "Lucy hat angerufen: „Haus Nummer 7. Der Keller.“ Finde Haus Nr. 7.",
+   "bem": "repariert das tote ZIELE_WARUM[0] (^Finde Haus Nr. 7)"
+  },
+  {
+   "id": "FS-1-WA-01",
+   "kapitel": 1,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Lucy ist seit dem 23. weg. Ihr Anruf sagte nur: Haus Nummer 7. Der Keller.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "^Finde Haus Nr\\. 7"
+  },
+  {
+   "id": "FS-1-ZL-03",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Durchsuche Nr. 7. Lucys Zettel nennt ein Band im Keller.",
+   "ziel": "kapitel1.js Z.590 MAIN[2]",
+   "sprecher": "",
+   "ersetzt": "Durchsuche Haus Nr. 7. Lucy hat dir ein Band im Keller hinterlassen."
+  },
+  {
+   "id": "FS-1-WA-03",
+   "kapitel": 1,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Der Schlüssel hing an Lucys Panda. Sie war hier. Das Band liegt im Keller.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Durchsuche Nr\\. 7"
+  },
+  {
+   "id": "FS-1-ZL-05",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Finde im Keller, was Lucy hinterlassen hat.",
+   "ziel": "_base MAIN[4] Z.2600 (setMain(4) in kapitel1.js enterBasement)",
+   "sprecher": "",
+   "ersetzt": "Finde heraus, was Lucy hinterlassen hat.",
+   "bem": "der bisherige zweite /Lucy hinterlassen/-Faden war verdeckt und feuerte nie"
+  },
+  {
+   "id": "FS-1-GF-05",
+   "kapitel": 1,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Lucy war hier unten. Etwas zum Anhören: ein Kassettenrekorder, bei der Zeichnungswand.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "im Keller, was Lucy hinterlassen"
+  },
+  {
+   "id": "FS-1-ZL-06",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Etwas ist an dir vorbei die Treppe hinauf. Geh nach oben.",
+   "ziel": "kapitel1.js Z.591 MAIN[5]",
+   "sprecher": "",
+   "ersetzt": "Irgendwas ist an dir vorbei die Treppe hoch. Hinterher."
+  },
+  {
+   "id": "FS-1-WA-06",
+   "kapitel": 1,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Das Band ist zu Ende, die Gurte sind offen. Was auch immer das war: Es ist nach oben.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "die Treppe hinauf\\. Geh nach oben"
+  },
+  {
+   "id": "FS-1-GF-06",
+   "kapitel": 1,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Die Kellertreppe. Die Haustür war vorhin zu.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "die Treppe hinauf\\. Geh nach oben"
+  },
+  {
+   "id": "FS-1-ZL-07",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Der Strom ist weg. Geh nach draußen und sieh nach, was da kommt.",
+   "ziel": "kapitel1.js Z.589 MAIN[6]",
+   "sprecher": "",
+   "ersetzt": "Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt."
+  },
+  {
+   "id": "FS-1-WA-07",
+   "kapitel": 1,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Das Brummen hat aufgehört. Wenn die Laternen ausgehen, will ich wissen, wer sie ausmacht.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Der Strom ist weg\\. Geh nach draußen"
+  },
+  {
+   "id": "FS-1-GF-07",
+   "kapitel": 1,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Das Brummen. Die Laternen gehen aus, eine nach der anderen. Raus, nicht festsitzen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Der Strom ist weg\\. Geh nach draußen"
+  },
+  {
+   "id": "FS-1-ZL-08",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Versteck dich vor dem Licht. Zurück in den Keller von Nr. 7.",
+   "ziel": "kapitel1.js Z.480/587 MAIN[7]",
+   "sprecher": "",
+   "ersetzt": "Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht.",
+   "bem": "ZIELE_WARUM und GEDANKEN_FADEN existieren; Regex bleibt stabil"
+  },
+  {
+   "id": "FS-1-ZL-09",
+   "kapitel": 1,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.",
+   "ziel": "kapitel1.js Z.309 (objText direkt)",
+   "sprecher": "",
+   "ersetzt": "Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.",
+   "bem": "Zielzeile unverändert; ihr fehlte nur das Warum (das tote WARUM[7] hing am alten Text)"
+  },
+  {
+   "id": "FS-1-WA-09",
+   "kapitel": 1,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Hilde hat auf die Wand gezeigt, nicht auf mich. Sie wusste, was dahinter ist.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Leg die Hand an die Zeichnungen"
+  },
+  {
+   "id": "FS-2-ZL-03",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Ordne die Namen an der Tafel im Archiv: Wer zuerst zurückkam, steht links.",
+   "ziel": "_base AMT_ZIEL amt.js Z.40",
+   "sprecher": "",
+   "ersetzt": "Bring die Namen in die richtige Reihenfolge. Die Ordnungstafel im Archiv: wer zuerst zurückkam, steht links."
+  },
+  {
+   "id": "FS-2-GF-03",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Ordne die Namen an der Tafel"
+  },
+  {
+   "id": "FS-2-ZL-05",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Die Stahltür im Osten braucht Strom. Finde den Sicherungsraum.",
+   "ziel": "zimmer7.js Z.78",
+   "sprecher": "",
+   "ersetzt": "Ohne Strom geht die Stahltür im Osten nicht auf. Finde den Sicherungsraum und schalte den Strom ein."
+  },
+  {
+   "id": "FS-2-WA-05",
+   "kapitel": 2,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Ohne Strom bleibt die Stahltür zu. Und ohne die Tür komm ich hier nicht weiter.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Stahltür im Osten braucht Strom"
+  },
+  {
+   "id": "FS-2-GF-05",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Sechs Hebel. Wer schon leuchtet, bleibt in Ruhe.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Stahltür im Osten braucht Strom"
+  },
+  {
+   "id": "FS-2-ZL-06",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen.",
+   "ziel": "amt.js AMT_ZIEL",
+   "sprecher": "",
+   "ersetzt": "Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen."
+  },
+  {
+   "id": "FS-2-GF-06",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Nach Osten. Der Strom ist an, also muss die Stahltür aufgehen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Der Strom ist da\\. Weiter nach Osten"
+  },
+  {
+   "id": "FS-2-ZL-08",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "SCHÜTTLE SIE AB: Maus wild bewegen oder A und D abwechselnd hämmern",
+   "ziel": "_base Z.3901 · spinnen.js Z.217/Z.~250",
+   "sprecher": "",
+   "ersetzt": "SCHÜTTEL SIE AB — Maus wild bewegen, A/D hämmern | SCHÜTTLE SIE AB — Maus wild bewegen oder A und D abwechselnd hämmern",
+   "bem": "vereinheitlicht; ZIELE_TAKT kennt bisher nur 'SCHÜTTEL' (Präfix), nicht 'SCHÜTTLE'"
+  },
+  {
+   "id": "FS-2-ZL-09",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Die östliche Stahltür ist frei. Geh weiter.",
+   "ziel": "tod.js objFix · feuer.js Z.691",
+   "sprecher": "",
+   "ersetzt": "Die östliche Stahltür ist frei. Geh weiter."
+  },
+  {
+   "id": "FS-2-GF-09",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Offen. Weiter nach Osten, so weit der Gang geht.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "östliche Stahltür ist frei"
+  },
+  {
+   "id": "FS-2-ZL-13",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Lies die achte Akte. Das Fach neben dem Klavier ist offen.",
+   "ziel": "_base safeOpens Z.4028",
+   "sprecher": "",
+   "ersetzt": "Lies die achte Akte."
+  },
+  {
+   "id": "FS-2-WA-13",
+   "kapitel": 2,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Sieben Kinder, sieben Akten. Und eine achte. Ich muss wissen, wer das ist.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Lies die achte Akte"
+  },
+  {
+   "id": "FS-2-GF-13",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Das Fach an der Westwand, neben dem Klavier. Die Akte ohne Namen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Lies die achte Akte"
+  },
+  {
+   "id": "FS-2-ZL-14",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Lucy. Sie ist im Tank. Sprich mit ihr.",
+   "ziel": "_base Z.4046 setC2Objective('Lucy.')",
+   "sprecher": "",
+   "ersetzt": "Lucy."
+  },
+  {
+   "id": "FS-2-WA-14",
+   "kapitel": 2,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Der Tank ist offen. Sie hat gesummt, und jetzt sieht sie mich an.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "^Lucy\\. Sie ist im Tank"
+  },
+  {
+   "id": "FS-2-GF-14",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Sie wartet im Tank. Hingehen, ansprechen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "^Lucy\\. Sie ist im Tank"
+  },
+  {
+   "id": "FS-2-ZL-17",
+   "kapitel": 2,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Raus hier. In der Decke steht eine Luke offen. Die Leiter führt hinauf.",
+   "ziel": "_base Z.4087",
+   "sprecher": "",
+   "ersetzt": "Raus hier. In der Decke steht eine Luke offen – eine Leiter führt nach oben.",
+   "bem": "Faden-Regex /Luke|Leiter/ ist zu breit (trifft auch 'Atlantschiss … Leiter führt zurück'); ersetzen"
+  },
+  {
+   "id": "FS-2-GF-17",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Die Leiter. Nach oben. Nicht umdrehen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Die Leiter führt hinauf"
+  },
+  {
+   "id": "FS-3-ZL-03",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Justin steht an der Kreuzung. Sprich mit ihm, sieh dich um – oder geh los.",
+   "ziel": "justin.js Z.437",
+   "sprecher": "",
+   "ersetzt": "Justin steht an der Kreuzung. Sprich mit ihm, sieh dich um – oder geh los."
+  },
+  {
+   "id": "FS-3-GF-03",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Er steht an der Kreuzung und tut nichts. Hingehen, ansprechen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Justin steht an der Kreuzung"
+  },
+  {
+   "id": "FS-3-ZL-04",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Lösch die Laternen, dann muss sie herunter. Frau Wendts Notizen und der Funkkasten helfen.",
+   "ziel": "kapitel3.js Z.15 KAPITEL3_ZIEL_LATERNEN",
+   "sprecher": "",
+   "ersetzt": "Die Laternen müssen aus, dann muss sie herunter. Wie, steht bei Frau Wendt in Nr. 7 – und der Funkkasten an der Kreuzung spricht noch."
+  },
+  {
+   "id": "FS-3-GF-04",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Frau Wendt in Nr. 7 hat ihre Nächte notiert. Und der Funkkasten spricht noch.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Lösch die Laternen, dann muss sie herunter"
+  },
+  {
+   "id": "FS-3-ZL-05",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Lösch die Laternen vor den Häusern in der Reihenfolge, in der sie die Kinder geholt hat.",
+   "ziel": "kapitel3.js · lucy3.js Z.323 · _base Z.4238 (drei Varianten)",
+   "sprecher": "",
+   "ersetzt": "Lösch die Laternen vor den Häusern – in der Reihenfolge, … | …, in der Reihenfolge, …"
+  },
+  {
+   "id": "FS-3-WA-05",
+   "kapitel": 3,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Die Laternen sind ihre Augen. Wenn ich sie richtig ausmache, sieht sie mich nicht kommen.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Lösch die Laternen vor den Häusern"
+  },
+  {
+   "id": "FS-3-ZL-08",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Geh weiter. Der Raum baut sich vor dir auf.",
+   "ziel": "_base setC3 Z.4409",
+   "sprecher": "",
+   "ersetzt": "Geh weiter. Tiefer nach Nimmerheim."
+  },
+  {
+   "id": "FS-3-GF-08",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Nur ein Weg: weiter, wo sich der Raum aufbaut. Justin geht voraus.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Geh weiter\\. Der Raum baut sich"
+  },
+  {
+   "id": "FS-3-ZL-09",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Der Hohe Abgrund. Nimm Justins Hand und geh hinein.",
+   "ziel": "_base setC3 Z.4460 · weiss.js Z.236",
+   "sprecher": "",
+   "ersetzt": "Der Hohe Abgrund. Geh hinein."
+  },
+  {
+   "id": "FS-3-GF-09",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Das Weiße vor mir ist der Rand. Justin hat gesagt: Nicht loslassen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Der Hohe Abgrund\\. Nimm Justins Hand"
+  },
+  {
+   "id": "FS-3-ZL-13",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Eine Erinnerung lügt. Sieh genau hin: Wo enden die Spuren?",
+   "ziel": "weiss.js Z.252",
+   "sprecher": "",
+   "ersetzt": "Eine Erinnerung lügt. Sieh genau hin."
+  },
+  {
+   "id": "FS-3-GF-13",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Die Spuren enden am Rand. Sieh hin, wo sie aufhören.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Eine Erinnerung lügt"
+  },
+  {
+   "id": "FS-3-ZL-15",
+   "kapitel": 3,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Zurück: die Leiter.",
+   "ziel": "_base setC3 Z.5055",
+   "sprecher": "",
+   "ersetzt": "Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück."
+  },
+  {
+   "id": "FS-3-GF-15",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Eine Stadt unter dem Dorf. Alles Wichtige steht irgendwo auf Wänden und Schildern.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Atlantschiss"
+  },
+  {
+   "id": "FS-4-ZL-00",
+   "kapitel": 4,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Sieh nach Lucy. Sie liegt bei Vegas in Nr. 3.",
+   "ziel": "anwesen.js Z.205 (onclick der Intro-Tafel) + Flag nach 'Speck ist Speck'",
+   "sprecher": "",
+   "ersetzt": "(keine Zielzeile bis zu den Schlüsselteilen; Intro setzt direkt 'Die Villa Seiler. Dir fehlen noch N Schlüsselteile – frag den Raben.')",
+   "bem": "schließt die Lücke zwischen Intro und den ersten vier Unterkapiteln; danach die bestehende Villa-Zielzeile"
+  },
+  {
+   "id": "FS-4-WA-00",
+   "kapitel": 4,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Sie hat gefroren, als ich sie zuletzt gesehen hab. Erst Lucy, dann alles andere.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Sieh nach Lucy\\. Sie liegt bei Vegas"
+  },
+  {
+   "id": "FS-4-GF-00",
+   "kapitel": 4,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Nr. 3, die Veranda. Vegas macht auf, wenn man klopft.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Sieh nach Lucy\\. Sie liegt bei Vegas"
+  },
+  {
+   "id": "FS-4-ZL-02",
+   "kapitel": 4,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Die Villa Seiler. Sieh dich in der Halle um.",
+   "ziel": "anwesen.js Z.178/223",
+   "sprecher": "",
+   "ersetzt": "Die Villa Seiler. Sieh dich um."
+  },
+  {
+   "id": "FS-4-GF-02",
+   "kapitel": 4,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Die Halle hat mehr als eine Tür. Erst alle ansehen, dann eine nehmen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Die Villa Seiler\\. Sieh dich in der Halle um"
+  },
+  {
+   "id": "FS-4-ZL-03",
+   "kapitel": 4,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.",
+   "ziel": "anwesen.js Z.206",
+   "sprecher": "",
+   "ersetzt": "Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen."
+  },
+  {
+   "id": "FS-4-GF-03",
+   "kapitel": 4,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Die Presse steht im Garten und braucht Strom. Acht Teile hinein, ein Schlüssel heraus.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Die Presse im Garten fügt"
+  },
+  {
+   "id": "FS-5-ZL-01",
+   "kapitel": 5,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Lucy schläft bei Vegas. Warte auf der Veranda von Nr. 3.",
+   "ziel": "kapitel5.js Z.559",
+   "sprecher": "",
+   "ersetzt": "Lucy schläft bei Vegas. Warte auf der Veranda."
+  },
+  {
+   "id": "FS-5-GF-01",
+   "kapitel": 5,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Auf der Veranda von Nr. 3 warten. Vegas redet durch den Türspalt.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Warte auf der Veranda"
+  },
+  {
+   "id": "FS-5-ZL-02",
+   "kapitel": 5,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Lucy ist am Fenster von Nr. 3. Geh hin.",
+   "ziel": "kapitel5.js Z.593",
+   "sprecher": "",
+   "ersetzt": "Lucy. Am Fenster."
+  },
+  {
+   "id": "FS-5-WA-02",
+   "kapitel": 5,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Sie klopft. Sie will mir etwas sagen, das Vegas nicht hören soll.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Lucy ist am Fenster"
+  },
+  {
+   "id": "FS-5-GF-02",
+   "kapitel": 5,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Das Fenster neben der Veranda. Sie klopft, sie will etwas sagen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Lucy ist am Fenster"
+  },
+  {
+   "id": "FS-5-ZL-05",
+   "kapitel": 5,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Nr. 1. Wer deckt da den Tisch?",
+   "ziel": "kapitel5.js Z.604/607/774",
+   "sprecher": "",
+   "ersetzt": "Nr. 1. Wer deckt da den Tisch?"
+  },
+  {
+   "id": "FS-5-WA-05",
+   "kapitel": 5,
+   "art": "warum",
+   "ausloeser": "mit der Zielzeile (ziele.js ZIELE_WARUM)",
+   "text": "Nr. 1 ist unser Haus. Mamas Haus. Da wohnt keiner mehr, und trotzdem klappert Geschirr.",
+   "ziel": "ziele.js ZIELE_WARUM",
+   "sprecher": "LUKE",
+   "regex": "Nr\\. 1\\. Wer deckt da den Tisch"
+  },
+  {
+   "id": "FS-5-GF-05",
+   "kapitel": 5,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Licht in Nr. 1, zum ersten Mal seit Mama. Erst ansehen, dann hineingehen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Nr\\. 1\\. Wer deckt da den Tisch"
+  },
+  {
+   "id": "FS-5-ZL-10",
+   "kapitel": 5,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Die Telefonzelle klingelt.",
+   "ziel": "kapitel5.js Z.623",
+   "sprecher": "",
+   "ersetzt": "Die Telefonzelle klingelt."
+  },
+  {
+   "id": "FS-5-GF-10",
+   "kapitel": 5,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Wieder die Zelle. Diesmal hör ich auf die Spieluhr unter der Stimme.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Die Telefonzelle klingelt"
+  },
+  {
+   "id": "FS-5-ZL-12",
+   "kapitel": 5,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Hinterher.",
+   "ziel": "kapitel5.js Z.629 (Takt)",
+   "sprecher": "",
+   "ersetzt": "Hinterher."
+  },
+  {
+   "id": "FS-5-GF-12",
+   "kapitel": 5,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Er läuft vor mir. Ich folge dem Tappen, so weit es geht.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "^Hinterher\\.$"
+  },
+  {
+   "id": "FS-6-ZL-01",
+   "kapitel": 6,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Hinter dem Gitter ist der Junge. Aber erst: Wer parkt da hinter dir?",
+   "ziel": "kapitel6.js Z.758",
+   "sprecher": "",
+   "ersetzt": "Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?"
+  },
+  {
+   "id": "FS-6-GF-01",
+   "kapitel": 6,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Hinter mir steht ein Wagen. Erst klären, wer das ist, dann durchs Gitter.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "wer parkt da hinter dir"
+  },
+  {
+   "id": "FS-6-ZL-02",
+   "kapitel": 6,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Das Gitter aufbiegen: E halten. Der Junge ist darunter durch.",
+   "ziel": "kapitel6.js Z.339",
+   "sprecher": "",
+   "ersetzt": "Das Gitter aufbiegen: E halten, am Gitter. Der Junge ist darunter durch.",
+   "bem": "Faden-Text wiederholt die Zielzeile fast wörtlich; Faden besser: 'Er hat sich durchgezwängt. Ich muss nur lange genug drücken.'"
+  },
+  {
+   "id": "FS-6-GF-02b",
+   "kapitel": 6,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s am Gitter",
+   "text": "Er hat sich durchgezwängt. Ich muss nur lange genug drücken.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Das Gitter aufbiegen",
+   "ersetzt": "Zum Gitter, E halten, bis es nachgibt. Der Junge ist darunter durch."
+  },
+  {
+   "id": "FS-6-ZL-03",
+   "kapitel": 6,
+   "art": "zielzeile",
+   "ausloeser": "Aufgabenwechsel",
+   "text": "Der Hochsitz. Whiskey wartet oben.",
+   "ziel": "kapitel6.js Z.601",
+   "sprecher": "",
+   "ersetzt": "Der Hochsitz."
+  },
+  {
+   "id": "FS-6-GF-03",
+   "kapitel": 6,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (gedanken.js GEDANKEN_FADEN)",
+   "text": "Whiskey ist vorausgeflogen. Ihm nach, dann die Leiter hinauf.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "^Der Hochsitz\\. Whiskey wartet oben"
+  },
+  {
+   "id": "FS-1-KZ-01",
+   "kapitel": 1,
+   "art": "gedanke",
+   "ausloeser": "erster weißer Pfeil im Blickfeld (< 7 m, 0,8 s) – einmalig, nach Whiskey-Szene oder 40 s",
+   "zeilen": [
+    "Weiße Kinderkreide. Alle Pfeile zeigen die Straße hinunter, nach Osten.",
+    "Ich folge ihnen. Besser als gar kein Plan."
+   ],
+   "text": "Weiße Kinderkreide. Alle Pfeile zeigen die Straße hinunter, nach Osten. / Ich folge ihnen. Besser als gar kein Plan.",
+   "ziel": "neu: fuehrung_kreide() · kapitel1.js kapitel1_welt() Z.112 (Pfeil-Instanzen K1.pfeileW)",
+   "sprecher": "LUKE · GEDANKE",
+   "bem": "kein Wort darüber, wer sie gemalt hat (Kanon offen)"
+  },
+  {
+   "id": "FS-1-KZ-02",
+   "kapitel": 1,
+   "art": "fibel_fund",
+   "ausloeser": "gleichzeitig mit KZ-01 (kapitel1_lore('kreidezeichen', …))",
+   "zeilen": [
+    "Weiß: Kinderkreide, alt und frisch, zeigt nach Osten.",
+    "Blau mit Kreis am Schaft: Lucys Zeichen.",
+    "Gelb: meine eigene Kreide (K)."
+   ],
+   "text": "Weiß: Kinderkreide, alt und frisch, zeigt nach Osten. / Blau mit Kreis am Schaft: Lucys Zeichen. / Gelb: meine eigene Kreide (K).",
+   "ziel": "kapitel1.js kapitel1_lore() · Fibel-Reiter FUNDE",
+   "sprecher": "",
+   "titel": "Kreidezeichen",
+   "bem": "dritte Zeile erst, wenn Straßenkreide eingesteckt ist"
+  },
+  {
+   "id": "FS-1-KZ-03",
+   "kapitel": 1,
+   "art": "gedanke",
+   "ausloeser": "erster blauer Pfeil im Blickfeld (bei Nr. 7, Briefkasten)",
+   "zeilen": [
+    "Blau, mit Kreis am Schaft. Lucys Pfeil.",
+    "Der führt von Nr. 7 weg, den Kirchweg hinauf. Gegen die weißen."
+   ],
+   "text": "Blau, mit Kreis am Schaft. Lucys Pfeil. / Der führt von Nr. 7 weg, den Kirchweg hinauf. Gegen die weißen.",
+   "ziel": "neu: fuehrung_kreide() · kapitel1.js K1.blau Z.115",
+   "sprecher": "LUKE · GEDANKE",
+   "bem": "ersetzt nicht U-30 (Untersuchungszeile bei Berührung)"
+  },
+  {
+   "id": "FS-1-KZ-04",
+   "kapitel": 1,
+   "art": "pulse",
+   "ausloeser": "beim Gedanken KZ-01: die ersten drei Pfeile glimmen 2 s auf (Kreide-Glanz, Deckkraft 0,35 → 0,6 → 0,35)",
+   "text": "(kein Text)",
+   "ziel": "kapitel1.js kapitel1_pfeile() · InstancedMesh.setColorAt",
+   "sprecher": "",
+   "bem": "einmalig; kein Rand-Highlight (hervorhebung.js ist für interaktive Objekte)"
+  },
+  {
+   "id": "FS-1-TP-01",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "nach dem Aufwachen, Spieler steht > 3 s still, Bild frei",
+   "zeilen": [
+    "Gehen: W A S D. Umsehen: Maus.",
+    "Springen: Leertaste."
+   ],
+   "text": "Gehen: W A S D. Umsehen: Maus. / Springen: Leertaste.",
+   "ziel": "neu: tipps.js · Basis keys",
+   "sprecher": "",
+   "name": "Bewegung",
+   "tasten": [
+    "W",
+    "A",
+    "S",
+    "D",
+    "MAUS",
+    "LEERTASTE"
+   ],
+   "gelernt_wenn": "Spieler ist ≥ 5 m gelaufen",
+   "prioritaet": 1
+  },
+  {
+   "id": "FS-1-TP-02",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "nach 25 s Gehen auf der Straße ohne Shift",
+   "zeilen": [
+    "Shift halten: rennen."
+   ],
+   "text": "Shift halten: rennen.",
+   "ziel": "neu: tipps.js",
+   "sprecher": "",
+   "name": "Rennen",
+   "tasten": [
+    "SHIFT"
+   ],
+   "gelernt_wenn": "Shift wurde benutzt",
+   "prioritaet": 3
+  },
+  {
+   "id": "FS-1-TP-03",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "Luke betritt eine dunkle Zone (Innenraum/Gasse) mit Lampe aus – oder Akku < 25 % beim ersten Mal",
+   "zeilen": [
+    "F: Taschenlampe an und aus.",
+    "R: Batterie wechseln."
+   ],
+   "text": "F: Taschenlampe an und aus. / R: Batterie wechseln.",
+   "ziel": "neu: tipps.js · FLASH",
+   "sprecher": "",
+   "name": "Lampe",
+   "tasten": [
+    "F",
+    "R"
+   ],
+   "gelernt_wenn": "F wurde gedrückt",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-1-TP-04",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "erstes Objekt mit E-halten-Aktion im Blick (Gitter K6, Leiter K2)",
+   "zeilen": [
+    "E halten: aufstemmen, aufschieben, klettern."
+   ],
+   "text": "E halten: aufstemmen, aufschieben, klettern.",
+   "ziel": "neu: tipps.js",
+   "sprecher": "",
+   "name": "Benutzen (E halten)",
+   "tasten": [
+    "E"
+   ],
+   "gelernt_wenn": "E wurde länger als 0,6 s gehalten",
+   "prioritaet": 2,
+   "bem": "E einfach tippen erklärt das #prompt-Label selbst (kbd E)"
+  },
+  {
+   "id": "FS-1-TP-05",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "40 s nach neuem Ziel ohne Fortschritt (zählt vor GEDANKEN.stuck = 150 s)",
+   "zeilen": [
+    "Z: Ziel noch einmal zeigen.",
+    "Tab: Fibel, Reiter WAS JETZT?"
+   ],
+   "text": "Z: Ziel noch einmal zeigen. / Tab: Fibel, Reiter WAS JETZT?",
+   "ziel": "neu: tipps.js · ziele.js",
+   "sprecher": "",
+   "name": "Ziel und Fibel",
+   "tasten": [
+    "Z",
+    "TAB"
+   ],
+   "gelernt_wenn": "Z oder Tab wurde gedrückt",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-1-TP-06",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "erster Betritt der Kreuzung oder Ziel > 60 m entfernt",
+   "zeilen": [
+    "M: Karte. Sie füllt sich, wo du gewesen bist."
+   ],
+   "text": "M: Karte. Sie füllt sich, wo du gewesen bist.",
+   "ziel": "neu: tipps.js · karte.js",
+   "sprecher": "",
+   "name": "Karte",
+   "tasten": [
+    "M"
+   ],
+   "gelernt_wenn": "M wurde gedrückt",
+   "prioritaet": 3
+  },
+  {
+   "id": "FS-1-TP-07",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "erster eingesteckter Gegenstand (Schlüssel am Briefkasten)",
+   "zeilen": [
+    "Eingesteckt. Tab, Reiter INVENTAR:",
+    "ansehen und kombinieren."
+   ],
+   "text": "Eingesteckt. Tab, Reiter INVENTAR: / ansehen und kombinieren.",
+   "ziel": "neu: tipps.js · addItem()",
+   "sprecher": "",
+   "name": "Inventar",
+   "tasten": [
+    "TAB"
+   ],
+   "gelernt_wenn": "Reiter INVENTAR wurde geöffnet",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-1-TP-08",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "Kante in Reichweite (mantleTarget) / niedrige Öffnung (crawlK)",
+   "zeilen": [
+    "Strg: ducken. Leertaste an Kanten: hochziehen."
+   ],
+   "text": "Strg: ducken. Leertaste an Kanten: hochziehen.",
+   "ziel": "bewegung.js BHINT Z.157–161 (Texte ersetzen)",
+   "sprecher": "",
+   "name": "Ducken, Klettern",
+   "tasten": [
+    "STRG",
+    "LEERTASTE"
+   ],
+   "gelernt_wenn": "Mantle oder Ducken wurde ausgeführt",
+   "prioritaet": 2,
+   "bem": "'C' ist Ducken-Umschalter, wird aber in Kap. 5 von der Kamera belegt: Tipp nennt nur Strg"
+  },
+  {
+   "id": "FS-1-TP-09",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "kapitel1_versteck() beginnt (V.on), erste 4 s",
+   "zeilen": [
+    "Hecken, Autos, Tonnen: dahinter bist du im Schatten.",
+    "Lampe aus (F): sie sehen dich später."
+   ],
+   "text": "Hecken, Autos, Tonnen: dahinter bist du im Schatten. / Lampe aus (F): sie sehen dich später.",
+   "ziel": "kapitel1.js Z.478",
+   "sprecher": "",
+   "name": "Verstecken",
+   "tasten": [
+    "F"
+   ],
+   "gelernt_wenn": "Spieler steht in einer Deckung (kapitel1_deckung)",
+   "prioritaet": 1,
+   "bem": "Sichtradius im Code: 3,7 m, +1,4 m bei brennender Lampe"
+  },
+  {
+   "id": "FS-1-TP-10",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "erste drei say()-Blöcke",
+   "zeilen": [
+    "Enter oder Klick: weiter.",
+    "X: alles überspringen."
+   ],
+   "text": "Enter oder Klick: weiter. / X: alles überspringen.",
+   "ziel": "stimmen.js say_hinweis()",
+   "sprecher": "",
+   "name": "Text überspringen",
+   "tasten": [
+    "ENTER",
+    "X"
+   ],
+   "gelernt_wenn": "Enter/Klick/X wurde einmal benutzt",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-1-TP-11",
+   "kapitel": 1,
+   "art": "tipp",
+   "ausloeser": "erster Speicherpunkt (todCpShow)",
+   "zeilen": [
+    "Gespeichert wird an Speicherpunkten.",
+    "Festgesteckt? Esc, dann FESTGESTECKT?."
+   ],
+   "text": "Gespeichert wird an Speicherpunkten. / Festgesteckt? Esc, dann FESTGESTECKT?.",
+   "ziel": "tod.js todCpShow / tod_rettungMenue",
+   "sprecher": "",
+   "name": "Speichern",
+   "tasten": [
+    "ESC"
+   ],
+   "gelernt_wenn": "—",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-2-TP-01",
+   "kapitel": 2,
+   "art": "tipp",
+   "ausloeser": "AG-07: Blechmann nah (G.nah) im Vorraum des Messraums",
+   "zeilen": [
+    "Leertaste halten: Atem anhalten.",
+    "Lampe aus, nicht bewegen."
+   ],
+   "text": "Leertaste halten: Atem anhalten. / Lampe aus, nicht bewegen.",
+   "ziel": "lwo.js LWO_AG07 Z.834",
+   "sprecher": "",
+   "name": "Atem anhalten",
+   "tasten": [
+    "LEERTASTE"
+   ],
+   "gelernt_wenn": "Leertaste im Takt benutzt",
+   "prioritaet": 1
+  },
+  {
+   "id": "FS-2-TP-02",
+   "kapitel": 2,
+   "art": "tipp",
+   "ausloeser": "augenzu_frei() – Finale Messraum",
+   "zeilen": [
+    "Q halten: Augen zu."
+   ],
+   "text": "Q halten: Augen zu.",
+   "ziel": "augenzu.js Z.33 (Standardhinweis bleibt)",
+   "sprecher": "",
+   "name": "Augen zu",
+   "tasten": [
+    "Q"
+   ],
+   "gelernt_wenn": "Q wurde gehalten",
+   "prioritaet": 1,
+   "bem": "Hinweis existiert bereits; nur den Gelernt-Merker ergänzen"
+  },
+  {
+   "id": "FS-2-TP-03",
+   "kapitel": 2,
+   "art": "tipp",
+   "ausloeser": "erste Spinnen-/Packen-Szene (spn)",
+   "zeilen": [
+    "Maus wild bewegen oder A und D abwechselnd hämmern."
+   ],
+   "text": "Maus wild bewegen oder A und D abwechselnd hämmern.",
+   "ziel": "spinnen.js Z.217",
+   "sprecher": "",
+   "name": "Schütteln",
+   "tasten": [
+    "MAUS",
+    "A",
+    "D"
+   ],
+   "gelernt_wenn": "—",
+   "prioritaet": 1,
+   "bem": "ersetzt die als Zielzeile gesetzte Anweisung (siehe FS-2-ZL-08)"
+  },
+  {
+   "id": "FS-3-TP-01",
+   "kapitel": 3,
+   "art": "tipp",
+   "ausloeser": "erster Lichtstein im Inventar",
+   "zeilen": [
+    "G: Kinderblick. Er zeigt, wo man suchen muss.",
+    "Er lädt sich langsam wieder auf."
+   ],
+   "text": "G: Kinderblick. Er zeigt, wo man suchen muss. / Er lädt sich langsam wieder auf.",
+   "ziel": "visionen.js kinderblick() Z.35",
+   "sprecher": "",
+   "name": "Kinderblick",
+   "tasten": [
+    "G"
+   ],
+   "gelernt_wenn": "G wurde gedrückt",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-3-TP-02",
+   "kapitel": 3,
+   "art": "tipp",
+   "ausloeser": "Funkkasten zum ersten Mal geöffnet",
+   "zeilen": [
+    "Regler drehen, bis das Rauschen kippt.",
+    "Wort auf Kanal: schreiben, senden."
+   ],
+   "text": "Regler drehen, bis das Rauschen kippt. / Wort auf Kanal: schreiben, senden.",
+   "ziel": "lucy3.js radioPuzzle",
+   "sprecher": "",
+   "name": "Funk",
+   "tasten": [
+    "MAUS"
+   ],
+   "gelernt_wenn": "—",
+   "prioritaet": 3,
+   "bem": "nur falls das Overlay selbst keine Beschriftung zeigt (prüfen)"
+  },
+  {
+   "id": "FS-5-TP-01",
+   "kapitel": 5,
+   "art": "tipp",
+   "ausloeser": "k5: Kamera aufgenommen",
+   "zeilen": [
+    "C: Kamera heben. Klick: abdrücken.",
+    "Es sind nur drei Bilder."
+   ],
+   "text": "C: Kamera heben. Klick: abdrücken. / Es sind nur drei Bilder.",
+   "ziel": "kamera.js kamera_tip Z.17 (Text ersetzen)",
+   "sprecher": "",
+   "name": "Kamera",
+   "tasten": [
+    "C",
+    "KLICK"
+   ],
+   "gelernt_wenn": "ein Bild wurde gemacht",
+   "prioritaet": 1
+  },
+  {
+   "id": "FS-5-TP-02",
+   "kapitel": 5,
+   "art": "tipp",
+   "ausloeser": "Stall / Hochsitz",
+   "zeilen": [
+    "Q halten: Augen zu. Nicht hinsehen."
+   ],
+   "text": "Q halten: Augen zu. Nicht hinsehen.",
+   "ziel": "augenzu.js",
+   "sprecher": "",
+   "name": "Augen zu",
+   "tasten": [
+    "Q"
+   ],
+   "gelernt_wenn": "Q wurde gehalten",
+   "prioritaet": 1
+  },
+  {
+   "id": "FS-6-TP-01",
+   "kapitel": 6,
+   "art": "tipp",
+   "ausloeser": "crawlK > .5",
+   "zeilen": [
+    "Kriechen: Unter 70 cm Höhe geht es nur geduckt.",
+    "Strg halten."
+   ],
+   "text": "Kriechen: Unter 70 cm Höhe geht es nur geduckt. / Strg halten.",
+   "ziel": "bewegung.js BHINT.kriech",
+   "sprecher": "",
+   "name": "Kriechen",
+   "tasten": [
+    "STRG"
+   ],
+   "gelernt_wenn": "—",
+   "prioritaet": 2
+  },
+  {
+   "id": "FS-6-TP-02",
+   "kapitel": 6,
+   "art": "tipp",
+   "ausloeser": "Akku-Anzeige leer (FLASH.charge ≤ 0) im Bau",
+   "zeilen": [
+    "R: Batterie wechseln. Danach E: Feuerzeug."
+   ],
+   "text": "R: Batterie wechseln. Danach E: Feuerzeug.",
+   "ziel": "hungrige.js / gedanken.js akku_leer",
+   "sprecher": "",
+   "name": "Lampe und Feuerzeug",
+   "tasten": [
+    "R",
+    "E"
+   ],
+   "gelernt_wenn": "Batterie wurde gewechselt",
+   "prioritaet": 1
+  },
+  {
+   "id": "FS-1-SC-01",
+   "kapitel": 1,
+   "art": "ortsschild",
+   "ausloeser": "Zustand Z0 · Start (214 durchgestrichen, 211 darunter, Bleistiftstrich)",
+   "zeilen": [
+    "Lost Eyengless. „Einwohner 214“, zweimal rot durchgestrichen. Darunter: 211.",
+    "Darunter ein Bleistiftstrich. Als hätte jemand schon angesetzt, sie wieder zu ändern."
+   ],
+   "text": "Lost Eyengless. „Einwohner 214“, zweimal rot durchgestrichen. Darunter: 211. / Darunter ein Bleistiftstrich. Als hätte jemand schon angesetzt, sie wieder zu ändern.",
+   "ziel": "strasse.js Z.319 interact('Ortstafel') (ersetzt beide Fassungen)",
+   "sprecher": "",
+   "wann": "Anfang bis Ende Kap. 1"
+  },
+  {
+   "id": "FS-1-SC-03",
+   "kapitel": 1,
+   "art": "ortsschild",
+   "ausloeser": "Zustand Z1 · ab Kapitel-1-Ende (211 durchgestrichen, 210 darunter)",
+   "zeilen": [
+    "Lost Eyengless. 214 und 211 sind durchgestrichen.",
+    "Darunter, frisch in Kreide: 210."
+   ],
+   "text": "Lost Eyengless. 214 und 211 sind durchgestrichen. / Darunter, frisch in Kreide: 210.",
+   "ziel": "traum.js Z.334 K1_S.act210 (ersetzt Text 'Daneben …')",
+   "sprecher": "",
+   "wann": "ab K1-Abspann"
+  },
+  {
+   "id": "FS-1-SC-04",
+   "kapitel": 1,
+   "art": "ortsschild",
+   "ausloeser": "Gedanke beim ersten Ansehen von Z0 (einmalig)",
+   "text": "214, dann 211. Irgendwer führt hier Buch.",
+   "ziel": "gedanken.js (neu, id 'sc_erst')",
+   "sprecher": "LUKE · GEDANKE",
+   "wann": "Kap. 1"
+  },
+  {
+   "id": "FS-1-SC-05",
+   "kapitel": 1,
+   "art": "ortsschild",
+   "ausloeser": "Gedanke beim ersten Ansehen von Z1 (einmalig)",
+   "text": "210. Die Kreide ist noch frisch. Frau Wendt ist erst vor Minuten fort.",
+   "ziel": "gedanken.js (neu, id 'sc_zehn')",
+   "sprecher": "LUKE · GEDANKE",
+   "wann": "ab K1-Ende"
+  },
+  {
+   "id": "FS-1-SC-06",
+   "kapitel": 1,
+   "art": "karte",
+   "ausloeser": "Karte, Blatt 'dorf', Kopfzeile (alle Kapitel)",
+   "zeilen": [
+    "Einw. 214 (durchgestrichen)",
+    "211 (durchgestrichen ab Kap. 2)",
+    "210 (darunter)"
+   ],
+   "text": "Einw. 214 (durchgestrichen) / 211 (durchgestrichen ab Kap. 2) / 210 (darunter)",
+   "ziel": "karte.js karte_ueber() Z.278–281",
+   "sprecher": "",
+   "bem": "Reihenfolge untereinander statt nebeneinander; Strich-Logik wie am Schild"
+  },
+  {
+   "id": "FS-1-SC-07",
+   "kapitel": 1,
+   "art": "fibel_fund",
+   "ausloeser": "Fund 'Ortsschild' beim ersten Lesen der Ortstafel",
+   "zeilen": [
+    "Einwohner 214. Rot durchgestrichen, darunter 211.",
+    "Später: 211 durchgestrichen, darunter 210."
+   ],
+   "text": "Einwohner 214. Rot durchgestrichen, darunter 211. / Später: 211 durchgestrichen, darunter 210.",
+   "ziel": "kapitel1_lore('ortsschild') (neu)",
+   "sprecher": "",
+   "titel": "Das Ortsschild",
+   "bem": "Zahlen nicht deuten (Kanon lässt die Rechnung offen)"
+  },
+  {
+   "id": "FS-1-SZ-01",
+   "kapitel": 1,
+   "art": "sprecher_zuordnung",
+   "ausloeser": "kapitel1.js Z.~265 kapitel1_ostTick: subtitle('… Lu–?', 2400, '')",
+   "text": "STIMME VON DRAUSSEN",
+   "ziel": "kapitel1.js Z.~265 kapitel1_ostTick: subtitle('… Lu–?', 2400, '')",
+   "sprecher": "STIMME VON DRAUSSEN",
+   "zeile": "… Lu–?",
+   "bem": "bisher ohne Sprecher (Erzählspur)"
+  },
+  {
+   "id": "FS-1-SZ-02",
+   "kapitel": 1,
+   "art": "sprecher_zuordnung",
+   "ausloeser": "post.js Z.326 Telefonzelle: 'DAS KIND'",
+   "text": "KINDERSTIMME · TELEFON",
+   "ziel": "post.js Z.326 Telefonzelle: 'DAS KIND'",
+   "sprecher": "KINDERSTIMME · TELEFON",
+   "zeile": "„Geh nicht in den Keller.“ / „Da unten ist nicht Lucy.“",
+   "bem": "Anzeige-Alias; Manifest-Schlüssel 'DAS KIND' bleibt"
+  },
+  {
+   "id": "FS-3-SZ-01",
+   "kapitel": 3,
+   "art": "sprecher_zuordnung",
+   "ausloeser": "lucy3.js Z.135: 'KINDERSTIMME'",
+   "text": "KINDERSTIMME",
+   "ziel": "lucy3.js Z.135: 'KINDERSTIMME'",
+   "sprecher": "KINDERSTIMME",
+   "zeile": "„… siebzehn. Ich komme!“",
+   "bem": "unverändert; Richtungsmarke ● / ▲ ergänzen"
+  },
+  {
+   "id": "FS-5-SZ-01",
+   "kapitel": 5,
+   "art": "sprecher_zuordnung",
+   "ausloeser": "kapitel5.js K5_W.A = 'ANRUF' (Z.997/999)",
+   "text": "STIMME AM TELEFON",
+   "ziel": "kapitel5.js K5_W.A = 'ANRUF' (Z.997/999)",
+   "sprecher": "STIMME AM TELEFON",
+   "zeile": "„Komm in den Stall. Bring Brot. Und guck mich nicht an.“",
+   "bem": "Alias für 'ANRUF'; Stimme luke_echt bleibt"
+  },
+  {
+   "id": "FS-5-SZ-02",
+   "kapitel": 5,
+   "art": "sprecher_zuordnung",
+   "ausloeser": "kapitel5.js Z.1410 k5_jagd: Zeile ohne Sprecher",
+   "text": "VEGAS · AM FENSTER",
+   "ziel": "kapitel5.js Z.1410 k5_jagd: Zeile ohne Sprecher",
+   "sprecher": "VEGAS · AM FENSTER",
+   "zeile": "„Sie ist raus! Barfuß! Zur Kreuzung, Junge …“",
+   "bem": "Sprecher aus dem Kontext (Anrede 'Junge'); bei Integration gegen story_final K5 UK8 prüfen"
+  },
+  {
+   "id": "FS-ALLE-SZ-01",
+   "kapitel": "alle",
+   "art": "sprecher_zuordnung",
+   "ausloeser": "Hilde: 'HILDE' / 'HILDE WENDT' / 'FRAU WENDT'",
+   "text": "HILDE WENDT",
+   "ziel": "Hilde: 'HILDE' / 'HILDE WENDT' / 'FRAU WENDT'",
+   "sprecher": "HILDE WENDT",
+   "zeile": "—",
+   "bem": "in der Rede; 'Frau Wendt' bleibt Lukes Wort in Gedanken"
+  },
+  {
+   "id": "FS-ALLE-SZ-02",
+   "kapitel": "alle",
+   "art": "sprecher_zuordnung",
+   "ausloeser": "Vegas: 'VEGAS' / 'LARS VEGAS' / 'HERR VEGAS · HINTER DER TÜR'",
+   "text": "VEGAS bzw. VEGAS · HINTER DER TÜR",
+   "ziel": "Vegas: 'VEGAS' / 'LARS VEGAS' / 'HERR VEGAS · HINTER DER TÜR'",
+   "sprecher": "VEGAS bzw. VEGAS · HINTER DER TÜR",
+   "zeile": "—",
+   "bem": "Kanal nur, wenn er nicht sichtbar ist"
+  }
+ ]
+}
