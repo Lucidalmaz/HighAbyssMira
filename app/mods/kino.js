@@ -500,13 +500,19 @@ function kino_schild(which) { const S = kino_S; if (!S.zus) { const hits = []; s
   const Z = S.zus; if (!Z) return false; const face = Z.material.findIndex(m => m && m.map && m.map.image && m.map.image.width === 512); if (face < 0) return false;
   if (!S.zusOrig) S.zusOrig = Z.material[face].map;
   if (!S.tex.schild) S.tex.schild = {};
-  const mk = (k, draw) => { if (S.tex.schild[k]) return S.tex.schild[k]; const src = S.zusOrig.image, c = document.createElement('canvas'); c.width = src.width; c.height = src.height; const x = c.getContext('2d'); x.drawImage(src, 0, 0); draw(x, c.width, c.height);
+  // 12.10.: drei Zeilen (ortsschild_zeichne in strasse.js) – 214 zweimal rot durchgestrichen, 211 zweimal in Kreide durchgestrichen, 210 DARUNTER in Kreide
+  const mk = (k, o) => { if (S.tex.schild[k]) return S.tex.schild[k]; const c = document.createElement('canvas'); c.width = ORTSSCHILD.W; c.height = ORTSSCHILD.H; ortsschild_zeichne(c.getContext('2d'), c.width, c.height, o);
     const t = new THREE.CanvasTexture(c); t.colorSpace = S.zusOrig.colorSpace; t.anisotropy = 8; t.wrapS = S.zusOrig.wrapS; t.wrapT = S.zusOrig.wrapT; t.repeat.copy(S.zusOrig.repeat); t.offset.copy(S.zusOrig.offset); S.tex.schild[k] = t; return t; };
-  const chalk = (x, n) => { x.save(); x.fillStyle = 'rgba(58,56,52,.88)'; x.font = '62px Caveat, cursive'; x.translate(310, 198); x.rotate(-.05); x.fillText(n, 0, 0); x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${rand(.2, .7)})`; x.fillRect(rand(-4, 70), rand(-50, 6), rand(1, 3), rand(1, 2)); } x.restore(); };
-  const t = which === '210' ? mk('210', x => chalk(x, '210')) : which === '21' ? mk('21', x => chalk(x, '21')) : which === '2' ? mk('2', x => chalk(x, '2'))
-    : which === 'alle' ? mk('alle', x => { chalk(x, '210'); x.strokeStyle = 'rgba(120,20,20,.85)'; x.lineWidth = 7; x.beginPath(); x.moveTo(376, 170); x.lineTo(478, 150); x.moveTo(300, 178); x.lineTo(372, 160); x.stroke();
-      x.fillStyle = 'rgba(40,60,160,.9)'; x.font = 'bold 58px "Comic Sans MS", cursive'; x.save(); x.translate(56, 204); x.rotate(.05); x.fillText('ALLE', 0, 0); x.restore(); }) : S.zusOrig;
-  Z.material[face].map = t; Z.material[face].needsUpdate = true; S.schild = which; return true; }
+  const spaet = typeof kap === 'function' && kap() >= 5, key = which === '210' && spaet ? '210b' : which;   // ab Kap. 5 zusätzlich der kurze Bleistiftstrich neben der 210
+  const t = which === '210' ? mk(key, { z: spaet ? 5 : 1 }) : which === 'alle' ? mk('alle', { z: 'alle' }) : which === 'orig' ? mk('orig', { z: 0 }) : S.zusOrig;
+  Z.material[face].map = t; Z.material[face].needsUpdate = true; S.schild = key; return true; }
+// Schreib-Animation (Abspann Kap. 1, 4 s): zwei Kreidestriche über der 211, dann 2 – 1 – 0; t in Sekunden ab Shot-Beginn, ein Canvas, bis zum Ende je Bild neu gezeichnet
+function kino_schildAnim(t) { const S = kino_S; if (!S.zus || !S.zusOrig) kino_schild('orig');
+  const Z = S.zus; if (!Z) return; const face = Z.material.findIndex(m => m && m.map && m.map.image && m.map.image.width === 512); if (face < 0) return;
+  if (!S.anim) { const c = document.createElement('canvas'); c.width = ORTSSCHILD.W; c.height = ORTSSCHILD.H; const tx = new THREE.CanvasTexture(c); tx.colorSpace = S.zusOrig.colorSpace; tx.anisotropy = 8; tx.wrapS = S.zusOrig.wrapS; tx.wrapT = S.zusOrig.wrapT; tx.repeat.copy(S.zusOrig.repeat); tx.offset.copy(S.zusOrig.offset); S.anim = { c, tx, last: -1 }; }
+  const e = v => Math.max(0, Math.min(1, v)), A = { s1: e((t - .6) / .35), s2: e((t - 1.05) / .3), d: [e((t - 1.5) / .36), e((t - 1.9) / .3), e((t - 2.25) / .4)] };
+  const key = [A.s1, A.s2, ...A.d].map(v => Math.round(v * 40)).join(); if (key === S.anim.last) return; S.anim.last = key;
+  ortsschild_zeichne(S.anim.c.getContext('2d'), ORTSSCHILD.W, ORTSSCHILD.H, { z: 0, anim: A }); S.anim.tx.needsUpdate = true; Z.material[face].map = S.anim.tx; Z.material[face].needsUpdate = true; S.schild = 'anim'; }
 
 // ---------------------------------------------------------------- Requisiten je Kapitel (im Hintergrund geladen, danach unsichtbar vorkompiliert)
 const kino_ld = async (key, fn) => { try { return await fn(); } catch (e) { console.warn('Kino: ' + key, e); return null; } };
@@ -784,7 +790,7 @@ WORLD_TICK.push(dt => { kino_tick(dt); kino_persist(dt); kino_kuhTick(dt); });
 // Was eine Sequenz dauerhaft verändert, bleibt – auch nach dem Laden: „210“ auf der Ortstafel ab Kapitel 1-Ende
 function kino_persist(dt) { const S = kino_S; S.pT = (S.pT || 0) - dt; if (S.pT > 0 || S.on) return; S.pT = 1.5;
   const after1 = state.ch1Done || state.ch2 || (typeof ch3 !== 'undefined' && ch3.on) || (typeof kap === 'function' && kap() >= 2);
-  if (after1 && S.schild !== '210') kino_schild('210');
+  if (after1 && S.schild !== ((typeof kap === 'function' && kap() >= 5) ? '210b' : '210') && !S.on) kino_schild('210');
   const k = typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; if (k === 3 || k === 5 || k === 6) kino_preload('k' + k); }
 function kino_rabeClip(k, once = false) { const R = kino_S.rabe; if (!R) return; const a = R.A[k]; if (!a || a === R.cur) return; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(.2).play(); if (R.cur) R.cur.fadeOut(.2); R.cur = a; }
 function kino_rabeFly(from, to, dur, then) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur, then }; kino_rabeClip('Fly'); }
@@ -954,10 +960,11 @@ function kino_defK1() {
       sfx: [[() => Audio.play('rumble', { gain: .25, rate: .6, lp: 300 }), .2], [() => Audio.play('metalHit2', { gain: .1, rate: 4, hp: 2500, dur: .12, x: 299.2, y: 1.7, z: 296.4, ref: 1.2 }), 3.05],
         [() => { Audio.play('giggle', { gain: .22, rate: .78, offset: .2, dur: 1.8, x: 300, y: -3, z: 294, ref: 2, lp: 1400 }); }, 5.2]],
       teardown(sh) { for (const [o, sc, z0] of sh.art || []) { o.scale.copy(sc); o.position.z = z0; } kino_hide('staub', 'zeichnung'); kino_S.coldLight.intensity = 0; } },
-    // 29–33 · Ortsschild: neben der roten 211 frisch in Kreide 210
+    // 29–33 · Ortsschild: die 211 zweimal in Kreide durchgestrichen, DARUNTER frisch in Kreide 210 (Schreib-Animation kino_schildAnim)
     { from: [-68.5, 1.8, 4.5], to: [-69.5, 2.0, 5.4], look: [-72.28, 1.55, 6.3], dur: 4, fov: 30, env: { exp: 1.9, fog: [0x121a2a, .02], hemi: [.5, 0x6f82a8, 0x14161c], moon: [.5, 0x9fb2dc] }, ease: 'soft', lens: { at: [-72.28, 1.55, 6.3], r: .22, amt: .4 },
-      setup() { kino_schild('orig'); kino_regen(.35, 1); },
-      sfx: [[() => { kino_schild('2'); kino_kreide(-72.2, 1.5, 6.3); }, .6], [() => kino_schild('21'), 1.15], [() => kino_schild('210'), 1.7], [() => kino_still(true, 1.4), 2.6]] },
+      setup() { kino_schild('orig'); kino_regen(.35, 1); kino_schildAnim(0); },
+      tick(k, t) { kino_schildAnim(t); },
+      sfx: [[() => kino_kreide(-72.2, 1.5, 6.3), .55], [() => kino_kreide(-72.2, 1.5, 6.3), 1.0], [() => kino_kreide(-72.2, 1.2, 6.3), 1.5], [() => kino_kreide(-72.2, 1.2, 6.3), 1.9], [() => kino_kreide(-72.2, 1.2, 6.3), 2.25], [() => kino_still(true, 1.4), 2.8]] },
     // 33–36 · Schwarz, dann die Endkarte (Schreibmaschine)
     { black: true, dur: 2.2, fadeOut: 900 },
     { card: () => ['KAPITEL 1 · KELLER BLEIBT ZU', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.', 'Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.',
@@ -1588,7 +1595,7 @@ function kino_eyes(key, white, amt = 1.4) { const P = kino_S.fig[key]; if (!P) r
   for (const x of P.eyes) { if (!x.userData.kinoE) x.userData.kinoE = [x.emissive ? x.emissive.getHex() : 0, x.emissiveIntensity || 0]; if (x.emissive) { x.emissive.setHex(white ? 0xffffff : x.userData.kinoE[0]); x.emissiveIntensity = white ? amt : x.userData.kinoE[1]; } } }
 
 // ---------------------------------------------------------------- Testzugriff
-window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w), karte: (l, o) => kino_karte(l, o),
+window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w), schildAnim: t => kino_schildAnim(t), karte: (l, o) => kino_karte(l, o),
   hold: on => { kino_S.hold = !!on; }, // Standbild (Zeit steht) – für Kontaktbögen
   outage: () => startOutage(), // Kapitel 1: Stromausfall auslösen (Test)
   fig: (...a) => kino_fig(...a), figOff: k => kino_figOff(k), // Test: Figur zeigen

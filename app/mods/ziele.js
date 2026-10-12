@@ -47,7 +47,7 @@ const ZIELE_WARUM = [
 ];
 function ziele_warum(re, text) { ZIELE_WARUM.unshift([re, text]); }
 // Kurze Takte (Warten, Rennen, QTE-Anweisungen) – still aktualisieren, keine Ankündigung
-const ZIELE_TAKT = /^(Warten|Hinterher|Atmen|Durch die Tür|Lucy\.|LAUF|SCHÜTTEL|Raus hier|Weg hier|Klettern|Den Deckel|Die Leiter hinauf|Die Stablampe|Die Tür ist zu|Nimm Justins Hand|Der letzte Raum|Geh weiter\.)|E halten|Maus wild/;
+const ZIELE_TAKT = /^(Warten|Hinterher|Atmen|Durch die Tür|Lucy\.|LAUF|SCHÜTTEL|SCHÜTTLE|Raus hier|Weg hier|Klettern|Den Deckel|Die Leiter hinauf|Die Stablampe|Die Tür ist zu|Nimm Justins Hand|Der letzte Raum|Geh weiter\.)|E halten|Maus wild/;
 // ---------------------------------------------------------------- Arten der Einblendungen
 const ZIELE_ART = [['neben', /^(NEUE )?NEBENAUFGABE/], ['fort', /^FORTSETZUNG/], ['erledigt', /^(ERLEDIGT|ERFOLG|ALLE KERBEN|VEGAS HATTE RECHT)/], ['verpasst', /^(VERPASST|GESCHEITERT|ZU SPÄT)/],
   ['fund', /^(INVENTAR|AUSRÜSTUNG|GEFUNDEN|GLÄNZENDES|VON WHISKEY|SCHLÜSSELTEIL|JOKER|DU HAST EINGESTECKT)/], ['sammel', /^(LOSE SEITE|STUNDENBUCH|DER LATERNENBOTE|POLAROID|PELLS HEFT|ENTDECKER)/], ['kapitel', /^KAPITEL/], ['karte', /^KARTE/]];
@@ -161,10 +161,11 @@ function ziele_rJetzt(B) { const S = ziele_S, h = ziele_hilfe(), obj = (document
       const p = h > 0 && typeof karte_S !== 'undefined' ? karte_S.p[k] : null; if (p && typeof karte_blattAn === 'function') { const b = karte_blattAn(player.pos.x, player.pos.z); if (b && b.id === p[0]) wo = ziele_himmel(p[1], p[2]); }
       neben.push(`<li><b>${ziele_esc(ziele_rein(q.title))}</b><span>${ziele_esc(ziele_kurz(q.desc))}</span>${wo ? `<i>Nadel auf der Karte: ${ziele_esc(wo)}</i>` : ''}</li>`); } } catch (e) {}
   const log = S.log.slice(-12).reverse().map(l => `<li class="zl-${l.a}"><em>${ziele_esc(ZIELE_ARTNAME[l.a] || l.k)}</em>${ziele_esc(l.x)}</li>`).join('');
+  const phase = typeof fuehrung_phaseText === 'function' ? fuehrung_phaseText() : '', bisher = typeof fuehrung_bisherHtml === 'function' ? fuehrung_bisherHtml() : '';
   B.innerHTML = `<h2>WAS JETZT?</h2><div class="zlJetzt">` +
-    `<section class="zlHaupt"><small>DAS WICHTIGSTE</small><p class="zlZiel">${obj ? ziele_esc(obj) : '<span class="zlLeer">Gerade nichts. Durchatmen.</span>'}</p>` +
+    `<section class="zlHaupt">${phase ? '<p class="zlPhase">' + ziele_esc(phase) + '</p>' : ''}<small>DAS WICHTIGSTE</small><p class="zlZiel">${obj ? ziele_esc(obj) : '<span class="zlLeer">Gerade nichts. Durchatmen.</span>'}</p>` +
     (warum ? `<p class="zlWarum">${ziele_esc(warum)}</p>` : '') + (faden ? `<p class="zlFaden">${ziele_esc(faden)}</p>` : '') +
-    (wohin ? `<p class="zlWohin">${ziele_esc(wohin)}${typeof karte_oeffnen === 'function' ? ' <button class="zlKarte">AUF DER KARTE</button>' : ''}</p>` : '') + `</section>` +
+    (wohin ? `<p class="zlWohin">${ziele_esc(wohin)}${typeof karte_oeffnen === 'function' ? ' <button class="zlKarte">AUF DER KARTE</button>' : ''}</p>` : '') + bisher + `</section>` +
     `<section class="zlNeben"><small>NEBENBEI OFFEN</small>${neben.length ? `<ul>${neben.join('')}</ul>` : '<p class="zlLeer">Nichts offen.</p>'}</section>` +
     `<section class="zlLog"><small>ZULETZT NOTIERT</small>${log ? `<ul>${log}</ul>` : '<p class="zlLeer">Noch nichts.</p>'}</section>` +
     `<p class="zlFuss"><kbd>Z</kbd> zeigt das Ziel im Spiel · Hilfe: ${['aus', 'sanft', 'deutlich'][h]} (Einstellungen)</p></div>`;

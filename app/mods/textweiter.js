@@ -8,7 +8,9 @@ function textweiter_overlay() { try { return !!(ui && ui.overlay) || !!document.
 function textweiter_sichtbar() { const el = document.getElementById('subtitle'); return !!el && parseFloat(el.style.opacity || '0') > .05 && el.textContent.trim().length > 0; }
 // 10.10. Toasts (Hinweise) und Aufgaben-Pop-ups: Enter/Klick blendet sie aus, X zusammen mit der Untertitel-Folge
 function textweiter_andere() { let did = false; try { const t = document.getElementById('toast'); if (t && parseFloat(t.style.opacity || '0') > .05) { clearTimeout(toastT); t.style.opacity = 0; did = true; }
-    const q = document.getElementById('questPop'); if (q && q.classList.contains('show')) { clearTimeout(popT); q.classList.remove('show'); did = true; } } catch (e) {} return did; }
+    const q = document.getElementById('questPop'); if (q && q.classList.contains('show')) { clearTimeout(popT); q.classList.remove('show'); did = true; }
+    if (typeof fuehrung_kartenWeg === 'function' && fuehrung_kartenWeg()) did = true;   // Kapitelkarte (fuehrung.js)
+    if (typeof tipps_weg === 'function' && tipps_weg(true)) did = true; } catch (e) {} return did; }   // Tutorial-Tipp (tipps.js)
 function textweiter(alle) {
   if (textweiter_overlay()) return false;
   if (!textweiter_sichtbar()) return textweiter_andere();

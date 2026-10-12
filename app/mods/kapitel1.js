@@ -111,11 +111,11 @@ async function kapitel1_busFahrt() { const B = K1.bus; if (!B || !B.bb) return; 
 async function kapitel1_welt() {
   // --- weiße Kinderkreide-Pfeile vom Ortsschild nach Osten („der erste zeigt nach Osten, die Straße hinunter“)
   const weiss = kapitel1_cnv(256, 256, (x, w, h) => { kapitel1_kreideStrich(x, [[38, 132], [200, 126]], 13); kapitel1_kreideStrich(x, [[150, 80], [206, 126], [146, 178]], 13); kapitel1_verwaschen(x, w, h, 120, [2, 8]); });
-  kapitel1_pfeile(weiss, [[-63.5, 2.6, 1, 0], [-54, 3.3, 1, .05], [-44.5, 2.2, 1, -.04], [-33.8, 3.1, 1, 0], [-24.5, 2.4, 1, .06], [-13.5, 2.9, 1, 0], [12.5, 2.2, 1, -.05]], .78);
+  K1.pfeileW = [[-63.5, 2.6, 1, 0], [-54, 3.3, 1, .05], [-44.5, 2.2, 1, -.04], [-33.8, 3.1, 1, 0], [-24.5, 2.4, 1, .06], [-13.5, 2.9, 1, 0], [12.5, 2.2, 1, -.05]]; K1.weissIM = kapitel1_pfeile(weiss, K1.pfeileW, .78); // Führung (tipps.js): Positionen für den Erklär-Moment, Instanz zum Aufglimmen
   // --- Lucys blaue Pfeile (Kreis am Schaft): vom Briefkasten Nr. 7 den Kirchweg hinauf zur Haltestelle – gegen die weißen Pfeile
   const blau = kapitel1_cnv(256, 256, (x, w, h) => { const c = 'rgba(70,120,215,.9)'; kapitel1_kreideStrich(x, [[40, 128], [196, 128]], 11, c); kapitel1_kreideStrich(x, [[152, 86], [200, 128], [152, 170]], 11, c);
     x.strokeStyle = c; x.lineWidth = 8; x.beginPath(); x.arc(84, 128, 20, 0, 7); x.stroke(); kapitel1_verwaschen(x, w, h, 90, [2, 6]); });
-  K1.blau = kapitel1_pfeile(blau, [[27.2, -5.9, -1, .15], [20.5, -4.4, -1, 0], [13, -3.6, -1, .05], [4.5, -2.4, -1, .2], [-4.8, 1.5, -.3, 1], [-6.9, 9, 0, 1], [-7.5, 21, 0, 1], [-7.1, 34, .05, 1], [-5.2, 45.5, .3, 1], [1.5, 51.2, 1, .2]], .6);
+  K1.pfeileB = [[27.2, -5.9, -1, .15], [20.5, -4.4, -1, 0], [13, -3.6, -1, .05], [4.5, -2.4, -1, .2], [-4.8, 1.5, -.3, 1], [-6.9, 9, 0, 1], [-7.5, 21, 0, 1], [-7.1, 34, .05, 1], [-5.2, 45.5, .3, 1], [1.5, 51.2, 1, .2]]; K1.blau = kapitel1_pfeile(blau, K1.pfeileB, .6);
   // --- Hufeisen über jeder Haustür – eine Instanz je Tür
   const tueren = [[23, -12.15, 1], [-47, -12.15, 1]]; for (const h of houses) if (!h.hollow && h.x !== undefined) { const fz = h.z + h.facing * h.d / 2; tueren.push([h.doorX ?? h.x, fz + h.facing * .02, h.facing]); }
   try { const hp = await msBake('hufeisen', 'model.glb'); // Quixel „Old Horseshoe“ (Scan, 13 cm), Öffnung nach oben, auf dem Türrahmen; 09.10.: statt Canvas-Fläche
@@ -262,7 +262,7 @@ function kapitel1_wandTex() {
 function kapitel1_ostende() { if (K1.f.has('ostende')) return; K1.f.add('ostende'); state.watcherGone = true; K1.ost = { t: 0, d0: scene.fog.density, aus: false }; if (typeof eyes !== 'undefined') eyes.visible = false; watcher.visible = true; watcher.position.set(69.3, 0, 5.1); watcher.rotation.y = -PI / 2; }
 function kapitel1_ostTick(dt) { const O = K1.ost; if (!O) return; O.t += dt; const k = O.t < .9 ? O.t / .9 : O.t < 3.1 ? 1 : Math.max(0, 1 - (O.t - 3.1) / 1.2); scene.fog.density = O.d0 * (1 - .72 * k);
   if (O.t > 2.3 && !O.aus) { O.aus = true; endLamp.mode = 'k1puste'; endLamp.dead = 0; if (typeof kino_pusten === 'function') kino_pusten(.05, endLamp.wx, 5, endLamp.wz); }
-  if (O.t > 3.3 && !O.ruf) { O.ruf = true; watcher.visible = false; Audio.whisper(player.pos.x + 26, 1.7, player.pos.z + 1, 1.3); subtitle('… Lu–?', 2400, ''); setTimeout(() => kapitel1_zeile('<i>„… Lucy?“ Hat der gerade Lucy gerufen? … Wer steht nachts am Straßenende und ruft nach meiner Schwester?</i>', 5600, 'LUKE'), 2600); }
+  if (O.t > 3.3 && !O.ruf) { O.ruf = true; watcher.visible = false; Audio.whisper(player.pos.x + 26, 1.7, player.pos.z + 1, 1.3); subtitle('… Lu–?', 2400, 'STIMME VON DRAUSSEN'); setTimeout(() => kapitel1_zeile('<i>„… Lucy?“ Hat der gerade Lucy gerufen? … Wer steht nachts am Straßenende und ruft nach meiner Schwester?</i>', 5600, 'LUKE'), 2600); }
   if (O.t > 4.4) { scene.fog.density = O.d0; K1.ost = null; } }
 function kapitel1_nachbild() { if (K1.f.has('nachbild')) return; const E = ECHOES.find(e => e.id === 'echo_kreuzung'); if (!E || echoSeen.has(E.id) || state.talking) return; K1.f.add('nachbild');
   playEcho(E).then(() => { setTimeout(() => { if (typeof gedanke === 'function') gedanke('k1_narbe', 'Die Narbe. Fahrradunfall, hat Mama gesagt. Ich weiß nicht mal, welches Fahrrad.', 0, 3); }, 7500);

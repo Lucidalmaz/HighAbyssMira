@@ -156,7 +156,9 @@ window.__hohl = HOHL;
 // ---------------------------------------------------------------- Bewegungshinweise (Folgeauftrag 7, Tutorial): kurz, einmalig, als Gedanke (überspringbar wie alle Gedanken)
 const BHINT = { t: 0, done: new Set() };
 WORLD_TICK.push(dt => { try { BHINT.t -= dt; if (BHINT.t > 0 || !state.started || menu.attract || scripted || camOverride || mantle || state.talking || ui.overlay || typeof gedanke !== 'function') return; BHINT.t = .5;
-  const say = (k, t) => { if (BHINT.done.has(k)) return; BHINT.done.add(k); try { gedanke('bew_' + k, t); } catch (e) {} };
-  if (crawlK > .5) say('kriech', 'Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg oder C hält dich unten.');
-  else if (crouchK > .8) say('duck', 'Geduckt passt du unter Tische, Äste und Rohre. Strg oder C: ducken, Leertaste: aufstehen.');
+  // Tutorial (tipps.js): Tastenkappen statt Gedanke (einmal, ruhig); fehlt das Modul oder ist die Ruhe nicht da, bleibt der Gedanke. „Strg“ allein: C ist in Kapitel 5 die Kamera.
+  const TIPP = { kriech: 'FS-6-TP-01', duck: 'FS-1-TP-08', hoch: 'FS-1-TP-08' };
+  const say = (k, t) => { if (BHINT.done.has(k)) return; if (typeof tipps_zeige === 'function' && TIPP[k]) { if (tipps_zeige(TIPP[k])) BHINT.done.add(k); return; } BHINT.done.add(k); try { gedanke('bew_' + k, t); } catch (e) {} };
+  if (crawlK > .5) say('kriech', 'Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg hält dich unten.');
+  else if (crouchK > .8) say('duck', 'Geduckt passt du unter Tische, Äste und Rohre. Strg: ducken, Leertaste: aufstehen.');
   else if (grounded && (keys.KeyW || keys.ArrowUp) && player.pos.y < 3 && mantleTarget()) say('hoch', 'Eine Kante in Reichweite: Leertaste springt, Weiterdrücken zieht dich hoch – auf Autos, Kisten, Mauern bis etwa zwei Meter.'); } catch (e) {} });

@@ -275,10 +275,12 @@ function karte_ueber(b, x) {
   // Kopf: Titel, Einwohnerzahl (ändert sich), Nordpfeil, Maßstab
   karte_hand(x, b.titel, 150, 96, 84, { align: 'left', rot: -.02, fett: true, halo: false, nach: true });
   x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(150, 136); x.bezierCurveTo(300, 128, 520, 140, 150 + b.titel.length * 40, 132); x.moveTo(170, 144); x.bezierCurveTo(320, 138, 500, 147, 140 + b.titel.length * 38, 141); x.stroke(); x.restore();
-  if (b.id === 'dorf') { karte_hand(x, 'Einw. 214', 176, 180, 38, { align: 'left', halo: false }); x.save(); x.strokeStyle = 'rgba(150,30,25,.8)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(168, 183); x.lineTo(320, 176); x.stroke(); x.restore();
-    karte_hand(x, '211', 338, 178, 42, { align: 'left', halo: false, col: 'rgba(150,30,25,.85)' });
-    if (k >= 2) { x.save(); x.strokeStyle = 'rgba(44,42,50,.75)'; x.lineWidth = 2; x.beginPath(); x.moveTo(332, 183); x.lineTo(392, 173); x.stroke(); x.restore(); karte_hand(x, '210', 404, 181, 44, { align: 'left', halo: false, col: 'rgba(70,70,74,.9)', rot: .04 }); }
-    if (k >= 5) { x.save(); x.strokeStyle = 'rgba(44,42,50,.55)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(468, 164); x.lineTo(474, 194); x.stroke(); x.restore(); } }
+  // Einwohnerzahl wie auf dem Ortsschild (12.10.): untereinander, die alte Zahl zweimal durchgestrichen, die neue DARUNTER (vorher nebeneinander: las sich wie „2110“)
+  if (b.id === 'dorf') { const strich = (x0, x1, y, col, w) => { x.save(); x.strokeStyle = col; x.lineWidth = w; x.lineCap = 'round'; x.beginPath(); x.moveTo(x0, y + 5); x.lineTo(x1, y - 7); x.moveTo(x0 + 4, y - 8); x.lineTo(x1 - 3, y + 4); x.stroke(); x.restore(); };
+    karte_hand(x, 'Einw. 214', 176, 180, 38, { align: 'left', halo: false }); strich(166, 322, 168, 'rgba(150,30,25,.85)', 2.6);
+    karte_hand(x, '211', 176, 226, 44, { align: 'left', halo: false, col: 'rgba(150,30,25,.85)' });
+    if (k >= 2) { strich(168, 240, 214, 'rgba(44,42,50,.8)', 2.4); karte_hand(x, '210', 176, 272, 46, { align: 'left', halo: false, col: 'rgba(60,60,64,.92)', rot: .03 }); }
+    if (k >= 5) { x.save(); x.strokeStyle = 'rgba(44,42,50,.55)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(270, 248); x.lineTo(264, 282); x.stroke(); x.restore(); } }
   const PW = x.canvas.width, PH = x.canvas.height; x.save(); x.translate(PW - 150, 150); x.rotate(.03); x.strokeStyle = 'rgba(44,42,50,.85)'; x.fillStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.4;
   x.beginPath(); x.moveTo(0, 50); x.lineTo(0, -52); x.stroke(); x.beginPath(); x.moveTo(0, -60); x.lineTo(-13, -30); x.lineTo(0, -38); x.closePath(); x.fill(); x.beginPath(); x.moveTo(0, -60); x.lineTo(13, -30); x.lineTo(0, -38); x.stroke(); x.restore();
   karte_hand(x, 'N', PW - 150, 60, 42, { halo: false }); const sb = 50 * s, sy = PH - 70; x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(PW - 140 - sb, sy); x.lineTo(PW - 140, sy);

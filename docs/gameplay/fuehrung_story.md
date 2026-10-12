@@ -233,3 +233,22 @@ Geprüft wurden alle 55 `GEDANKEN_FADEN`-Einträge und 22 `ZIELE_WARUM`-Einträg
 3. Kapitelkarten: Kap. 1 Vollkarte (vorhandener Intro-Ablauf, überspringbar), Kap. 2–6 Vollkarte mit 'Bisher' (≤ 3 s, überspringbar mit Klick/Enter/X); Lower-Third nur für Ortswechsel innerhalb eines Kapitels.
 4. Neue Sprecher-Anzeigenamen nur als Alias in stimmen.js einführen (unbekannte Sprecher bleiben absichtlich stumm).
 5. Vor jedem Einbau: Leistungs-Gate (perf_gate.mjs) grün.
+
+
+## UMSETZUNG 12.10.2026 (Integrationslauf, im Spiel geprüft)
+
+Module: `app/mods/fuehrung.js` (Zielzeilen-Alias, Warum/Faden, Phasen, Kapitelkarten, Ortsmarken, Sprecher-Anzeige), `app/mods/tipps.js` (Tutorial, Kreidepfeile), generierte Daten `app/mods/fuehrung_daten.js` (aus `fuehrung_texte.json` via `node app/tools/fuehrung_daten.mjs`). Eingriffe: `ziele.js` (Phase + Bisher in „Was jetzt?", SCHÜTTLE), `stimmen.js` (Textspur-Hinweis erst 3×, dann nur „ENTER · WEITER" bei Blöcken > 3 Zeilen; Alias-Tabelle, unbekannte Sprecher bleiben stumm), `textweiter.js` (Enter/Klick/X nimmt Karte und Tipp weg), `bewegung.js` (Ducken/Kriechen/Hochziehen als Tipp, „Strg" statt „Strg oder C"), `traum.js` (3. Einstiegsgedanke „Kum, Wîse" entfällt, steht als Fibel-Fund), `kapitel1.js` (Pfeil-Positionen für den Erklär-Moment, „… Lu–?" als STIMME VON DRAUSSEN), `strasse.js`/`kino.js`/`karte.js` (Ortsschild).
+
+| Baustein | Umsetzung | Beleg | Note | prägnant |
+|---|---|---|---|---|
+| Zielzeilen | alle Setter schreiben in `#objText`; dort Alias auf die überarbeiteten Zeilen (Eigenschaft am Element). MAIN[0]-Warum lebt wieder („Finde Haus Nr. 7. Lucy hat dich dorthin gerufen." + Warum) | `_wd/out_t2/t2_hud.png`, `out_f1` | 2 | ja |
+| Warum/Faden | 12 Warum + 33 Fäden vorn eingefügt; verdeckte Einträge (Tastenfeld, Ordnungstafel) und `/Luke\|Leiter/` entfernt; 3 Allzweck-Fälle behoben (Durchsuche Nr. 7, Wer parkt, Peter/Messraum/Matratze/Justin); Selbsttest `__fuehrung.selftest()`: 33 Zeilen, 0 ohne Faden, 0 > 90 Zeichen | Selbsttest | 2 | ja |
+| Phasenanzeige | „KAPITEL n · i VON N · NAME" über der Zielzeile, in „Was jetzt?" und im Pause-Menü; springt nur vorwärts; Quellen: `story.main`, `kapitel3_S.uk`, `villa_S.uk`, `k5.beat`, `K6.beat`, Speicherpunkt-Ids | `out_t2/t2_hud.png`, K4-Bild `out_fe/fe.png` | 2 | ja |
+| Kapitelkarten | K1 (nach Mailbox, ersetzt die vierte Tab-Nennung), K2 (ersetzt questPop), K3–K6 über `#intro` (Ort · Zeit, Bisher bei K2/K3, Ziel); Enter/Klick/X weg | `out_t2/t2_karte1.png`, Tafel-Test K3/K4/K6 (Absätze geprüft) | 2 | ja |
+| Ortsmarken | 35 Orte, einmal je Ort, 3 s unten links, nie in Dialog/Kino/Jagd | `out_t2/t2_ort.png` (Nr. 7) | 3 (Auslöser der Amts-/K6-Orte aus Checkpoint-Ids und Maßen, nicht alle einzeln abgelaufen) | nein |
+| Sprecher | `DAS KIND` → STIMME AM TELEFON / KINDERSTIMME / LUNA (ab Kap. 3 UK 8), `ANRUF` → STIMME AM TELEFON, Hilde/Vegas vereinheitlicht, `… Lu–?` → STIMME VON DRAUSSEN (Stimme über Text, `ST_OHNE`) | Code | 3 (Richtungsmarke ◀ ▶ nicht gebaut) | ja |
+| Tutorial | 16 Tipps mit Auslösern, einmalig, gespeichert, Hilfe-Einstellung; Tastennamen im Text werden Tastenkappen; 2 Tipps (Augen zu K2/K5) bewusst nicht doppelt – `augenzu.js` zeigt „Q halten – Augen zu" selbst; Ducken/Kriechen über `bewegung.js` | `out_f1/f1.png` (Bewegung-Tipp) | 2 | ja |
+| Kreidepfeile | ein Moment je Farbe: weiß (Gedanke + Fibel-Fund + Aufglimmen, Pfeil < 7 m, ≥ 0,8 s oder 70 s), blau (Briefkasten Nr. 7) | Code, Glimmen nicht im Bild | 3 | ja |
+| Ortsschild | Schild 0,72 × 0,46 m, drei Zeilen: 214 zweimal rot durchgestrichen, 211 rot, 210 DARUNTER in Kreide; Zustände 0/1/5; Schreib-Animation (2 Kreidestriche über 211, dann 2-1-0) im Abspann; Karte untereinander; Texte FS-1-SC-01…07 | `out_t2/t2_nahe.png` (vor dem Maßkorrektur-Build), `t2_anim_*` | 2 nach Korrektur (Ziffernhöhe 64/76 px, vorher lief die 0 an den Rahmen); Bild nach Korrektur siehe Abschlusstest | ja |
+
+Offen mit Ursache: Richtungsmarke ◀ ▶ (FS-ALLE-UI-03) nicht gebaut (Quellort `st_ort()` liefert nur für wenige Figuren einen Ort); Kap.-2-Phasen 4–6 stützen sich auf Speicherpunkt-Ids und `C2.x`-Maße; Stimmen-Manifest enthält noch keine Aufnahmen, die Alias-Zuordnung ist daher nur über Code geprüft.

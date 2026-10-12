@@ -320,7 +320,7 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren. Und dann hab ich den ganzen Tag im Auto gepennt. Am Ortsschild. Super.', 0, 3); }, 2500);
   // F3 Verständlichkeit: wer Lucy ist und warum Luke jetzt kommt (Schuld: elf Anrufe, Kern §10.1) – eigenes Fenster, damit die Whiskey-Szene am Ortsschild sie nicht verdrängt
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_elf', 'Meine Zwillingsschwester. Am 23. hat sie mich elfmal angerufen. Elfmal weggedrückt, ich war ja beschäftigt. Diesmal fahr ich nicht ohne sie.', 0, 3); }, 13000);
-  setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_kum', '„Kum, Wîse.“ Hat der Rabe im Traum gesagt, mit einer Frauenstimme. Klingt uralt: „kum“ wie „komm“. Und Wîse … ein Name. Vielleicht „der Weise“.', 0, 3); }, 26000);
+  // „Kum, Wîse“ steht als Fund in der Fibel (traum_lore) – kein dritter Gedanke binnen einer Minute (Story-Führung K-15)
 }
 // ---------------------------------------------------------------- Kapitel 1 (W2-P3): der UFO-Kegel und die Ortstafel
 // UFO-Kegel (Kanon Beat 8): das Licht im Kegel flackert wie eine Kerze – nur die Intensität des vorhandenen Spots (und die Deckkraft des Strahls),
@@ -329,9 +329,9 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
 const K1_S = { zus: null, plate: null, act0: null, actP0: null, act210: null, want: null, fl: 1, flTar: 1, flT: 0, rsT: 0 };
 function k1_ortsschildPrep() {
   const S = K1_S; scene.traverse(o => { if (!o.isMesh || !o.geometry || !o.geometry.parameters || Math.abs(o.position.x + 72.3) > .2 || Math.abs(o.position.z - 6.3) > .2) return; const p = o.geometry.parameters;
-    if (Math.abs(p.width - .72) < .01 && Math.abs(p.height - .3) < .01) S.zus = o; else if (Math.abs(p.width - 1.4) < .01 && Math.abs(p.height - .77) < .01) S.plate = o; });
+    if (Math.abs(p.width - .72) < .01 && Math.abs(p.height - .46) < .01) S.zus = o; else if (Math.abs(p.width - 1.4) < .01 && Math.abs(p.height - .77) < .01) S.plate = o; });
   if (S.zus) S.act0 = S.zus.userData.action; if (S.plate) S.actP0 = S.plate.userData.action;
-  S.act210 = () => toast('Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.', 5200);
+  S.act210 = () => toast('Lost Eyengless. 214 und 211 sind durchgestrichen. Darunter, frisch in Kreide: 210.', 5200);
 }
 function k1_schildText(on) { const S = K1_S; S.want = on;
   if (S.zus && S.act0) S.zus.userData.action = on ? S.act210 : S.act0; if (S.plate && S.actP0) S.plate.userData.action = on ? S.act210 : S.actP0; }

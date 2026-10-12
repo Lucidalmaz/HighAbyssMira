@@ -7740,6 +7740,48 @@ async function ausbau_ost_west_bu_west(OW, c) {
 // Autos (inkl. Lucys Auto mit echter Tür, Geisterauto), Briefkästen (inkl. mailbox7 mit Klappe + Schlüssel), Holzmasten + Leitungen + Hausanschlüsse,
 // Ortstafel, Verkehrsschilder, Absperrung, Telefonzelle, Hydranten, Mülltonnen/-säcke, Bordsteine, Straßenschutt/-schmutz, Kanaldeckel,
 // Vermisstenzettel an Laternen und Masten, Post in den Briefkästen, liegengelassenes Spielzeug.
+// ---------------------------------------------------------------- Ortstafel-Zusatzschild: Einwohnerzahl 214 → 211 → 210 (Nutzer 10.10./12.10.: alte Zahl sauber durchstreichen, die neue DARUNTER in Kreide)
+// Drei Zeilen: A „Einwohner 214“ gedruckt, zwei rote Lackstriche über der Zahl · B „211“ rot (Lack) · C „210“ in dunkler Kreide (ab Kap.-1-Ende; vorher nur ein Bleistiftansatz).
+// Ziffern sind Handschrift-Polylinien (wachsen mit dem Zug) – ortsschild_zeichne(ctx, w, h, o) zeichnet das ganze Schild; o.z: 0 Start · 1 ab Kap.-1-Ende · 'alle'; o.anim: Fortschritte
+// { s1, s2: Striche über der 211 (0…1), d: [0…1 ×3] Ziffern der 210 } für den Abspann (kino.js kino_schildAnim). Geteilt mit kino.js, karte.js nutzt dieselbe Logik in 2D.
+const ORTSSCHILD = { W: 512, H: 328, basis: null, kreideAus: null,
+  Z: { '0': [[.37, .03], [.52, .04], [.64, .16], [.69, .38], [.66, .64], [.55, .9], [.38, .98], [.2, .9], [.1, .62], [.1, .34], [.2, .12], [.37, .03]],
+       '1': [[.2, .3], [.34, .14], [.47, .02], [.47, .32], [.47, .62], [.46, .98]],
+       '2': [[.1, .3], [.15, .13], [.3, .04], [.5, .05], [.64, .17], [.63, .34], [.5, .52], [.3, .74], [.1, .96], [.72, .97]] } };
+function ortsschild_pfad(ch, ox, oy, h, rot = 0) { const P = ORTSSCHILD.Z[ch], c = Math.cos(rot), s = Math.sin(rot); return P.map(([u, v]) => { const x = u * h * .8, y = v * h; return [ox + x * c - y * s, oy + x * s + y * c]; }); }
+function ortsschild_strich(x, pts, w, f, col, korn) {   // teilweise gezeichneter Zug (Anteil f der Länge), runde Enden; korn = Kreidekorn
+  if (f <= 0) return; let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); let rest = L * Math.min(1, f);
+  x.save(); x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length && rest > 0; i++) { const a = pts[i - 1], b = pts[i], d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, t = Math.min(1, rest / d); x.lineTo(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t); rest -= d; }
+  x.stroke();
+  if (korn) { x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 90 * Math.min(1, f) + 10; i++) { const k = Math.random() * pts.length, j = Math.min(pts.length - 2, k | 0), t = k - j, px = pts[j][0] + (pts[j + 1][0] - pts[j][0]) * t, py = pts[j][1] + (pts[j + 1][1] - pts[j][1]) * t;
+      x.fillStyle = `rgba(0,0,0,${.25 + Math.random() * .5})`; x.fillRect(px + (Math.random() - .5) * w, py + (Math.random() - .5) * w, 1 + Math.random() * 2, 1 + Math.random()); } }
+  x.restore(); }
+function ortsschild_basis() {   // Papierfarbe, Korn, Rahmen, gedruckter Schriftzug – ohne handschriftliche Zahlen
+  const O = ORTSSCHILD; if (O.basis) return O.basis; const c = document.createElement('canvas'); c.width = O.W; c.height = O.H; const x = c.getContext('2d'), w = O.W, h = O.H;
+  x.fillStyle = '#ecebe4'; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 2600; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '60,48,30' : '255,250,235'},${Math.random() * .2})`; x.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2); }
+  x.strokeStyle = '#111'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20);
+  x.fillStyle = '#111'; x.textAlign = 'left'; x.font = 'bold 56px Arial'; const t1 = 'Einwohner ', t2 = '214', w1 = x.measureText(t1).width, w2 = x.measureText(t2).width, x0 = (w - w1 - w2) / 2;
+  x.fillText(t1, x0, 86); x.fillText(t2, x0 + w1, 86); O.zx0 = x0 + w1; O.zx1 = x0 + w1 + w2; O.links = x0 + w1 - 2;
+  return O.basis = c; }
+function ortsschild_zeichne(x, w, h, o = {}) {
+  const O = ORTSSCHILD, B = ortsschild_basis(), z = o.z || 0, A = o.anim || null, f = (v, d = 1) => v === undefined ? d : v; x.clearRect(0, 0, w, h); x.drawImage(B, 0, 0);
+  const lack = 'rgba(150,10,10,.92)', kreide = 'rgba(58,56,52,.9)', hb = 64, hc = 76, xl = O.links;   // Ziffernhöhe in Pixeln: drei Ziffern müssen vor dem Rahmen enden (Schild 512 px = 0,72 m)
+  // A: 214 zweimal rot durchgestrichen (gleich zu Anfang)
+  ortsschild_strich(x, [[O.zx0 - 8, 74], [O.zx1 + 10, 58]], 7, 1, lack, false); ortsschild_strich(x, [[O.zx0 - 6, 54], [O.zx1 + 8, 76]], 7, 1, lack, false);
+  // B: 211 in Lack, ab Kap.-1-Ende (oder im Abspann) zweimal in Kreide durchgestrichen
+  let px = xl; for (const ch of '211') { ortsschild_strich(x, ortsschild_pfad(ch, px, 116, hb, ch === '1' ? .03 : -.02), 7, 1, lack, false); px += hb * .66; }
+  const bw = px - xl;
+  const s1 = A ? f(A.s1, 0) : (z ? 1 : 0), s2 = A ? f(A.s2, 0) : (z ? 1 : 0);
+  ortsschild_strich(x, [[xl - 8, 168], [xl + bw + 6, 132]], 6, s1, kreide, true); ortsschild_strich(x, [[xl + bw + 4, 128], [xl - 6, 162]], 6, s2, kreide, true);
+  // C: 210 in Kreide (Schreibweise: Ziffer für Ziffer, 0 zuletzt geschlossen); davor nur ein Bleistiftansatz
+  const d = A ? (A.d || [0, 0, 0]) : (z ? [1, 1, 1] : [0, 0, 0]); let cx = xl;
+  if (!(d[0] > 0)) { ortsschild_strich(x, [[xl + 6, 236], [xl + 2, 266]], 2.4, 1, 'rgba(90,88,84,.55)', false); }
+  for (let i = 0; i < 3; i++) { const ch = '210'[i]; ortsschild_strich(x, ortsschild_pfad(ch, cx, 216, hc, i === 1 ? .03 : -.02), 7, d[i], kreide, true); cx += hc * .66; }
+  if (z === 'alle') { x.save(); x.fillStyle = 'rgba(40,60,160,.9)'; x.font = 'bold 54px "Comic Sans MS", cursive'; x.translate(cx + 22, 296); x.rotate(-.04); x.fillText('ALLE', 0, 0); x.restore(); }
+  if (z === 5) ortsschild_strich(x, [[cx + 18, 240], [cx + 12, 296]], 2.4, 1, 'rgba(60,58,56,.6)', false);   // ab Kap. 5: ein kurzer Bleistiftstrich daneben (wie auf der Karte)
+}
 const strasse_S = { lenaPiv: null, lenaProxy: null, boothGlow: null, signGlow: [], info: {} };
 WORLD_MODS.push(['Straßenraum', async () => {
   const S = strasse_S, T = THREE, V3 = (x, y, z) => new T.Vector3(x, y, z);
@@ -8048,12 +8090,15 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     }), 'sauber') }), { amt: .22, lowAmt: 0, scale: .8 });
     const back = new T.MeshStandardMaterial({ color: 0x8a8c88, roughness: .6, metalness: .6 });
     const plate = new T.Mesh(new T.BoxGeometry(1.4, .77, .025), [back, back, back, back, plateMat(false), plateMat(true)]); plate.position.set(-72.3, 2.05, 6.3); plate.rotation.y = PI / 2; plate.castShadow = true; scene.add(plate);
-    const zus = new T.Mesh(new T.BoxGeometry(.72, .3, .02), [back, back, back, back, weather(new T.MeshStandardMaterial({ roughness: .55, metalness: .1, map: canvasTex(512, 214, (x, w, h) => {
-      x.fillStyle = '#ecebe4'; x.fillRect(0, 0, w, h); grain(x, w, h, 2000, .2); x.strokeStyle = '#111'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('Einwohner 214', w / 2, 128);
-      x.strokeStyle = 'rgba(150,10,10,.9)'; x.lineWidth = 9; x.beginPath(); x.moveTo(248, 112); x.lineTo(470, 96); x.stroke(); x.fillStyle = 'rgba(150,10,10,.9)'; x.font = '64px Caveat'; x.fillText('211', 430, 196); x.strokeStyle = 'rgba(55,55,58,.75)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(482, 150); x.lineTo(476, 171); x.lineTo(489, 197); x.stroke(); }) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);
-    zus.position.set(-72.28, 1.47, 6.3); zus.rotation.y = PI / 2; zus.castShadow = true; scene.add(zus);
+    const zus = new T.Mesh(new T.BoxGeometry(.72, .46, .02), [back, back, back, back, weather(new T.MeshStandardMaterial({ roughness: .55, metalness: .1, map: canvasTex(ORTSSCHILD.W, ORTSSCHILD.H, (x, w, h) => ortsschild_zeichne(x, w, h, { z: 0 })) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);   // drei Zeilen statt einer (12.10.): höher, größere Ziffern
+    zus.position.set(-72.28, 1.39, 6.3); zus.rotation.y = PI / 2; zus.castShadow = true; scene.add(zus);
     const pole = signGeo('Road_Sign_03', true); if (pole) for (const dz of [-.52, .52]) { const m = new T.Mesh(pole.geo, pole.mat); m.position.set(-72.2, 2.4 - pole.top, 6.3 + dz); /* hinter der Tafel (vorher davor: verdeckten „L“ und „s“ des Ortsnamens) */ m.castShadow = true; scene.add(m); }
-    for (const o of [plate, zus]) interact(o, 'Ortstafel', () => toast(state.ch1Done || (typeof kap === 'function' && kap() >= 2) ? 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.' : 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben ein frischer Bleistiftstrich. Als hätte jemand schon angesetzt, die Zahl noch einmal zu ändern.', 5200)); } // Kap. 1 (AP-14): ab dem Abspann steht 210 (kino.js tauscht die Textur)
+    // Texte: FS-1-SC-01 (Start) / FS-1-SC-03 (ab Kap.-1-Ende), Gedanke FS-1-SC-04/05 beim ersten Lesen, Fibel-Fund FS-1-SC-07 (fuehrung_daten.js, docs/gameplay/fuehrung_ortsschild.md)
+    for (const o of [plate, zus]) interact(o, 'Ortstafel', () => { const neu = state.ch1Done || (typeof kap === 'function' && kap() >= 2), D = typeof FS_D !== 'undefined' ? FS_D.sc : null;
+      const txt = D ? (neu ? D['FS-1-SC-03'] : D['FS-1-SC-01']).split(' / ').join(' ') : 'Lost Eyengless. Einwohner 214, durchgestrichen. Darunter die neue Zahl.';
+      toast(txt, 6200);
+      if (D) { try { const k = neu ? 'sc_zehn' : 'sc_erst'; if (typeof gedanke === 'function') gedanke(k, neu ? D['FS-1-SC-05'] : D['FS-1-SC-04'], 2600, 2);
+        if (!story.lore.some(l => l.key === 'ortsschild')) story.lore.push({ key: 'ortsschild', title: 'Ortsschild', html: D['FS-1-SC-07'].split(' / ').join('<br>') }); } catch (e) {} } }); } // Kap. 1 (AP-14): ab dem Abspann steht 210 (kino.js tauscht die Textur)
   // Gemeinde-Schild (Scan eines Parkschilds, Blech neu beschriftet) am Gehweg nahe der Kirchweg-Gasse – STORY-HOOK: die Gemeinde weiß Bescheid
   if (parkSrc && parkTex) { const o = parkSrc.clone(true); o.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.map = parkTex; m.material.needsUpdate = true; } }); const g = msGround(o); msPlace(g, -12.6, 0, 5.62, PI);
     interact(hitBox(.7, .6, .15, 0, 1.45, 0, g), 'Schild lesen', () => openNote('Schild der Gemeinde', '<b>GEMEINDE LOST EYENGLESS</b>\nNACHTRUHE 3 – 4 UHR\nStraße nicht betreten.\nKinder im Haus behalten.\n— Der Bürgermeister\n\nDas Schild ist neu, die Schrauben glänzen noch. Unter der Farbe schimmert eine ältere Schrift durch.', 'strasse_schild')); }
@@ -28369,10 +28414,12 @@ function karte_ueber(b, x) {
   // Kopf: Titel, Einwohnerzahl (ändert sich), Nordpfeil, Maßstab
   karte_hand(x, b.titel, 150, 96, 84, { align: 'left', rot: -.02, fett: true, halo: false, nach: true });
   x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.2; x.beginPath(); x.moveTo(150, 136); x.bezierCurveTo(300, 128, 520, 140, 150 + b.titel.length * 40, 132); x.moveTo(170, 144); x.bezierCurveTo(320, 138, 500, 147, 140 + b.titel.length * 38, 141); x.stroke(); x.restore();
-  if (b.id === 'dorf') { karte_hand(x, 'Einw. 214', 176, 180, 38, { align: 'left', halo: false }); x.save(); x.strokeStyle = 'rgba(150,30,25,.8)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(168, 183); x.lineTo(320, 176); x.stroke(); x.restore();
-    karte_hand(x, '211', 338, 178, 42, { align: 'left', halo: false, col: 'rgba(150,30,25,.85)' });
-    if (k >= 2) { x.save(); x.strokeStyle = 'rgba(44,42,50,.75)'; x.lineWidth = 2; x.beginPath(); x.moveTo(332, 183); x.lineTo(392, 173); x.stroke(); x.restore(); karte_hand(x, '210', 404, 181, 44, { align: 'left', halo: false, col: 'rgba(70,70,74,.9)', rot: .04 }); }
-    if (k >= 5) { x.save(); x.strokeStyle = 'rgba(44,42,50,.55)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(468, 164); x.lineTo(474, 194); x.stroke(); x.restore(); } }
+  // Einwohnerzahl wie auf dem Ortsschild (12.10.): untereinander, die alte Zahl zweimal durchgestrichen, die neue DARUNTER (vorher nebeneinander: las sich wie „2110“)
+  if (b.id === 'dorf') { const strich = (x0, x1, y, col, w) => { x.save(); x.strokeStyle = col; x.lineWidth = w; x.lineCap = 'round'; x.beginPath(); x.moveTo(x0, y + 5); x.lineTo(x1, y - 7); x.moveTo(x0 + 4, y - 8); x.lineTo(x1 - 3, y + 4); x.stroke(); x.restore(); };
+    karte_hand(x, 'Einw. 214', 176, 180, 38, { align: 'left', halo: false }); strich(166, 322, 168, 'rgba(150,30,25,.85)', 2.6);
+    karte_hand(x, '211', 176, 226, 44, { align: 'left', halo: false, col: 'rgba(150,30,25,.85)' });
+    if (k >= 2) { strich(168, 240, 214, 'rgba(44,42,50,.8)', 2.4); karte_hand(x, '210', 176, 272, 46, { align: 'left', halo: false, col: 'rgba(60,60,64,.92)', rot: .03 }); }
+    if (k >= 5) { x.save(); x.strokeStyle = 'rgba(44,42,50,.55)'; x.lineWidth = 1.6; x.beginPath(); x.moveTo(270, 248); x.lineTo(264, 282); x.stroke(); x.restore(); } }
   const PW = x.canvas.width, PH = x.canvas.height; x.save(); x.translate(PW - 150, 150); x.rotate(.03); x.strokeStyle = 'rgba(44,42,50,.85)'; x.fillStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2.4;
   x.beginPath(); x.moveTo(0, 50); x.lineTo(0, -52); x.stroke(); x.beginPath(); x.moveTo(0, -60); x.lineTo(-13, -30); x.lineTo(0, -38); x.closePath(); x.fill(); x.beginPath(); x.moveTo(0, -60); x.lineTo(13, -30); x.lineTo(0, -38); x.stroke(); x.restore();
   karte_hand(x, 'N', PW - 150, 60, 42, { halo: false }); const sb = 50 * s, sy = PH - 70; x.save(); x.strokeStyle = 'rgba(44,42,50,.8)'; x.lineWidth = 2; x.beginPath(); x.moveTo(PW - 140 - sb, sy); x.lineTo(PW - 140, sy);
@@ -30900,8 +30947,12 @@ const ST_MAXBUF = 40;
 function st_kuerze() { const ids = Object.keys(ST.buf); if (ids.length <= ST_MAXBUF) return; const lauf = new Set(ST.cur.map(h => h.id).concat((ST.halt || []).map(x => x.h.id)));
   for (const id of ids) { if (Object.keys(ST.buf).length <= ST_MAXBUF) break; if (!lauf.has(id)) delete ST.buf[id]; } }
 // Zeile → IDs (gestapelte Wendigo-Zeilen liefern mehrere). who entscheidet, wenn derselbe Text mehrfach besetzt ist.
+// Anzeigenamen der Story-Führung (fuehrung.js) → Stimmen-Schlüssel des Bestands: neue Namen sind nur Aliase, unbekannte Sprecher bleiben stumm (kein Zuordnen auf Verdacht)
+const ST_OHNE = new Set(['STIMME VON DRAUSSEN']);   // früher ohne Sprecherzeile: Zuordnung allein über den Text
+const ST_ALIAS = { 'MAILBOX · KÜHN': 'KÜHN · MAILBOX', 'TONBAND · LUCY': 'LUCYS STIMME', 'HILDE WENDT': 'HILDE', 'FUNK · LUCY': 'LUCY · FUNK', 'VEGAS · HINTER DER TÜR': 'HERR VEGAS · HINTER DER TÜR', 'STIMME AM TELEFON': 'ANRUF' };
 function st_finde(t, who) { const M = ST.man; if (!M) return null; const L = (M.t[st_norm(t)] || []).filter(i => M.z[i]); if (!L.length) return null;
-  const s = ST.wer[who] || ST.wer[st_norm(who)]; if (s && s.includes('+')) { const ids = s.split('+').map(v => L.find(i => M.z[i][2] === v)).filter(Boolean); return ids.length ? ids : null; }
+  if (ST_OHNE.has(who)) who = '';
+  const s = ST.wer[who] || ST.wer[st_norm(who)] || (ST_ALIAS[who] ? ST.wer[ST_ALIAS[who]] : null); if (s && s.includes('+')) { const ids = s.split('+').map(v => L.find(i => M.z[i][2] === v)).filter(Boolean); return ids.length ? ids : null; }
   const id = s ? L.find(i => M.z[i][2] === s) : who ? null : L[0]; return id ? [id] : null; } // unbekannter Sprecher → stumm (keine fremde Stimme)
 function stimmen_dauer(t, who) { try { if (!st_an()) return 0; const ids = st_finde(t, who); const d = ids ? Math.max(0, ...ids.filter(i => !ST.bad[i]).map(i => +ST.man.z[i][1] || 0)) : 0; return d > 0 && d < 60 ? d : 0; } catch (e) { return 0; } }
 function stimmen_pegel() { return ST.env; }
@@ -30979,7 +31030,8 @@ function stimmen_spielen(key, pos) { if (!ST.man || !st_an()) return false; cons
 if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { try { const m0 = ms === undefined ? 4000 : ms, v = m0 ? stimmen_dauer(t, who) : 0; if (v && m0 < v * 1000 + 350) arguments[1] = v * 1000 + 350; } catch (e) {} const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subShow);
 else subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subtitle);
 // say(): wartet, bis die Stimme ausgesprochen hat (Lesezeit bleibt Mindestdauer); lädt die Zeilen des Blocks vor
-say = async function (lines) { try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
+say = async function (lines) { try { SAY_C.n = lines.length; if (typeof FS !== 'undefined') FS.say++; } catch (e) {}
+  try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
   SAY_C.all = false;
   for (const l of lines) { if (SAY_C.all) break; const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t)));
     let v = who === 'LUKE' ? 0 : stimmen_dauer(t, who); if (v) { try { const ids = st_finde(t, who); if (!(await Promise.all(ids.map(st_lade))).some(Boolean)) v = 0; } catch (e) { v = 0; } } // Aufnahme nicht ladbar → kein Warten auf eine Stimme, die nicht kommt
@@ -30988,7 +31040,9 @@ say = async function (lines) { try { if (ST.man && st_an()) for (const l of line
 // Dialog steuern (Nutzer 08.10.2026): Klick/Enter = nächste Zeile sofort, X = den ganzen Block überspringen. Das Spiel läuft dabei weiter (siehe Tastenbehandlung der Basis: freeTalk).
 const SAY_C = { cur: null, all: false };
 function say_warte(d) { return new Promise(res => { const t = gtAfter(d, () => { SAY_C.cur = null; res(); }); SAY_C.cur = () => { try { gtCancel(t); } catch (e) {} SAY_C.cur = null; res(); }; say_hinweis(true); }); }
-function say_hinweis(an) { let h = document.getElementById('sayHint'); if (!h) { h = document.createElement('div'); h.id = 'sayHint'; h.textContent = 'KLICK · WEITER      X · ÜBERSPRINGEN'; h.style.cssText = 'position:fixed;left:50%;bottom:3.2%;transform:translateX(-50%);font:600 11px Georgia,serif;letter-spacing:.35em;color:#8e8470;opacity:0;transition:opacity .5s;pointer-events:none;z-index:5;text-shadow:0 0 6px #000'; document.body.appendChild(h); } h.style.opacity = an ? .8 : 0; }
+// Story-Führung: die ersten drei Blöcke eines Spielstands mit vollem Hinweis, danach nur noch „ENTER · WEITER“ bei langen Blöcken (> 3 Zeilen)
+function say_hinweisText() { const n = typeof FS !== 'undefined' ? FS.say : 0; return n <= 3 ? 'KLICK · WEITER      X · ÜBERSPRINGEN' : (SAY_C.n > 3 ? 'ENTER · WEITER' : ''); }
+function say_hinweis(an) { let h = document.getElementById('sayHint'); if (!h) { h = document.createElement('div'); h.id = 'sayHint'; h.style.cssText = 'position:fixed;left:50%;bottom:3.2%;transform:translateX(-50%);font:600 11px Georgia,serif;letter-spacing:.35em;color:#8e8470;opacity:0;transition:opacity .5s;pointer-events:none;z-index:5;text-shadow:0 0 6px #000'; document.body.appendChild(h); } const tx = say_hinweisText(); if (h.textContent !== tx) h.textContent = tx; h.style.opacity = an && tx ? .8 : 0; }
 function say_weiter(alle) { if (!SAY_C.cur) return false; if (alle) SAY_C.all = true; const f = SAY_C.cur; try { subMin = 0; subQ.length = 0; if (typeof st_stop === 'function') st_stop(.15); const el = document.getElementById('subtitle'); if (el) el.style.opacity = 0; } catch (e) {} f(); return true; }
 addEventListener('mousedown', e => { if (e.button === 0 && state.started && !ui.overlay && !ui.paused && document.pointerLockElement === renderer.domElement) say_weiter(false); }, true);
 addEventListener('keydown', e => { if (e.repeat || !state.started || ui.overlay || ui.paused) return; if (e.code === 'Enter' || e.code === 'NumpadEnter') say_weiter(false); else if (e.code === 'KeyX') say_weiter(true); }, true);
@@ -31660,7 +31714,7 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_lucy', 'Lucy. Seit dem 23. verschwunden. Und letzte Nacht ihr Anruf: „Haus Nummer 7. Der Keller.“ Ich bin durchgefahren. Und dann hab ich den ganzen Tag im Auto gepennt. Am Ortsschild. Super.', 0, 3); }, 2500);
   // F3 Verständlichkeit: wer Lucy ist und warum Luke jetzt kommt (Schuld: elf Anrufe, Kern §10.1) – eigenes Fenster, damit die Whiskey-Szene am Ortsschild sie nicht verdrängt
   setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_elf', 'Meine Zwillingsschwester. Am 23. hat sie mich elfmal angerufen. Elfmal weggedrückt, ich war ja beschäftigt. Diesmal fahr ich nicht ohne sie.', 0, 3); }, 13000);
-  setTimeout(() => { if (typeof gedanke === 'function') gedanke('traum_kum', '„Kum, Wîse.“ Hat der Rabe im Traum gesagt, mit einer Frauenstimme. Klingt uralt: „kum“ wie „komm“. Und Wîse … ein Name. Vielleicht „der Weise“.', 0, 3); }, 26000);
+  // „Kum, Wîse“ steht als Fund in der Fibel (traum_lore) – kein dritter Gedanke binnen einer Minute (Story-Führung K-15)
 }
 // ---------------------------------------------------------------- Kapitel 1 (W2-P3): der UFO-Kegel und die Ortstafel
 // UFO-Kegel (Kanon Beat 8): das Licht im Kegel flackert wie eine Kerze – nur die Intensität des vorhandenen Spots (und die Deckkraft des Strahls),
@@ -31669,9 +31723,9 @@ async function traum_awake() { // beginGame blendet ein; dann das Aufwachen
 const K1_S = { zus: null, plate: null, act0: null, actP0: null, act210: null, want: null, fl: 1, flTar: 1, flT: 0, rsT: 0 };
 function k1_ortsschildPrep() {
   const S = K1_S; scene.traverse(o => { if (!o.isMesh || !o.geometry || !o.geometry.parameters || Math.abs(o.position.x + 72.3) > .2 || Math.abs(o.position.z - 6.3) > .2) return; const p = o.geometry.parameters;
-    if (Math.abs(p.width - .72) < .01 && Math.abs(p.height - .3) < .01) S.zus = o; else if (Math.abs(p.width - 1.4) < .01 && Math.abs(p.height - .77) < .01) S.plate = o; });
+    if (Math.abs(p.width - .72) < .01 && Math.abs(p.height - .46) < .01) S.zus = o; else if (Math.abs(p.width - 1.4) < .01 && Math.abs(p.height - .77) < .01) S.plate = o; });
   if (S.zus) S.act0 = S.zus.userData.action; if (S.plate) S.actP0 = S.plate.userData.action;
-  S.act210 = () => toast('Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.', 5200);
+  S.act210 = () => toast('Lost Eyengless. 214 und 211 sind durchgestrichen. Darunter, frisch in Kreide: 210.', 5200);
 }
 function k1_schildText(on) { const S = K1_S; S.want = on;
   if (S.zus && S.act0) S.zus.userData.action = on ? S.act210 : S.act0; if (S.plate && S.actP0) S.plate.userData.action = on ? S.act210 : S.actP0; }
@@ -33133,13 +33187,19 @@ function kino_schild(which) { const S = kino_S; if (!S.zus) { const hits = []; s
   const Z = S.zus; if (!Z) return false; const face = Z.material.findIndex(m => m && m.map && m.map.image && m.map.image.width === 512); if (face < 0) return false;
   if (!S.zusOrig) S.zusOrig = Z.material[face].map;
   if (!S.tex.schild) S.tex.schild = {};
-  const mk = (k, draw) => { if (S.tex.schild[k]) return S.tex.schild[k]; const src = S.zusOrig.image, c = document.createElement('canvas'); c.width = src.width; c.height = src.height; const x = c.getContext('2d'); x.drawImage(src, 0, 0); draw(x, c.width, c.height);
+  // 12.10.: drei Zeilen (ortsschild_zeichne in strasse.js) – 214 zweimal rot durchgestrichen, 211 zweimal in Kreide durchgestrichen, 210 DARUNTER in Kreide
+  const mk = (k, o) => { if (S.tex.schild[k]) return S.tex.schild[k]; const c = document.createElement('canvas'); c.width = ORTSSCHILD.W; c.height = ORTSSCHILD.H; ortsschild_zeichne(c.getContext('2d'), c.width, c.height, o);
     const t = new THREE.CanvasTexture(c); t.colorSpace = S.zusOrig.colorSpace; t.anisotropy = 8; t.wrapS = S.zusOrig.wrapS; t.wrapT = S.zusOrig.wrapT; t.repeat.copy(S.zusOrig.repeat); t.offset.copy(S.zusOrig.offset); S.tex.schild[k] = t; return t; };
-  const chalk = (x, n) => { x.save(); x.fillStyle = 'rgba(58,56,52,.88)'; x.font = '62px Caveat, cursive'; x.translate(310, 198); x.rotate(-.05); x.fillText(n, 0, 0); x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 260; i++) { x.fillStyle = `rgba(0,0,0,${rand(.2, .7)})`; x.fillRect(rand(-4, 70), rand(-50, 6), rand(1, 3), rand(1, 2)); } x.restore(); };
-  const t = which === '210' ? mk('210', x => chalk(x, '210')) : which === '21' ? mk('21', x => chalk(x, '21')) : which === '2' ? mk('2', x => chalk(x, '2'))
-    : which === 'alle' ? mk('alle', x => { chalk(x, '210'); x.strokeStyle = 'rgba(120,20,20,.85)'; x.lineWidth = 7; x.beginPath(); x.moveTo(376, 170); x.lineTo(478, 150); x.moveTo(300, 178); x.lineTo(372, 160); x.stroke();
-      x.fillStyle = 'rgba(40,60,160,.9)'; x.font = 'bold 58px "Comic Sans MS", cursive'; x.save(); x.translate(56, 204); x.rotate(.05); x.fillText('ALLE', 0, 0); x.restore(); }) : S.zusOrig;
-  Z.material[face].map = t; Z.material[face].needsUpdate = true; S.schild = which; return true; }
+  const spaet = typeof kap === 'function' && kap() >= 5, key = which === '210' && spaet ? '210b' : which;   // ab Kap. 5 zusätzlich der kurze Bleistiftstrich neben der 210
+  const t = which === '210' ? mk(key, { z: spaet ? 5 : 1 }) : which === 'alle' ? mk('alle', { z: 'alle' }) : which === 'orig' ? mk('orig', { z: 0 }) : S.zusOrig;
+  Z.material[face].map = t; Z.material[face].needsUpdate = true; S.schild = key; return true; }
+// Schreib-Animation (Abspann Kap. 1, 4 s): zwei Kreidestriche über der 211, dann 2 – 1 – 0; t in Sekunden ab Shot-Beginn, ein Canvas, bis zum Ende je Bild neu gezeichnet
+function kino_schildAnim(t) { const S = kino_S; if (!S.zus || !S.zusOrig) kino_schild('orig');
+  const Z = S.zus; if (!Z) return; const face = Z.material.findIndex(m => m && m.map && m.map.image && m.map.image.width === 512); if (face < 0) return;
+  if (!S.anim) { const c = document.createElement('canvas'); c.width = ORTSSCHILD.W; c.height = ORTSSCHILD.H; const tx = new THREE.CanvasTexture(c); tx.colorSpace = S.zusOrig.colorSpace; tx.anisotropy = 8; tx.wrapS = S.zusOrig.wrapS; tx.wrapT = S.zusOrig.wrapT; tx.repeat.copy(S.zusOrig.repeat); tx.offset.copy(S.zusOrig.offset); S.anim = { c, tx, last: -1 }; }
+  const e = v => Math.max(0, Math.min(1, v)), A = { s1: e((t - .6) / .35), s2: e((t - 1.05) / .3), d: [e((t - 1.5) / .36), e((t - 1.9) / .3), e((t - 2.25) / .4)] };
+  const key = [A.s1, A.s2, ...A.d].map(v => Math.round(v * 40)).join(); if (key === S.anim.last) return; S.anim.last = key;
+  ortsschild_zeichne(S.anim.c.getContext('2d'), ORTSSCHILD.W, ORTSSCHILD.H, { z: 0, anim: A }); S.anim.tx.needsUpdate = true; Z.material[face].map = S.anim.tx; Z.material[face].needsUpdate = true; S.schild = 'anim'; }
 
 // ---------------------------------------------------------------- Requisiten je Kapitel (im Hintergrund geladen, danach unsichtbar vorkompiliert)
 const kino_ld = async (key, fn) => { try { return await fn(); } catch (e) { console.warn('Kino: ' + key, e); return null; } };
@@ -33417,7 +33477,7 @@ WORLD_TICK.push(dt => { kino_tick(dt); kino_persist(dt); kino_kuhTick(dt); });
 // Was eine Sequenz dauerhaft verändert, bleibt – auch nach dem Laden: „210“ auf der Ortstafel ab Kapitel 1-Ende
 function kino_persist(dt) { const S = kino_S; S.pT = (S.pT || 0) - dt; if (S.pT > 0 || S.on) return; S.pT = 1.5;
   const after1 = state.ch1Done || state.ch2 || (typeof ch3 !== 'undefined' && ch3.on) || (typeof kap === 'function' && kap() >= 2);
-  if (after1 && S.schild !== '210') kino_schild('210');
+  if (after1 && S.schild !== ((typeof kap === 'function' && kap() >= 5) ? '210b' : '210') && !S.on) kino_schild('210');
   const k = typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; if (k === 3 || k === 5 || k === 6) kino_preload('k' + k); }
 function kino_rabeClip(k, once = false) { const R = kino_S.rabe; if (!R) return; const a = R.A[k]; if (!a || a === R.cur) return; a.reset(); if (once) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; } else a.setLoop(THREE.LoopRepeat, Infinity); a.fadeIn(.2).play(); if (R.cur) R.cur.fadeOut(.2); R.cur = a; }
 function kino_rabeFly(from, to, dur, then) { const R = kino_S.rabe; if (!R) return; R.g.position.copy(from); R.g.visible = true; R.fl = { from: from.clone(), to: to.clone(), ctrl: new THREE.Vector3((from.x + to.x) / 2, Math.max(from.y, to.y) + 2.5, (from.z + to.z) / 2), t: 0, dur, then }; kino_rabeClip('Fly'); }
@@ -33587,10 +33647,11 @@ function kino_defK1() {
       sfx: [[() => Audio.play('rumble', { gain: .25, rate: .6, lp: 300 }), .2], [() => Audio.play('metalHit2', { gain: .1, rate: 4, hp: 2500, dur: .12, x: 299.2, y: 1.7, z: 296.4, ref: 1.2 }), 3.05],
         [() => { Audio.play('giggle', { gain: .22, rate: .78, offset: .2, dur: 1.8, x: 300, y: -3, z: 294, ref: 2, lp: 1400 }); }, 5.2]],
       teardown(sh) { for (const [o, sc, z0] of sh.art || []) { o.scale.copy(sc); o.position.z = z0; } kino_hide('staub', 'zeichnung'); kino_S.coldLight.intensity = 0; } },
-    // 29–33 · Ortsschild: neben der roten 211 frisch in Kreide 210
+    // 29–33 · Ortsschild: die 211 zweimal in Kreide durchgestrichen, DARUNTER frisch in Kreide 210 (Schreib-Animation kino_schildAnim)
     { from: [-68.5, 1.8, 4.5], to: [-69.5, 2.0, 5.4], look: [-72.28, 1.55, 6.3], dur: 4, fov: 30, env: { exp: 1.9, fog: [0x121a2a, .02], hemi: [.5, 0x6f82a8, 0x14161c], moon: [.5, 0x9fb2dc] }, ease: 'soft', lens: { at: [-72.28, 1.55, 6.3], r: .22, amt: .4 },
-      setup() { kino_schild('orig'); kino_regen(.35, 1); },
-      sfx: [[() => { kino_schild('2'); kino_kreide(-72.2, 1.5, 6.3); }, .6], [() => kino_schild('21'), 1.15], [() => kino_schild('210'), 1.7], [() => kino_still(true, 1.4), 2.6]] },
+      setup() { kino_schild('orig'); kino_regen(.35, 1); kino_schildAnim(0); },
+      tick(k, t) { kino_schildAnim(t); },
+      sfx: [[() => kino_kreide(-72.2, 1.5, 6.3), .55], [() => kino_kreide(-72.2, 1.5, 6.3), 1.0], [() => kino_kreide(-72.2, 1.2, 6.3), 1.5], [() => kino_kreide(-72.2, 1.2, 6.3), 1.9], [() => kino_kreide(-72.2, 1.2, 6.3), 2.25], [() => kino_still(true, 1.4), 2.8]] },
     // 33–36 · Schwarz, dann die Endkarte (Schreibmaschine)
     { black: true, dur: 2.2, fadeOut: 900 },
     { card: () => ['KAPITEL 1 · KELLER BLEIBT ZU', 'Frau Wendt ist fort.', 'Du hast etwas aus dem Keller gelassen. Es hatte Lucys Stimme.', 'Hinter den Kinderzeichnungen ist es kalt. Und ganz weit unten lacht ein Kind.',
@@ -34221,7 +34282,7 @@ function kino_eyes(key, white, amt = 1.4) { const P = kino_S.fig[key]; if (!P) r
   for (const x of P.eyes) { if (!x.userData.kinoE) x.userData.kinoE = [x.emissive ? x.emissive.getHex() : 0, x.emissiveIntensity || 0]; if (x.emissive) { x.emissive.setHex(white ? 0xffffff : x.userData.kinoE[0]); x.emissiveIntensity = white ? amt : x.userData.kinoE[1]; } } }
 
 // ---------------------------------------------------------------- Testzugriff
-window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w), karte: (l, o) => kino_karte(l, o),
+window.__kino = { S: kino_S, play: (id, o) => kino_play(id, o), def: kino_def, busy: kino_busy, defs: KINO, skip: () => kino_skip(), schild: w => kino_schild(w), schildAnim: t => kino_schildAnim(t), karte: (l, o) => kino_karte(l, o),
   hold: on => { kino_S.hold = !!on; }, // Standbild (Zeit steht) – für Kontaktbögen
   outage: () => startOutage(), // Kapitel 1: Stromausfall auslösen (Test)
   fig: (...a) => kino_fig(...a), figOff: k => kino_figOff(k), // Test: Figur zeigen
@@ -34487,11 +34548,11 @@ async function kapitel1_busFahrt() { const B = K1.bus; if (!B || !B.bb) return; 
 async function kapitel1_welt() {
   // --- weiße Kinderkreide-Pfeile vom Ortsschild nach Osten („der erste zeigt nach Osten, die Straße hinunter“)
   const weiss = kapitel1_cnv(256, 256, (x, w, h) => { kapitel1_kreideStrich(x, [[38, 132], [200, 126]], 13); kapitel1_kreideStrich(x, [[150, 80], [206, 126], [146, 178]], 13); kapitel1_verwaschen(x, w, h, 120, [2, 8]); });
-  kapitel1_pfeile(weiss, [[-63.5, 2.6, 1, 0], [-54, 3.3, 1, .05], [-44.5, 2.2, 1, -.04], [-33.8, 3.1, 1, 0], [-24.5, 2.4, 1, .06], [-13.5, 2.9, 1, 0], [12.5, 2.2, 1, -.05]], .78);
+  K1.pfeileW = [[-63.5, 2.6, 1, 0], [-54, 3.3, 1, .05], [-44.5, 2.2, 1, -.04], [-33.8, 3.1, 1, 0], [-24.5, 2.4, 1, .06], [-13.5, 2.9, 1, 0], [12.5, 2.2, 1, -.05]]; K1.weissIM = kapitel1_pfeile(weiss, K1.pfeileW, .78); // Führung (tipps.js): Positionen für den Erklär-Moment, Instanz zum Aufglimmen
   // --- Lucys blaue Pfeile (Kreis am Schaft): vom Briefkasten Nr. 7 den Kirchweg hinauf zur Haltestelle – gegen die weißen Pfeile
   const blau = kapitel1_cnv(256, 256, (x, w, h) => { const c = 'rgba(70,120,215,.9)'; kapitel1_kreideStrich(x, [[40, 128], [196, 128]], 11, c); kapitel1_kreideStrich(x, [[152, 86], [200, 128], [152, 170]], 11, c);
     x.strokeStyle = c; x.lineWidth = 8; x.beginPath(); x.arc(84, 128, 20, 0, 7); x.stroke(); kapitel1_verwaschen(x, w, h, 90, [2, 6]); });
-  K1.blau = kapitel1_pfeile(blau, [[27.2, -5.9, -1, .15], [20.5, -4.4, -1, 0], [13, -3.6, -1, .05], [4.5, -2.4, -1, .2], [-4.8, 1.5, -.3, 1], [-6.9, 9, 0, 1], [-7.5, 21, 0, 1], [-7.1, 34, .05, 1], [-5.2, 45.5, .3, 1], [1.5, 51.2, 1, .2]], .6);
+  K1.pfeileB = [[27.2, -5.9, -1, .15], [20.5, -4.4, -1, 0], [13, -3.6, -1, .05], [4.5, -2.4, -1, .2], [-4.8, 1.5, -.3, 1], [-6.9, 9, 0, 1], [-7.5, 21, 0, 1], [-7.1, 34, .05, 1], [-5.2, 45.5, .3, 1], [1.5, 51.2, 1, .2]]; K1.blau = kapitel1_pfeile(blau, K1.pfeileB, .6);
   // --- Hufeisen über jeder Haustür – eine Instanz je Tür
   const tueren = [[23, -12.15, 1], [-47, -12.15, 1]]; for (const h of houses) if (!h.hollow && h.x !== undefined) { const fz = h.z + h.facing * h.d / 2; tueren.push([h.doorX ?? h.x, fz + h.facing * .02, h.facing]); }
   try { const hp = await msBake('hufeisen', 'model.glb'); // Quixel „Old Horseshoe“ (Scan, 13 cm), Öffnung nach oben, auf dem Türrahmen; 09.10.: statt Canvas-Fläche
@@ -34638,7 +34699,7 @@ function kapitel1_wandTex() {
 function kapitel1_ostende() { if (K1.f.has('ostende')) return; K1.f.add('ostende'); state.watcherGone = true; K1.ost = { t: 0, d0: scene.fog.density, aus: false }; if (typeof eyes !== 'undefined') eyes.visible = false; watcher.visible = true; watcher.position.set(69.3, 0, 5.1); watcher.rotation.y = -PI / 2; }
 function kapitel1_ostTick(dt) { const O = K1.ost; if (!O) return; O.t += dt; const k = O.t < .9 ? O.t / .9 : O.t < 3.1 ? 1 : Math.max(0, 1 - (O.t - 3.1) / 1.2); scene.fog.density = O.d0 * (1 - .72 * k);
   if (O.t > 2.3 && !O.aus) { O.aus = true; endLamp.mode = 'k1puste'; endLamp.dead = 0; if (typeof kino_pusten === 'function') kino_pusten(.05, endLamp.wx, 5, endLamp.wz); }
-  if (O.t > 3.3 && !O.ruf) { O.ruf = true; watcher.visible = false; Audio.whisper(player.pos.x + 26, 1.7, player.pos.z + 1, 1.3); subtitle('… Lu–?', 2400, ''); setTimeout(() => kapitel1_zeile('<i>„… Lucy?“ Hat der gerade Lucy gerufen? … Wer steht nachts am Straßenende und ruft nach meiner Schwester?</i>', 5600, 'LUKE'), 2600); }
+  if (O.t > 3.3 && !O.ruf) { O.ruf = true; watcher.visible = false; Audio.whisper(player.pos.x + 26, 1.7, player.pos.z + 1, 1.3); subtitle('… Lu–?', 2400, 'STIMME VON DRAUSSEN'); setTimeout(() => kapitel1_zeile('<i>„… Lucy?“ Hat der gerade Lucy gerufen? … Wer steht nachts am Straßenende und ruft nach meiner Schwester?</i>', 5600, 'LUKE'), 2600); }
   if (O.t > 4.4) { scene.fog.density = O.d0; K1.ost = null; } }
 function kapitel1_nachbild() { if (K1.f.has('nachbild')) return; const E = ECHOES.find(e => e.id === 'echo_kreuzung'); if (!E || echoSeen.has(E.id) || state.talking) return; K1.f.add('nachbild');
   playEcho(E).then(() => { setTimeout(() => { if (typeof gedanke === 'function') gedanke('k1_narbe', 'Die Narbe. Fahrradunfall, hat Mama gesagt. Ich weiß nicht mal, welches Fahrrad.', 0, 3); }, 7500);
@@ -43277,6 +43338,406 @@ WORLD_TICK.push((dt) => { if (KR_LS.an && typeof ufo !== 'undefined' && ufo.posi
   try { kr_dtTick(dt); } catch (e) { console.warn('Kreaturen: Hirschding', e); KR.dt = null; if (typeof hungrige_S !== 'undefined' && hungrige_S.dt) hungrige_S.dt.kr = null; }
   try { kr_tierTick(dt); } catch (e) { console.warn('Kreaturen: Tiere', e); KR.live.clear(); } });
 WORLD_MODS.push(['Kreaturen (Fleisch, Skelette, Wendigo-Laute, Lichtschiff)', async () => { try { await kr_tex(); await kr_lichtschiff(); } catch (e) { console.warn('Kreaturen: Lichtschiff', e); } window.__kr = { KR, LS: KR_LS, laden: () => kr_laden(), hd: () => kr_hirschding(), wolf: () => kr_wolf(), zeige: (n, v) => { if (KR.dt) { KR.dt.force = n; KR.dt.forceV = v || 0; } } }; }]);
+// =====================================================================  WENDIGO (Modul „wendigo“, Folgeauftrag 8) – Präsenz, Vorboten und Formen in Kapitel 1–5
+// Stand 12.10.2026 (Integrationslauf): eingetragen in tools/assemble.js (nach 'kreaturen'), im Spiel gemessen. Konzept, Kanon, Texte: docs/gameplay/wendigo_konzept.md; Ergebnis: wendigo_integration.md.
+//
+// Leitbild (Autor/Nutzer 10.10.): Er ist DAUERHAFT als Bedrohung da, ohne dass der Spieler weiß, dass er es ist; Spiegelbild des Beobachters (nett: Zettel/Spuren – böse: Fraß/Laut/Form);
+// nie aufdringlich. Darum zwei Schichten:
+//  · Präsenz (wd_praesenz): leise, seltene Laute am Rand (Hufe im Metronomtakt, Knochen, Schnüffeln), danach schweigt der Beobachter – kein Bild, nie ein Text.
+//  · Auftritte (WD_AUFTRITTE, 14 Ereignisse): Ton, Spur, Kadaver, Form, Mensch im Fenster; je höchstens einmal, Regie über spannung_can/did, nie in Dialog/Kino/Jagd/Trauer.
+// Verhalten (§5 des Konzepts): schlaf → beobachten → rueckzug → schlaf; „still“-Formen bewegen sich nur, wenn Luke nicht hinsieht (Weeping); der Kopf dreht in Rasten (anim_ueber, nie
+// aufaddiert), der Körper nur außerhalb des Bildes; Gehen mit Wegtempo = Schrittlänge des Clips (kein Gleiten); ab Kapitel 6 passiv ('k6'): hungrige.js/kapitel6.js führen.
+// Der Wendigo wird nie benannt (Kanon: erst Hofer Seite 1), spricht in Kap. 1–5 nicht, hinterlässt Verluste statt Schäden. Alle Zugriffe auf andere Module sind `typeof`-geprüft.
+
+const WD_PARAM = {
+  gap: [0, [360, 540], [300, 480], [300, 420], [300, 420], [240, 360]],  // Abstand zwischen Auftritten je Kapitel (s Spielzeit, ruhig)
+  max: [0, 3, 3, 2, 3, 6],                                                // Höchstzahl Auftritte je Kapitel
+  start: [0, 420, 240, 240, 200, 160],                                    // frühestens nach s im Kapitel
+  praesenz: [0, [170, 260], [150, 240], [150, 230], [130, 200], [110, 170]], // Abstand der leisen Präsenz-Laute (s)
+  seeMin: .6, seeMax: 2.0, litThr: .965, viewThr: .88, litDist: 26, nearHide: 12, ruhe: 90,
+  dist: { reh: [22, 35], hirsch: [35, 45], hirschding: [26, 42], fleisch: [10, 20] },
+  schritt: { reh: 1.037, fleisch: 1.037, haut: 1.037, hirsch: 1.145, hirschding: 1.2 },   // m/s: Wurzelbewegung des Geh-Clips (Reh 1,079 m / 1,04 s, Hirsch 1,193 m / 1,04 s, Hirschding Meta 1,2; gemessen) – mit diesem Tempo gleitet nichts
+};
+const WENDIGO_TEXTE = {   // fertige Zeilen (Konzept §4); Ziel: gedanke(id, …) bzw. story.lore
+  g_hall: 'Ich hab gerufen. Der Wald hat es behalten.',
+  g_fell: 'Das ist kein Wild, das hängen bleibt. Das hat sich ausgezogen.',
+  g_mast: 'Zwei Masten. Eben war es nur einer.',
+  g_schacht: 'Hier unten hallt nichts. Das ist nicht der Beton.',
+  g_band: 'Es holt keine Luft. Ein Mensch holt Luft, auch auf Band.',
+  g_reh: 'Es geht rückwärts, als wüsste es nicht, wo vorn ist.',
+  g_fenster: 'Der Körper steht, der Kopf kommt hinterher. Kein Mensch dreht so.',
+  g_spur: 'Zwei Hufe neben meinen Schuhen. Jemand ist mit mir gegangen.',
+  g_aas: 'Das hat probiert und aufgehört. Nicht satt. Enttäuscht.',
+  g_nebel: 'Es bewegt sich nur, wenn ich weggucke. Das hat Wartezeit gelernt.',
+  g_kratz: 'Zwei dreißig. Das kratzt nicht, um reinzukommen. Das zählt die Höhe.',
+  g_gitter: 'Whiskey schaut hin und sagt nichts. Der Rabe hat Respekt, wie vor einem Hausmeister.',
+  g_kinder: 'Es führt mich irgendwohin. Es will nicht mich. Es will, was ich finde.',
+  t_band: '„… Station Nord, Seiler, Probe liegt am Rand, ich wiederhole …“',
+  lore: {
+    wd_haut: ['Fund am Zaun', 'Nasses Fell, rot, an der Pfostenspitze. Darunter zwei Hufspuren hintereinander, als ginge etwas aufrecht. Die Spur endet am Zaun und fängt dahinter nicht wieder an.'],
+    wd_bestand: ['Bestandsliste, durchgestrichen', 'BESTAND · Probe W · entwichen 13.07.1992 · Wirt: Hofer · Leiter: Pell (seit 1994: s. Probe W)'],
+    wd_futter: ['Fütterungsprotokoll, Zelle W', 'Tag 1 Hirsch. Tag 3 Hund. Tag 8: Licht. Tag 9: „Es nimmt, was nicht mehr hinsieht.“ – R. P.'],
+    wd_spur: ['Spuren im Beet', 'Gespaltene Hufe, immer nur zwei, in einer Linie. Sie laufen neben meinen und hören dort auf, wo ich stehen geblieben bin.'],
+    wd_reihe: ['Der Wald im Dorf', 'Ich habe nichts gesehen, was ich einen Namen nennen würde. Ein Reh, das falsch geht. Ein Hirsch im Nebel, der wartet. Ein Kratzen in zwei Metern Höhe. Alles hat dieselbe Geduld.'],
+  },
+};
+// Ereignisse: id, Kapitel, Art (ton | form | spur | kadaver | text | fenster), Form, Bedingung (nur Ort/Zeit; Ruhe prüft die Regie), Abhängigkeit
+const WD_AUFTRITTE = [
+  { id: 'k1_hall', k: 1, art: 'ton', cond: () => wd_aussen() && wd_von(29, -9, 25), gedanke: 'g_hall' },
+  { id: 'k1_fell', k: 1, art: 'spur', was: 'haut', cond: () => wd_aussen(), lore: 'wd_haut', gedanke: 'g_fell', nach: ['k1_hall'] },
+  { id: 'k1_mast', k: 1, art: 'form', form: 'hirschding', mast: true, still: true, dunkel: true, nacht: true, cond: () => wd_aussen() && !state.outage, gedanke: 'g_mast', nach: ['k1_fell'] },
+  { id: 'k2_bestand', k: 2, art: 'text', cond: () => wd_amtX(19, 60), lore: 'wd_bestand' },
+  { id: 'k2_futter', k: 2, art: 'text', cond: () => wd_amtX(60, 1e9), lore: 'wd_futter', nach: ['k2_bestand'] },
+  { id: 'k2_schacht', k: 2, art: 'text', cond: () => wd_amtX(60, 1e9), gedanke: 'g_schacht', nach: ['k2_futter'] },
+  { id: 'k3_funk', k: 3, art: 'ton', cond: () => true, gedanke: 'g_band', nur: 'hook' },
+  { id: 'k3_reh', k: 3, art: 'form', form: 'reh', rueck: true, cond: () => wd_aussen(), gedanke: 'g_reh' },
+  { id: 'k4_fenster', k: 4, art: 'fenster', cond: () => wd_aussen() && !!wd_fensterWahl(9, 26), gedanke: 'g_fenster' },
+  { id: 'k4_spur', k: 4, art: 'spur', was: 'huf_neben', cond: () => wd_aussen(), lore: 'wd_spur', gedanke: 'g_spur' },
+  { id: 'k4_aas', k: 4, art: 'kadaver', cond: () => wd_aussen(), gedanke: 'g_aas', nach: ['k4_spur'] },
+  { id: 'k5_nebel', k: 5, art: 'form', form: 'hirsch', still: true, nacht: true, cond: () => wd_aussen(), gedanke: 'g_nebel', mal: 2 },
+  { id: 'k5_kratz', k: 5, art: 'spur', was: 'kratz', cond: () => wd_aussen(), gedanke: 'g_kratz', nach: ['k5_nebel'] },
+  { id: 'k5_stehen', k: 5, art: 'form', form: 'hirschding', mast: true, still: true, dunkel: true, nacht: true, cond: () => wd_aussen(), gedanke: 'g_gitter', nach: ['k5_kratz'] },
+  { id: 'k5_blut', k: 5, art: 'kadaver', gross: true, cond: () => wd_aussen(), gedanke: 'g_kinder', lore: 'wd_reihe', nach: ['k5_stehen'], blutdurst: true },
+];
+const wd_S = { ready: false, mode: 'schlaf', done: new Set(), n: {}, wissen: 0, t: 0, kT: 0, k: 0, next: 0, ruheBis: 0, A: null, ev: null, models: {}, loading: {}, dec: [], trail: [], trailT: 0, praeT: 0, praeN: 0,
+  log: [], stat: { auftritte: 0, gesehen: 0, rueckzug: 0, spuren: 0, kadaver: 0, hart: 0, praesenz: 0 }, seenT: 0, lastPos: new THREE.Vector3(), v: 0, litT: 0, tmp: new THREE.Vector3() };
+MOD_SAVE.push(['wendigo', () => ({ done: [...wd_S.done], n: wd_S.n, wissen: wd_S.wissen }),
+  v => { if (!v || typeof v !== 'object') return; (v.done || []).forEach(k => wd_S.done.add(k)); wd_S.n = v.n || {}; wd_S.wissen = v.wissen || 0; }]);
+
+// ---------------------------------------------------------------- Zustandsabfragen (alles typeof-geprüft)
+function wd_k() { try { return typeof curChapter === 'function' ? curChapter() : 1; } catch (e) { return 1; } }
+function wd_aussen() { return !state.inBasement && state.zone !== 'canal' && !(typeof indoorRect === 'function' && indoorRect()); }
+// Tageszeit: das Spiel läuft nachts; Kapitel 4 (Morgen) und der Epilog Kapitel 6 sind hell (WL.morgen)
+function wd_tag() { try { if (wd_k() === 4 || (typeof WL !== 'undefined' && WL.morgen)) return 'tag'; } catch (e) {} return 'nacht'; }
+function wd_von(x, z, d) { return Math.hypot(player.pos.x - x, player.pos.z - z) > d; }
+function wd_amtX(a, b) { try { if (typeof C2 === 'undefined' || !C2) return false; const dx = player.pos.x - C2.x; return dx > a && dx < b; } catch (e) { return false; } }
+function wd_ruhig() {
+  if (!state.started || menu.attract || state.talking || state.ending || state.blackout || (typeof ui !== 'undefined' && ui.overlay) || (typeof scripted !== 'undefined' && scripted) || (typeof dir !== 'undefined' && dir.busy)) return false;
+  if (typeof hunt !== 'undefined' && hunt.on) return false;
+  if (typeof kino_S !== 'undefined' && kino_S.on) return false;
+  if (typeof spannung_traurig === 'function' && spannung_traurig()) return false;
+  if (typeof SP !== 'undefined' && (SP.chase || SP.stress > .4)) return false;
+  return true;
+}
+function wd_dist(p) { const P = player.pos; return Math.hypot(p.x - P.x, p.z - P.z); }
+function wd_facing(x, y, z) { try { return typeof leben_facing === 'function' ? leben_facing(x, y, z) : -1; } catch (e) { return -1; } }
+function wd_los(x, y, z) { try { return typeof hungrige_los === 'function' ? hungrige_los(x, y, z) : true; } catch (e) { return true; } }
+function wd_lit(p, dMax = WD_PARAM.litDist) { try { const L = typeof tausch_licht === 'function' ? tausch_licht() : null; const an = typeof flashOn !== 'undefined' ? flashOn : (L && L.an); return !!an && !state.blackout && wd_dist(p) < dMax && wd_facing(p.x, p.y + 1.2, p.z) > WD_PARAM.litThr; } catch (e) { return false; } }
+function wd_boden(x, z) { const sg = typeof solidGround === 'function' ? solidGround(x, player.pos.y + 1.2, z) : 0; return sg > -1 ? Math.max(0, sg) : 0; }
+function wd_frei(x, z, r = .9) { try { if (typeof leben_inHouse === 'function' && leben_inHouse(x, z, 1.5)) return false; if (typeof leben_free === 'function' && !leben_free(x, z, .95, Math.min(r, .5))) return false; } catch (e) {} return true; }   // Körperhöhe 0,95 m: Straßenschutt und Laub am Boden (< 0,1 m) sperren kein Tier dieser Größe
+function wd_spot(dMin, dMax, spread = .5, voraus = true) {
+  const P = player.pos; let f; try { f = flatDir(); } catch (e) { f = new THREE.Vector3(0, 0, 1); } if (!voraus) f.negate();
+  for (let k = 0; k < 30; k++) {
+    const a = Math.atan2(f.x, f.z) + (Math.random() * 2 - 1) * spread, d = dMin + Math.random() * (dMax - dMin), x = P.x + Math.sin(a) * d, z = P.z + Math.cos(a) * d;
+    if (!wd_frei(x, z)) continue;
+    const y = wd_boden(x, z);
+    if (voraus && !wd_los(x, y + 1, z)) continue; return [x, y, z]; }
+  return null;
+}
+// neben einen Laternenmast vor dem Spieler (Konzept k1_nacht: „Zwei Masten“), 1 m seitlich der Sichtlinie
+function wd_mast(dMin, dMax) {
+  const P = player.pos, L = typeof lamps !== 'undefined' ? lamps : [], c = [];
+  for (const l of L) { const p = l.g && l.g.position; if (!p) continue; const d = wd_dist(p); if (d < dMin || d > dMax || wd_facing(p.x, 2.5, p.z) < .72) continue; c.push([l, d]); }
+  for (let i = c.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [c[i], c[j]] = [c[j], c[i]]; }
+  for (const [l, d] of c) { const p = l.g.position, dx = (p.x - P.x) / d, dz = (p.z - P.z) / d;
+    for (const s of [1, -1]) { const x = p.x + dz * s * 1.05, z = p.z - dx * s * 1.05; if (!wd_frei(x, z, .6)) continue; const y = wd_boden(x, z); if (!wd_los(x, y + 1, z)) continue; return [x, y, z]; } }
+  return null;
+}
+function wd_log(s) { wd_S.log.push([Math.round(wd_S.t), s]); if (wd_S.log.length > 40) wd_S.log.shift(); }
+
+// ---------------------------------------------------------------- Modelle und Akteur (ein Akteur, eine Form zur Zeit)
+const WD_CLIPS = {
+  hirschding: { idle: 'stehen', walk: 'gehen', run: 'sturm', lauern: 'lauern', beobachten: 'beobachten', bruellen: 'schrei', fressen: 'fressen', uebergang: 'uebergang' },
+  _tier: { idle: /IdleBreathe$/, walk: /Walk$/, run: /Run$/, lauern: 'lauern', beobachten: 'beobachten', bruellen: 'bruellen', fressen: 'fressen', uebergang: 'uebergang' },
+};
+const WD_Q = { a: new THREE.Quaternion(), b: new THREE.Quaternion(), c: new THREE.Quaternion() };
+async function wd_bau(form, vorwaermen) {
+  try {
+      const src = await msModel('wendigo_' + form, 'model.glb');
+      const sk = typeof figuren_skc === 'function' ? await figuren_skc() : (typeof leben_S !== 'undefined' ? leben_S.skc : null);
+      const o = sk ? sk(src) : src.clone(true);
+      o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = true; m.frustumCulled = false; } });
+      const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; scene.add(g);
+      try { auftritt_reg(g, { name: 'Wendigo:' + form, ein: .45, aus: .35, r: 2.6 }); } catch (e) {}
+      const mx = new THREE.AnimationMixer(o), A = {}; for (const c of src.animations || []) A[c.name] = mx.clipAction(c);
+      const morph = []; o.traverse(m => { if (m.isMesh && m.morphTargetDictionary) morph.push(m); });
+      let meta = {}; try { meta = typeof src.userData.motion === 'string' ? JSON.parse(src.userData.motion) : (src.userData.motion || {}); } catch (e) {}
+      let head = null; o.traverse(b => { if (b.isBone && /-Head$/.test(b.name)) head = b; });
+      const M = { form, g, o, mx, A, morph, meta, head, hy: 0, hyT: 0, hyAt: -9, cur: null, name: '', src };
+      try { if (vorwaermen && renderer.compileAsync) { g.visible = true; g.position.set(player.pos.x, -80, player.pos.z); await renderer.compileAsync(g, camera, scene); g.visible = false; } } catch (e) {}  // Shader vorab, kein Ruckler beim ersten Auftritt
+      return M;
+  } catch (e) { console.warn('Wendigo: Modell', form, e); return null; }
+}
+async function wd_modell(form) {
+  const S = wd_S; if (form in S.models && S.models[form]) return S.models[form]; if (S.loading[form]) return S.loading[form];
+  S.loading[form] = wd_bau(form, true).then(M => (S.models[form] = M)); return S.loading[form];
+}
+function wd_clip(M, rolle) {
+  const tab = WD_CLIPS[M.form] || WD_CLIPS._tier, w = tab[rolle]; if (!w) return null;
+  if (typeof w === 'string') return M.A[w] || null;
+  const n = Object.keys(M.A).find(k => w.test(k)); return n ? M.A[n] : null;
+}
+function wd_play(M, rolle, fade = .25, ts = 1, once = false) {
+  const a = wd_clip(M, rolle); if (!a) return null; if (M.cur === a) { a.timeScale = ts; return a; }
+  a.reset(); a.timeScale = ts; a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat, once ? 1 : Infinity); a.clampWhenFinished = !!once;
+  if (M.cur && fade > 0) { a.fadeIn(fade).play(); M.cur.fadeOut(fade); } else { if (M.cur) M.cur.stop(); a.play(); } M.cur = a; return a;
+}
+function wd_morph(M, name, v) { for (const m of M.morph) { const i = m.morphTargetDictionary[name]; if (i !== undefined) m.morphTargetInfluences[i] = v; } }
+function wd_hide() { const A = wd_S.A; if (!A) return; A.g.visible = false; A.g.scale.setScalar(1); wd_S.A = null; }
+async function wd_zeige(form, pos, o = {}) {
+  const M = await wd_modell(form); if (!M) return null; wd_hide();
+  for (const m of M.morph) m.morphTargetInfluences.fill(0);
+  M.g.position.set(pos[0], pos[1], pos[2]); M.g.rotation.set(0, Math.atan2(player.pos.x - pos[0], player.pos.z - pos[2]), 0);
+  M.g.scale.setScalar(o.scale || 1); M.hy = M.hyT = 0; M.hyAt = -9;
+  M.o.traverse(m => { if (m.isMesh) { const ms = [].concat(m.material); for (const mt of ms) { if (!mt.userData.wdC) mt.userData.wdC = mt.color ? mt.color.clone() : null; if (mt.color && mt.userData.wdC) mt.color.copy(mt.userData.wdC).multiplyScalar(o.dunkel ? .18 : 1); } } });
+  wd_play(M, o.clip || 'idle', 0, 1); M.mx.update(.01); M.g.visible = true; wd_S.A = M; return M;
+}
+// Kopf in Rasten (≈ 20°) zu Luke: Ziel wird gerastet, die Drehung selbst ist kurz und weich; anim_ueber setzt jedes Bild auf die Mixer-Pose zurück (kein Aufaddieren = kein „Disco-Kopf“)
+function wd_kopf(M, dt) {
+  const h = M.head; if (!h || !M.g.visible) return; const p = M.g.position, cam = camera.position;
+  let d = Math.atan2(cam.x - p.x, cam.z - p.z) - M.g.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d)); d = Math.max(-1.25, Math.min(1.25, d));
+  const r = Math.round(d / .35) * .35;
+  if (Math.abs(r - M.hyT) > .01 && wd_S.t - M.hyAt > 1.1) { M.hyT = r; M.hyAt = wd_S.t; if (wd_dist(p) < 40) { try { Audio.wendigo && Audio.wendigo('knochen', p.x, 1.4, p.z, .1); } catch (e) {} } }
+  M.hy += (M.hyT - M.hy) * Math.min(1, dt * 9);
+  if (Math.abs(M.hy) < .002) return;
+  const f = () => { h.parent.updateWorldMatrix(true, false); h.updateWorldMatrix(false, false); h.getWorldQuaternion(WD_Q.a); WD_Q.b.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, M.hy); WD_Q.a.premultiply(WD_Q.b);
+    h.parent.getWorldQuaternion(WD_Q.c).invert(); h.quaternion.copy(WD_Q.c.multiply(WD_Q.a)); };
+  if (typeof anim_ueber === 'function') anim_ueber(h, f); else f();
+}
+
+// ---------------------------------------------------------------- Spuren, Kadaver, Fund
+function wd_huf() {   // Abdruck eines Spalthufes: zwei gespitzte Hälften mit Wulstrand, Matsch quillt an den Seiten; ohne Schrift, mit weichem Rand
+  const c = document.createElement('canvas'); c.width = 128; c.height = 192; const g = c.getContext('2d'), halbe = sx => { const x = 64 + sx * 19;
+    g.save(); g.translate(x, 100); g.rotate(sx * .09); g.beginPath(); g.moveTo(0, -78); g.bezierCurveTo(24, -52, 30, 4, 25, 40); g.bezierCurveTo(20, 66, -18, 66, -22, 36); g.bezierCurveTo(-26, -6, -18, -52, 0, -78); g.closePath();
+    const gr = g.createRadialGradient(0, 4, 4, 0, 4, 66); gr.addColorStop(0, 'rgba(8,5,3,.95)'); gr.addColorStop(.62, 'rgba(18,11,6,.9)'); gr.addColorStop(1, 'rgba(44,30,18,.0)'); g.fillStyle = gr; g.fill();
+    g.lineWidth = 7; g.strokeStyle = 'rgba(58,40,24,.55)'; g.stroke(); g.restore(); };
+  g.filter = 'blur(1.4px)'; halbe(-1); halbe(1);
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+}
+function wd_decal(x, z, rot, s = .30) {
+  const y = wd_boden(x, z) + .012, S = wd_S;
+  S.huf = S.huf || wd_huf(); S.hufM = S.hufM || new THREE.MeshLambertMaterial({ map: S.huf, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+  const m = new THREE.Mesh(S.hufG || (S.hufG = new THREE.PlaneGeometry(1, 1.5)), S.hufM); m.scale.set(s, s, 1); m.rotation.set(-Math.PI / 2, 0, rot); m.position.set(x, y, z); m.userData.noCol = true; scene.add(m); S.dec.push(m);
+  if (S.dec.length > 60) { const o = S.dec.shift(); scene.remove(o); } return m;
+}
+function wd_spurReihe(kind) {
+  const S = wd_S, P = player.pos;
+  if (kind === 'huf_neben') {   // neben Lukes eigenem letzten Weg (Positionspuffer), 0,7 m seitlich, endet an seiner Fußspur
+    const T = S.trail; if (T.length < 8) return false; const n = Math.min(T.length - 1, 18);
+    for (let i = 0; i < n; i++) { const a = T[T.length - 1 - i], b = T[T.length - 2 - i] || a, dx = a[0] - b[0], dz = a[1] - b[1], l = Math.hypot(dx, dz) || 1; if (!wd_frei(a[0] + dz / l * .7, a[1] - dx / l * .7, .3)) continue;
+      wd_decal(a[0] + dz / l * .7, a[1] - dx / l * .7, Math.atan2(dx, dz) + Math.PI); } return true; }
+  const f = (() => { try { return flatDir(); } catch (e) { return new THREE.Vector3(0, 0, 1); } })(), x0 = P.x + f.x * 12, z0 = P.z + f.z * 12;
+  for (let i = 0; i < 10; i++) wd_decal(x0 + f.x * i * .62 + (i % 2) * .12, z0 + f.z * i * .62, Math.atan2(f.x, f.z) + Math.PI); return true;
+}
+// abgelegte Haut: das Modell „haut“ (haarlos, nass) liegt zusammengefallen am Boden; E untersuchen → Fibel-Fund
+async function wd_pelz(pos) {
+  const M = await wd_bau('haut', false); if (!M) return null; const g = M.g; g.position.set(pos[0], pos[1], pos[2]); g.rotation.set(0, Math.random() * 6.28, 0); g.scale.setScalar(.62);
+  try { const c = Object.keys(M.A).find(k => /Death$/.test(k)); if (c) { const a = M.A[c]; a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; a.play(); M.mx.setTime(a.getClip().duration); } } catch (e) {}
+  g.visible = true; wd_S.dec.push(g);
+  if (typeof interact === 'function') { const hit = new THREE.Mesh(new THREE.BoxGeometry(1.1, .5, .9), hidden); hit.position.set(pos[0], pos[1] + .25, pos[2]); hit.userData.noCol = true; scene.add(hit); wd_S.dec.push(hit);
+    interact(hit, 'Haut untersuchen', () => { const L = WENDIGO_TEXTE.lore.wd_haut; if (!story.lore.some(l => l.key === 'wd_haut')) story.lore.push({ key: 'wd_haut', title: L[0], html: L[1] }); try { openNote(L[0], L[1], 'wd_haut'); } catch (e) {} uninteract(hit); }); }
+  return g;
+}
+function wd_blutfleck(x, z, r) {
+  const S = wd_S; if (!S.blutT) { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.filter = 'blur(2px)';
+    for (let i = 0; i < 26; i++) { const a = Math.random() * 6.28, d = Math.random() * 44, rr = 4 + Math.random() * 14 * (1 - d / 60); g.fillStyle = `rgba(${40 + Math.random() * 30 | 0},4,4,${.55 + Math.random() * .35})`; g.beginPath(); g.arc(64 + Math.cos(a) * d, 64 + Math.sin(a) * d, rr, 0, 7); g.fill(); }
+    S.blutT = new THREE.CanvasTexture(c); S.blutM = new THREE.MeshLambertMaterial({ map: S.blutT, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }); }
+  const m = new THREE.Mesh(S.hufG || (S.hufG = new THREE.PlaneGeometry(1, 1.5)), S.blutM); m.scale.set(r * 2, r * 2 / 1.5, 1); m.rotation.set(-Math.PI / 2, 0, Math.random() * 6.28); m.position.set(x, wd_boden(x, z) + .014, z); m.userData.noCol = true; scene.add(m); S.dec.push(m); return m;
+}
+async function wd_kadaver(gross, pos) {
+  const M = await wd_bau('fleisch', false); if (!M) return null; const g = M.g;   // eigene Instanz (kein Klon einer Skelett-Figur)
+  g.position.set(pos[0], pos[1], pos[2]); g.rotation.set(0, Math.random() * 6.28, 0); g.scale.setScalar(gross ? 1 : .55);
+  try { const c = Object.keys(M.A).find(k => /Death$/.test(k)); if (c) { const a = M.A[c]; a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; a.play(); M.mx.setTime(a.getClip().duration); } } catch (e) {}
+  g.visible = true; wd_S.dec.push(g); wd_S.stat.kadaver++; try { wd_blutfleck(pos[0], pos[2], gross ? 1.5 : .9); } catch (e) {} return g;
+}
+
+// ---------------------------------------------------------------- Ereignisse
+function wd_wahl() {
+  const S = wd_S, k = wd_k(); if (k > 5 || k < 1) return null;
+  for (const e of WD_AUFTRITTE) {
+    if (e.k !== k || e.nur === 'hook') continue; const cnt = S.n[e.id] || 0; if (cnt >= (e.mal || 1)) continue;
+    if (e.nach && !e.nach.every(x => S.done.has(x))) continue;
+    if (e.nacht && wd_tag() === 'tag') continue;
+    try { if (!e.cond()) continue; } catch (x) { continue; }
+    return e; }
+  return null;
+}
+function wd_text(e) {
+  if (e.gedanke && typeof gedanke === 'function') gedanke('wd_' + e.id, WENDIGO_TEXTE[e.gedanke], 1800, 2);
+  if (e.lore && WENDIGO_TEXTE.lore[e.lore] && !story.lore.some(l => l.key === e.lore)) { const L = WENDIGO_TEXTE.lore[e.lore]; story.lore.push({ key: e.lore, title: L[0], html: L[1] }); try { if (typeof toast === 'function') toast('Fibel: ' + L[0], 3000); } catch (x) {} }
+}
+function wd_fertig(e) { const S = wd_S, k = wd_k(); S.n[e.id] = (S.n[e.id] || 0) + 1; if (S.n[e.id] >= (e.mal || 1)) S.done.add(e.id); S.stat.auftritte++; S.ruheBis = S.t + WD_PARAM.ruhe;
+  S.next = S.t + WD_PARAM.gap[k][0] + Math.random() * (WD_PARAM.gap[k][1] - WD_PARAM.gap[k][0]); wd_log('fertig ' + e.id); try { if (typeof spannung_did === 'function') spannung_did('wd_' + e.art, 'amb'); } catch (x) {}
+  try { if (typeof saveGame === 'function') saveGame(k); } catch (x) {}
+  try { if (typeof beob_still === 'function') beob_still(e.art === 'text' ? 20 : 45); } catch (x) {} }   // Spiegel: wo er war, ist der Beobachter still
+function wd_ton(art, p, gain) { try { if (Audio.wendigo && Audio.wendigo(art, p[0], p[1] || 1.2, p[2], gain)) return true; } catch (e) {} try { Audio.whisper(p[0], p[1] || 1.2, p[2], gain * 1.2); } catch (e) {} return false; }
+async function wd_start(e, erzwingen) {
+  const S = wd_S; if (S.ev) return false; S.ev = { e, t: 0, seen: 0, phase: 'an', form: e.form };
+  const P = player.pos; wd_log('start ' + e.id);
+  try { if (typeof spannung_did === 'function') spannung_did('wd_ev', 'amb'); } catch (x) {}
+  if (e.art === 'ton') { const f = wd_spot(26, 40, 1.4, false) || [P.x + 20, 0, P.z]; try { if (typeof spannung_hush === 'function') spannung_hush(2.5, .1); } catch (x) {} setTimeout(() => { wd_ton('ruf', f, .6); wd_text(e); }, 1200); S.ev.phase = 'aus'; S.ev.t = -3; }
+  else if (e.art === 'text') { wd_text(e); S.ev.phase = 'aus'; S.ev.t = -1; }
+  else if (e.art === 'spur') {
+    if (e.was === 'haut') { const f = wd_spot(14, 24, .45); if (!f) { S.ev = null; return false; } const g = await wd_pelz(f); if (!g) { S.ev = null; return false; }
+      for (let i = 0; i < 4; i++) wd_decal(f[0] + .9 + (i % 2) * .1, f[2] + i * .62 - .6, Math.PI * (i % 2) + .1); S.stat.kadaver++; }
+    else if (e.was === 'kratz') { if (!wd_kratz()) { S.ev = null; return false; } }
+    else if (!wd_spurReihe(e.was)) { S.ev = null; return false; }
+    S.stat.spuren++; setTimeout(() => wd_text(e), 1500); S.ev.phase = 'aus'; S.ev.t = -2; }
+  else if (e.art === 'kadaver') { const f = wd_spot(e.gross ? 16 : 10, e.gross ? 28 : 18, .5); if (!f) { S.ev = null; return false; } const g = await wd_kadaver(!!e.gross, f);
+    if (e.blutdurst) { try { if (typeof spannung_hush === 'function') spannung_hush(3, .1); } catch (x) {} wd_ton('fleisch', f, .7); setTimeout(() => wd_ton('ruf', [f[0] + 30, 1.5, f[2] + 30], .8), 600); }
+    setTimeout(() => wd_text(e), 1800); S.ev.phase = 'aus'; S.ev.t = -2; }
+  else if (e.art === 'fenster') { const ok = wd_fensterHofer(); if (!ok) { S.ev = null; return false; } wd_ton('knochen', [P.x + 6, 3, P.z], .25); setTimeout(() => wd_text(e), 1500); S.ev.phase = 'aus'; S.ev.t = -4.5; }
+  else if (e.art === 'form') {
+    const d = WD_PARAM.dist[e.form] || [26, 40], f = (e.mast && wd_mast(d[0] - 6, d[1])) || wd_spot(d[0], d[1], .55); if (!f) { S.ev = null; return false; }
+    const M = await wd_zeige(e.form, f, { dunkel: !!e.dunkel, clip: 'idle', scale: e.form === 'hirschding' ? .95 : 1 }); if (!M) { S.ev = null; return false; }
+    S.ev.phase = 'beobachten'; S.seenT = 0; wd_ton('knochen', f, .2); }
+  return true;
+}
+function wd_nah() { const A = wd_S.A; return !!(A && A.g.visible && wd_dist(A.g.position) < 40); }   // für BEOB_SPERREN
+// vier Furchen in 2,3 m Höhe an der Außenwand des nächsten Hauses: heller Holzgrund der Splitter, dunkle Ränder, Fasern am Ende (indoorRects: x0, x1, zb, zf)
+function wd_kratzTex() {
+  const c = document.createElement('canvas'); c.width = 192; c.height = 384; const g = c.getContext('2d');
+  for (let i = 0; i < 4; i++) { const x0 = 30 + i * 36 + (i % 2) * 4, bog = (i - 1.5) * 5;
+    g.beginPath(); g.moveTo(x0, 8); g.bezierCurveTo(x0 + bog, 120, x0 - bog, 240, x0 + bog * .6, 372); g.lineCap = 'round';
+    g.lineWidth = 11; g.strokeStyle = 'rgba(16,10,6,.8)'; g.stroke();            // Rand/Tiefe
+    g.lineWidth = 5; g.strokeStyle = 'rgba(176,150,112,.95)'; g.stroke();        // frisches Holz im Grund
+    for (let j = 0; j < 9; j++) { const yy = 20 + Math.random() * 330, xx = x0 + bog * (yy / 384 - .5) * .8; g.lineWidth = 1.2; g.strokeStyle = 'rgba(190,164,126,.8)'; g.beginPath(); g.moveTo(xx + (Math.random() - .5) * 4, yy); g.lineTo(xx + (Math.random() - .5) * 11, yy + 12 + Math.random() * 18); g.stroke(); } }
+  const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
+}
+function wd_kratz() {
+  const P = player.pos; let best = null, bd = 1e9; try { for (const r of (typeof indoorRects !== 'undefined' ? indoorRects : [])) { const cx = Math.max(r.x0, Math.min(P.x, r.x1)), cz = Math.max(r.zb, Math.min(P.z, r.zf)), d = Math.hypot(P.x - cx, P.z - cz); if (d < bd && d > 1.5) { bd = d; best = [r, cx, cz]; } } } catch (e) {}
+  if (!best || bd > 30) return false; const [r, cx, cz] = best, S = wd_S;
+  S.kratzM = S.kratzM || new THREE.MeshLambertMaterial({ map: wd_kratzTex(), transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -3, polygonOffsetUnits: -3 });
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(.26, .52), S.kratzM);
+  const onX = Math.abs(P.x - cx) > Math.abs(P.z - cz); m.position.set(onX ? (P.x < cx ? r.x0 - .012 : r.x1 + .012) : cx, 2.3, onX ? cz : (P.z < cz ? r.zb - .012 : r.zf + .012));
+  m.rotation.y = onX ? (P.x < cx ? -Math.PI / 2 : Math.PI / 2) : (P.z < cz ? Math.PI : 0); m.userData.noCol = true; scene.add(m); S.dec.push(m); return true;
+}
+
+// ---------------------------------------------------------------- Mensch im Fenster (Hofers Gesicht auf falschem Körper)
+// Nutzt fensterfigur.js (ff_neu: echter 3D-Körper hinter dem Glas) mit dem Menschenmodell 'polizist' (figuren.js: HOFER → 'polizist'): der Körper steht, der Kopf ist 2,1 rad zu weit gedreht
+// und wird jedes Bild nach dem Mixer überlagert (anim_ueber; vorher nur einmal gesetzt → vom Mixer sofort überschrieben). Mikroatmung aus. Vor Kapitel-4-Ende nur „ein Mensch“.
+function wd_fensterWahl(dMin, dMax) {
+  try { const fs = typeof fassaden_S !== 'undefined' && fassaden_S.windows; if (!fs) return null; const P = player.pos, v = new THREE.Vector3(), nr = new THREE.Vector3(); let best = null, bs = -9;
+    for (const W of fs) { if (W.boarded || W.y > 3 || !W.pw || !W.g) continue; W.g.updateWorldMatrix(true, false); v.set(W.x, W.y, W.z).applyMatrix4(W.g.matrixWorld);
+      const d = Math.hypot(v.x - P.x, v.z - P.z); if (d < dMin || d > dMax) continue; const f = wd_facing(v.x, v.y, v.z); if (f < .78) continue;
+      nr.set(Math.sin(W.ry), 0, Math.cos(W.ry)).transformDirection(W.g.matrixWorld); if (nr.x * (P.x - v.x) + nr.z * (P.z - v.z) < .35 * d) continue;   // Scheibe schaut zu Luke
+      if (!wd_los(v.x, v.y, v.z)) continue; const s = f - d * .004; if (s > bs) { bs = s; best = W; } }
+    return best; } catch (e) { return null; }
+}
+function wd_fensterHofer(dauer = 3.4) {
+  try {
+    if (typeof ff_neu !== 'function') return false;
+    const W = wd_fensterWahl(9, 26) || wd_fensterWahl(4, 32); if (!W) return false;
+    const nx = Math.sin(W.ry), nz = Math.cos(W.ry);
+    const rec = ff_neu(W.g, W.x + nx * .058, W.y, W.z + nz * .058, W.ry, W.pw, W.ph, 'polizist', { warm: false, tief: .55, dunkel: .5 }); if (!rec) return false;
+    rec.ziel = 1; wd_S.fenster = rec; const t0 = performance.now(); let hd = null, an = true;
+    const tw = () => { if (!an) return; try { hd = hd || (rec.P && rec.P.rig && rec.P.rig.head); if (!hd) return; if (rec.P.mv) rec.P.mv.autoLook = null;
+      const k = Math.min(1, (performance.now() - t0) / 1800), ang = 2.1 * k * k * (3 - 2 * k);
+      const f = () => { hd.parent.updateWorldMatrix(true, false); hd.updateWorldMatrix(false, false); hd.getWorldQuaternion(WD_Q.a); WD_Q.b.setFromAxisAngle(THREE.Object3D.DEFAULT_UP, ang); WD_Q.a.premultiply(WD_Q.b); hd.parent.getWorldQuaternion(WD_Q.c).invert(); hd.quaternion.copy(WD_Q.c.multiply(WD_Q.a)); };
+      if (typeof anim_ueber === 'function') anim_ueber(hd, f); else f(); } catch (e) {} };
+    WORLD_TICK.push(tw);
+    setTimeout(() => { rec.ziel = 0; }, dauer * 1000);
+    setTimeout(() => { an = false; const i = WORLD_TICK.indexOf(tw); if (i >= 0) WORLD_TICK.splice(i, 1); try { if (rec.quad && rec.quad.parent) rec.quad.parent.remove(rec.quad); const j = FF.recs.indexOf(rec); if (j >= 0) FF.recs.splice(j, 1); rec.alive = false; if (rec.wrap) FF.scene.remove(rec.wrap); } catch (e) {} wd_S.fenster = null; }, dauer * 1000 + 3500);
+    return true;
+  } catch (e) { console.warn('Wendigo: Fenster', e); return false; }
+}
+
+// ---------------------------------------------------------------- Präsenz: leise Laute am Rand, kein Bild (Konzept „dauerhaft präsent, unerkannt“; Spiegel der Beobachter-Spuren)
+function wd_praesenz() {
+  const S = wd_S, k = wd_k(), r = Math.random(); const f = wd_spot(16, 34, 2.4, false) || wd_spot(16, 34, 1.2, true); if (!f) return false;
+  try { if (typeof spannung_did === 'function') spannung_did('wd_ton', 'amb'); } catch (e) {}
+  if (r < .45) {   // vier Hufschläge im Metronomtakt (0,62 s), ziehen seitlich vorbei – ein Tier läuft nie so gleichmäßig
+    const P = player.pos, dx = f[0] - P.x, dz = f[2] - P.z, l = Math.hypot(dx, dz) || 1, tx = -dz / l, tz = dx / l;
+    for (let i = 0; i < 4; i++) setTimeout(() => { try { Audio.wendigo('huf', f[0] + tx * (i - 1.5) * 1.1, .1, f[2] + tz * (i - 1.5) * 1.1, .3); } catch (e) {} }, i * 620);
+  } else if (r < .75) { try { if (typeof spannung_hush === 'function') spannung_hush(1.6, .2); } catch (e) {} setTimeout(() => wd_ton('knochen', f, .22), 1700); }
+  else if (r < .9) wd_ton('schnueff', [f[0], .8, f[2]], .22);
+  else wd_ton('schritt', [f[0], .1, f[2]], .25);
+  S.stat.praesenz++; wd_log('präsenz'); try { if (typeof beob_still === 'function') beob_still(28); } catch (e) {} return true;
+}
+
+// ---------------------------------------------------------------- Takt
+function wd_vorlauf() {   // Modell des nächsten Ereignisses rechtzeitig laden (Dekodieren/Programme im Leerlauf), nichts im Voraus auf der Grafikkarte
+  const S = wd_S, k = wd_k(); if (S.preT > S.t) return; S.preT = S.t + 8; if (S.t < S.next - 50 || S.ev) return;
+  const e = WD_AUFTRITTE.find(x => x.k === k && x.nur !== 'hook' && (S.n[x.id] || 0) < (x.mal || 1) && (!x.nach || x.nach.every(q => S.done.has(q))));
+  if (!e) return; const f = e.art === 'form' ? e.form : e.art === 'kadaver' ? 'fleisch' : e.was === 'haut' ? 'haut' : null; if (f && !S.models[f] && !S.loading[f]) wd_modell(f);
+}
+function wd_tick(dt) {
+  const S = wd_S; if (!S.ready || !state.started || menu.attract) return; S.t += dt; const k = wd_k();
+  if (!S.klang && typeof Audio !== 'undefined' && Audio.ctx) { S.klang = 1; try { if (typeof kr_klang === 'function') kr_klang(); } catch (e) {} }   // Aufnahmen der Laute (sonst erst mit Kapitel 6 geladen)
+  if (k !== S.k) { S.k = k; S.kT = 0; S.next = S.t + WD_PARAM.start[Math.min(k, 5)] * (.8 + Math.random() * .4); S.praeT = S.t + 60 + Math.random() * 90; wd_hide(); S.ev = null; for (const o of S.dec) { try { scene.remove(o); } catch (e) {} } S.dec.length = 0; wd_log('Kapitel ' + k); }
+  S.kT += dt; S.mode = k >= 6 ? 'k6' : S.ev ? S.ev.phase : 'schlaf'; if (k >= 6 || k < 1) return;
+  // Pfad-Puffer (für die Hufspur neben Lukes Weg), alle 0,8 m
+  const P = player.pos; if (Math.hypot(P.x - S.lastPos.x, P.z - S.lastPos.z) > .8) { S.trail.push([P.x, P.z]); if (S.trail.length > 120) S.trail.shift(); S.lastPos.set(P.x, 0, P.z); }
+  if (!S.wissen && (S.t | 0) % 5 === 0) { try { if (story.lore.some(l => l.key === 'pell_4')) S.wissen = 1; } catch (e) {} }   // Pells Heft gelesen (Kap. 4)
+  const ev = S.ev;
+  if (!ev) {
+    wd_vorlauf();
+    if (S.t >= S.praeT && !S.ev) { S.praeT = S.t + WD_PARAM.praesenz[k][0] + Math.random() * (WD_PARAM.praesenz[k][1] - WD_PARAM.praesenz[k][0]);
+      if (S.t > S.ruheBis && wd_ruhig() && wd_aussen()) { let ok = true; try { if (typeof spannung_can === 'function') ok = spannung_can('wd_ton', 'amb'); } catch (e) {} if (ok) wd_praesenz(); } }
+    if (S.t < S.next || S.t < S.ruheBis) return; const cnt = WD_AUFTRITTE.filter(e => e.k === k).reduce((a, e) => a + (S.n[e.id] || 0), 0); if (cnt >= WD_PARAM.max[k]) return;
+    if (!wd_ruhig()) return;
+    let ok = true; try { if (typeof spannung_can === 'function') ok = spannung_can('wd_ev', 'amb'); } catch (e) {} if (!ok) return;
+    const e = wd_wahl(); if (!e) { S.next = S.t + 30; return; } wd_start(e); return; }
+  ev.t += dt; const A = S.A;
+  if (ev.phase === 'aus') { if (ev.t >= 0) { wd_fertig(ev.e); S.ev = null; } return; }
+  if (!A) { if (ev.t > 20) { S.ev = null; } return; }
+  const g = A.g, p = g.position, d = wd_dist(p);
+  const sicht = wd_facing(p.x, p.y + 1.2, p.z), amBild = sicht > .5 && d < 70, inView = sicht > WD_PARAM.viewThr && d < 45;
+  if (ev.phase === 'beobachten') {
+    // Gehen nur außerhalb des Bildes („Weeping“): Wegtempo = Schrittlänge des Clips; im Bild steht er, Kopf in Rasten
+    let geht = false;
+    if (ev.e.rueck) { const sp = WD_PARAM.schritt[A.form] || 1.04, nx = p.x + (p.x - P.x) / (d || 1) * sp * dt, nz = p.z + (p.z - P.z) / (d || 1) * sp * dt; if (wd_frei(nx, nz, .5)) { p.x = nx; p.z = nz; p.y = wd_boden(nx, nz); geht = 'rueck'; } else { ev.t = Math.max(ev.t, 44); } }
+    else if (ev.e.still && !amBild && d > WD_PARAM.nearHide + 4) { const sp = WD_PARAM.schritt[A.form] || 1.04, nx = p.x + (P.x - p.x) / d * sp * dt, nz = p.z + (P.z - p.z) / d * sp * dt; if (wd_frei(nx, nz, .5)) { p.x = nx; p.z = nz; p.y = wd_boden(nx, nz); geht = 'vor'; } }
+    if (geht === 'rueck') wd_play(A, 'walk', .2, -1); else if (geht === 'vor') wd_play(A, 'walk', .2, 1); else wd_play(A, 'idle', .35, 1);
+    // Körper dreht nur, wenn niemand hinsieht (kein Drehen auf der Stelle im Bild); Kopf übernimmt im Bild
+    if (!amBild) { const want = Math.atan2(P.x - p.x, P.z - p.z); const df = Math.atan2(Math.sin(want - g.rotation.y), Math.cos(want - g.rotation.y)); g.rotation.y += Math.max(-1.4 * dt, Math.min(1.4 * dt, df)); }
+    A.mx.update(dt); wd_kopf(A, dt);
+    S.seenT = inView ? S.seenT + dt : Math.max(0, S.seenT - dt * .5);
+    if (!ev.counted && S.seenT > WD_PARAM.seeMin) { ev.counted = true; S.stat.gesehen++; wd_text(ev.e); try { if (typeof spannung_schreck === 'function') spannung_schreck(1, 'wd_' + ev.e.id); } catch (x) {} }
+    if (!S.hold && (S.seenT > WD_PARAM.seeMax || (ev.counted && !inView) || wd_lit(p) || d < WD_PARAM.nearHide || ev.t > 45)) { ev.phase = 'rueckzug'; ev.t = 0; S.stat.rueckzug++; A.g.visible = false; /* auftritt_reg blendet weich aus */ }
+  } else if (ev.phase === 'rueckzug') {
+    if (ev.t > 1.2) { wd_hide(); if (!ev.counted) wd_text(ev.e); wd_fertig(ev.e); S.ev = null; }
+  }
+}
+WORLD_TICK.push(dt => { try { wd_tick(dt); } catch (e) { console.warn('Wendigo: Takt', e); wd_S.ready = false; } });
+
+// ---------------------------------------------------------------- Haken in andere Module (ohne deren Dateien zu ändern; alles typeof-geprüft)
+function wd_haken() {
+  // Kap. 3: Funkkasten zu Ende gesprochen → ein Satz auf dem Band, Wort für Wort ein zweites Mal, ohne Atem
+  try { if (typeof lucy3_funk === 'function' && !lucy3_funk.__wd) { const o = lucy3_funk; lucy3_funk = function () { const r = o.apply(this, arguments); try { if (wd_k() === 3 && !wd_S.done.has('k3_funk')) { let n = 0; const iv = setInterval(() => { n++; try { if (n > 90 || wd_k() !== 3) return clearInterval(iv); if (typeof lucy3_S !== 'undefined' && lucy3_S.win) return; if (state.talking || (typeof ui !== 'undefined' && ui.overlay)) return; clearInterval(iv); setTimeout(() => window.__wd && window.__wd.tonband(), 2500); } catch (e) { clearInterval(iv); } }, 2000); } } catch (e) {} return r; }; lucy3_funk.__wd = 1; } } catch (e) {}
+}
+
+// ---------------------------------------------------------------- Einstieg
+WORLD_MODS.push(['Wendigo (Präsenz, Vorboten, Formen Kap. 1–5)', async () => {
+  const S = wd_S; S.ready = true; S.k = 0; S.praeT = 90;
+  try { if (typeof SP_GAP !== 'undefined') Object.assign(SP_GAP, { wd_ev: 240, wd_ton: 150, wd_form: 300, wd_spur: 300, wd_kadaver: 360, wd_text: 120, wd_fenster: 300 }); } catch (e) {}
+  try { if (typeof BEOB_SPERREN !== 'undefined') BEOB_SPERREN.push(() => wd_nah()); } catch (e) {}
+  wd_haken();
+  window.__wd = {
+    S, WD_PARAM, WD_AUFTRITTE, WENDIGO_TEXTE,
+    report: () => ({ mode: S.mode, k: S.k, t: Math.round(S.t), next: Math.round(S.next), praeT: Math.round(S.praeT), done: [...S.done], n: S.n, stat: S.stat, log: S.log.slice(-12), modelle: Object.keys(S.models).filter(k => S.models[k]), kadaver: S.dec.length, wissen: S.wissen }),
+    auftritt: id => { const e = WD_AUFTRITTE.find(x => x.id === id); return e ? wd_start(e, true) : false; },
+    zettel: id => { const e = WD_AUFTRITTE.find(x => x.id === 'k2_' + id); if (e) { wd_text(e); wd_fertig(e); } },
+    tonband: () => { try { subtitle('<i>' + WENDIGO_TEXTE.t_band + '</i>', 4200, 'BAND?'); } catch (e) {} const e = WD_AUFTRITTE.find(x => x.id === 'k3_funk'); if (e) { try { wd_ton('knochen', [player.pos.x + 8, 1.2, player.pos.z], .18); } catch (x) {} setTimeout(() => wd_text(e), 3500); wd_fertig(e); } },
+    fenster: () => { const e = WD_AUFTRITTE.find(x => x.id === 'k4_fenster'); const ok = wd_fensterHofer(); if (e) { wd_ton('knochen', [player.pos.x + 6, 3, player.pos.z], .3); setTimeout(() => wd_text(e), ok ? 1500 : 0); wd_fertig(e); } return ok; },
+    praesenz: () => wd_praesenz(), frei: (x, z, r) => wd_frei(x, z, r), boden: (x, z) => wd_boden(x, z),
+    pelz: p => wd_pelz(p || wd_spot(8, 12) || [player.pos.x + 8, 0, player.pos.z]), blut: (x, z, r) => wd_blutfleck(x, z, r || 1),
+    sicht: () => { const A = wd_S.A; return A ? { v: A.g.visible, a: A.g.__auf && A.g.__auf.a, real: A.g.__auf && A.g.__auf.real, p: A.g.position.toArray(), hy: A.hy, cur: A.cur && A.cur.getClip().name } : null; },
+    zeige: (f, pos, o) => wd_zeige(f, pos, o || {}), mast: (a, b) => wd_mast(a || 20, b || 40), spot: (a, b, c, d) => wd_spot(a, b, c, d),
+    spur: was => wd_spurReihe(was), kadaver: g => wd_kadaver(!!g, wd_spot(10, 18) || [player.pos.x + 10, 0, player.pos.z]),
+    form: async (f, o) => { const sp = wd_spot(14, 24) || [player.pos.x + 14, 0, player.pos.z]; return wd_zeige(f, sp, o || {}); },
+    uebergang: async (von, zu, kette) => {
+      // Kette: bekleidet (reh/hirsch) → Clip „uebergang“ (Riss über Rücken/Bauch/Flanke/Hals, Knochen schieben, Kopf falsch, Maul, Geweih wächst) → Fleisch → (optional) Hirschding mit „aufstieg“
+      const A = wd_S.A; if (!A) return false; const p = A.g.position.toArray(), ry = A.g.rotation.y;
+      wd_play(A, 'uebergang', .1, 1, true); try { wd_ton('knochen', [p[0], 1.2, p[2]], .5); } catch (e) {}
+      const warte = ms => new Promise(r => setTimeout(r, ms));
+      await warte(2200); const M2 = await wd_zeige(zu || 'fleisch', p, { clip: 'idle' }); if (M2) M2.g.rotation.y = ry;
+      if (kette && M2) { await warte(1800); try { wd_ton('ruf', [p[0], 1.5, p[2]], .6); } catch (e) {} const M3 = await wd_zeige('hirschding', p, { clip: 'idle' }); if (M3) { M3.g.rotation.y = ry; wd_play(M3, 'uebergang', .1, 1, true); } }
+      return true; },
+    aus: () => { wd_hide(); S.ev = null; }, nah: wd_nah,
+    tick: dt => { if (S.A) { S.A.mx.update(dt); wd_kopf(S.A, dt); } },
+  };
+}]);
 // =====================================================================  LATERNEN (Modul „laternen“): Birne, Lichtkegel und Lichtpool sitzen am ECHTEN Kopf der Laternen
 // Nutzer 07.10.: „die Lampen sehen oben aus wie eine schwebende Platte, auf der der Rabe sitzt – alles soll geschlossen und natürlich aussehen“.
 // Ursache: lamp() (Basis) setzt die Birne 1,7 m vom Mast weg; das Scan-Modell der Laterne (assets/lamp) hat aber einen viel kürzeren Ausleger. Die leuchtende Birnenplatte,
@@ -46558,7 +47019,9 @@ function textweiter_overlay() { try { return !!(ui && ui.overlay) || !!document.
 function textweiter_sichtbar() { const el = document.getElementById('subtitle'); return !!el && parseFloat(el.style.opacity || '0') > .05 && el.textContent.trim().length > 0; }
 // 10.10. Toasts (Hinweise) und Aufgaben-Pop-ups: Enter/Klick blendet sie aus, X zusammen mit der Untertitel-Folge
 function textweiter_andere() { let did = false; try { const t = document.getElementById('toast'); if (t && parseFloat(t.style.opacity || '0') > .05) { clearTimeout(toastT); t.style.opacity = 0; did = true; }
-    const q = document.getElementById('questPop'); if (q && q.classList.contains('show')) { clearTimeout(popT); q.classList.remove('show'); did = true; } } catch (e) {} return did; }
+    const q = document.getElementById('questPop'); if (q && q.classList.contains('show')) { clearTimeout(popT); q.classList.remove('show'); did = true; }
+    if (typeof fuehrung_kartenWeg === 'function' && fuehrung_kartenWeg()) did = true;   // Kapitelkarte (fuehrung.js)
+    if (typeof tipps_weg === 'function' && tipps_weg(true)) did = true; } catch (e) {} return did; }   // Tutorial-Tipp (tipps.js)
 function textweiter(alle) {
   if (textweiter_overlay()) return false;
   if (!textweiter_sichtbar()) return textweiter_andere();
@@ -46736,9 +47199,11 @@ window.__hohl = HOHL;
 // ---------------------------------------------------------------- Bewegungshinweise (Folgeauftrag 7, Tutorial): kurz, einmalig, als Gedanke (überspringbar wie alle Gedanken)
 const BHINT = { t: 0, done: new Set() };
 WORLD_TICK.push(dt => { try { BHINT.t -= dt; if (BHINT.t > 0 || !state.started || menu.attract || scripted || camOverride || mantle || state.talking || ui.overlay || typeof gedanke !== 'function') return; BHINT.t = .5;
-  const say = (k, t) => { if (BHINT.done.has(k)) return; BHINT.done.add(k); try { gedanke('bew_' + k, t); } catch (e) {} };
-  if (crawlK > .5) say('kriech', 'Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg oder C hält dich unten.');
-  else if (crouchK > .8) say('duck', 'Geduckt passt du unter Tische, Äste und Rohre. Strg oder C: ducken, Leertaste: aufstehen.');
+  // Tutorial (tipps.js): Tastenkappen statt Gedanke (einmal, ruhig); fehlt das Modul oder ist die Ruhe nicht da, bleibt der Gedanke. „Strg“ allein: C ist in Kapitel 5 die Kamera.
+  const TIPP = { kriech: 'FS-6-TP-01', duck: 'FS-1-TP-08', hoch: 'FS-1-TP-08' };
+  const say = (k, t) => { if (BHINT.done.has(k)) return; if (typeof tipps_zeige === 'function' && TIPP[k]) { if (tipps_zeige(TIPP[k])) BHINT.done.add(k); return; } BHINT.done.add(k); try { gedanke('bew_' + k, t); } catch (e) {} };
+  if (crawlK > .5) say('kriech', 'Kriechen: unter niedrigen Öffnungen (ab 70 cm) geht es geduckt weiter. Strg hält dich unten.');
+  else if (crouchK > .8) say('duck', 'Geduckt passt du unter Tische, Äste und Rohre. Strg: ducken, Leertaste: aufstehen.');
   else if (grounded && (keys.KeyW || keys.ArrowUp) && player.pos.y < 3 && mantleTarget()) say('hoch', 'Eine Kante in Reichweite: Leertaste springt, Weiterdrücken zieht dich hoch – auf Autos, Kisten, Mauern bis etwa zwei Meter.'); } catch (e) {} });
 // =====================================================================  INTERAKTIONS-PHYSIK (Nutzer 11.10.2026, Folgeauftrag 10)
 // „Wenn du ein Auto aufmachst oder eine Tür aufmachst, dass die Tür dann auch aufgeht und sich bewegt … alles, was du anfasst, soll sich wirklich bewegen.“
@@ -47173,7 +47638,7 @@ const ZIELE_WARUM = [
 ];
 function ziele_warum(re, text) { ZIELE_WARUM.unshift([re, text]); }
 // Kurze Takte (Warten, Rennen, QTE-Anweisungen) – still aktualisieren, keine Ankündigung
-const ZIELE_TAKT = /^(Warten|Hinterher|Atmen|Durch die Tür|Lucy\.|LAUF|SCHÜTTEL|Raus hier|Weg hier|Klettern|Den Deckel|Die Leiter hinauf|Die Stablampe|Die Tür ist zu|Nimm Justins Hand|Der letzte Raum|Geh weiter\.)|E halten|Maus wild/;
+const ZIELE_TAKT = /^(Warten|Hinterher|Atmen|Durch die Tür|Lucy\.|LAUF|SCHÜTTEL|SCHÜTTLE|Raus hier|Weg hier|Klettern|Den Deckel|Die Leiter hinauf|Die Stablampe|Die Tür ist zu|Nimm Justins Hand|Der letzte Raum|Geh weiter\.)|E halten|Maus wild/;
 // ---------------------------------------------------------------- Arten der Einblendungen
 const ZIELE_ART = [['neben', /^(NEUE )?NEBENAUFGABE/], ['fort', /^FORTSETZUNG/], ['erledigt', /^(ERLEDIGT|ERFOLG|ALLE KERBEN|VEGAS HATTE RECHT)/], ['verpasst', /^(VERPASST|GESCHEITERT|ZU SPÄT)/],
   ['fund', /^(INVENTAR|AUSRÜSTUNG|GEFUNDEN|GLÄNZENDES|VON WHISKEY|SCHLÜSSELTEIL|JOKER|DU HAST EINGESTECKT)/], ['sammel', /^(LOSE SEITE|STUNDENBUCH|DER LATERNENBOTE|POLAROID|PELLS HEFT|ENTDECKER)/], ['kapitel', /^KAPITEL/], ['karte', /^KARTE/]];
@@ -47287,10 +47752,11 @@ function ziele_rJetzt(B) { const S = ziele_S, h = ziele_hilfe(), obj = (document
       const p = h > 0 && typeof karte_S !== 'undefined' ? karte_S.p[k] : null; if (p && typeof karte_blattAn === 'function') { const b = karte_blattAn(player.pos.x, player.pos.z); if (b && b.id === p[0]) wo = ziele_himmel(p[1], p[2]); }
       neben.push(`<li><b>${ziele_esc(ziele_rein(q.title))}</b><span>${ziele_esc(ziele_kurz(q.desc))}</span>${wo ? `<i>Nadel auf der Karte: ${ziele_esc(wo)}</i>` : ''}</li>`); } } catch (e) {}
   const log = S.log.slice(-12).reverse().map(l => `<li class="zl-${l.a}"><em>${ziele_esc(ZIELE_ARTNAME[l.a] || l.k)}</em>${ziele_esc(l.x)}</li>`).join('');
+  const phase = typeof fuehrung_phaseText === 'function' ? fuehrung_phaseText() : '', bisher = typeof fuehrung_bisherHtml === 'function' ? fuehrung_bisherHtml() : '';
   B.innerHTML = `<h2>WAS JETZT?</h2><div class="zlJetzt">` +
-    `<section class="zlHaupt"><small>DAS WICHTIGSTE</small><p class="zlZiel">${obj ? ziele_esc(obj) : '<span class="zlLeer">Gerade nichts. Durchatmen.</span>'}</p>` +
+    `<section class="zlHaupt">${phase ? '<p class="zlPhase">' + ziele_esc(phase) + '</p>' : ''}<small>DAS WICHTIGSTE</small><p class="zlZiel">${obj ? ziele_esc(obj) : '<span class="zlLeer">Gerade nichts. Durchatmen.</span>'}</p>` +
     (warum ? `<p class="zlWarum">${ziele_esc(warum)}</p>` : '') + (faden ? `<p class="zlFaden">${ziele_esc(faden)}</p>` : '') +
-    (wohin ? `<p class="zlWohin">${ziele_esc(wohin)}${typeof karte_oeffnen === 'function' ? ' <button class="zlKarte">AUF DER KARTE</button>' : ''}</p>` : '') + `</section>` +
+    (wohin ? `<p class="zlWohin">${ziele_esc(wohin)}${typeof karte_oeffnen === 'function' ? ' <button class="zlKarte">AUF DER KARTE</button>' : ''}</p>` : '') + bisher + `</section>` +
     `<section class="zlNeben"><small>NEBENBEI OFFEN</small>${neben.length ? `<ul>${neben.join('')}</ul>` : '<p class="zlLeer">Nichts offen.</p>'}</section>` +
     `<section class="zlLog"><small>ZULETZT NOTIERT</small>${log ? `<ul>${log}</ul>` : '<p class="zlLeer">Noch nichts.</p>'}</section>` +
     `<p class="zlFuss"><kbd>Z</kbd> zeigt das Ziel im Spiel · Hilfe: ${['aus', 'sanft', 'deutlich'][h]} (Einstellungen)</p></div>`;
@@ -47373,6 +47839,1453 @@ WORLD_TICK.push(dt => { const S = ziele_S; if (!S.geladen) ziele_laden(); if (!s
   if (S.zeigeAn && now > S.hideAt) ziele_aus();
   if (S.zeigeAn && ziele_hilfe() === 2 && S.el.wohin && S.el.wohin.style.display !== 'none' && S.el.wohin.querySelector('.zlPfeil')) { S.wT = (S.wT || 0) - dt; if (S.wT < 0) { S.wT = .5; S.el.wohin.innerHTML = ziele_wohinHud('immer'); } }
 });
+// ERZEUGT von app/tools/fuehrung_daten.mjs aus docs/gameplay/fuehrung_texte.json – nicht von Hand ändern (Texte dort ändern, Skript erneut ausführen).
+const FS_D = {
+ "kk": {
+  "1": {
+   "kopf": "KAPITEL 1 · KELLER BLEIBT ZU",
+   "ortzeit": "Lost Eyengless · Mittwoch, 4. November · kurz nach elf Uhr abends",
+   "ziel": "Finde Haus Nr. 7. Lucy hat dort etwas hinterlassen."
+  },
+  "2": {
+   "kopf": "KAPITEL 2 · DAS ACHTE KIND",
+   "ortzeit": "Amt für Rückführung · Ebene −2 · Donnerstag, 5. November · kurz nach eins",
+   "ziel": "Finde Lucy. Irgendwo hier unten summt sie."
+  },
+  "3": {
+   "kopf": "KAPITEL 3 · ICH KOMME",
+   "ortzeit": "Lost Eyengless · Donnerstag, 5. November · 03:13",
+   "ziel": "Hol Lucy zurück. Finde heraus, was mit Lost Eyengless geschehen ist."
+  },
+  "4": {
+   "kopf": "KAPITEL 4 · SEHEN, BERGEN, SCHWEIGEN",
+   "ortzeit": "Lost Eyengless · Donnerstag, 5. November · Morgen, Nebel",
+   "ziel": "Sieh nach Lucy. Dann die Villa Seiler: acht Schlüsselteile."
+  },
+  "5": {
+   "kopf": "KAPITEL 5 · ISS AUF, BRUDER",
+   "ortzeit": "Lost Eyengless · Donnerstag, 5. November · Abend",
+   "ziel": "Lucy schläft bei Vegas. Bleib in ihrer Nähe."
+  },
+  "6": {
+   "kopf": "KAPITEL 6 · WENDIGO",
+   "ortzeit": "Forbidden Dustwoods · Freitag, 6. November · kurz nach zwei Uhr nachts",
+   "ziel": "Finde den Jungen mit deinem Namen. Er ist im Wald."
+  }
+ },
+ "bisher": {
+  "2": [
+   "Lucy ist seit dem 23. Oktober weg. Ihr Anruf hat mich nach Nr. 7 geholt.",
+   "Im Keller war etwas eingesperrt, mit Lucys Stimme. Ich habe die Tür aufgemacht.",
+   "Jetzt ist Frau Wendt fort. Und hinter der Zeichnungswand beginnt ein Gang."
+  ],
+  "3": [
+   "Unter Nr. 7 liegt ein Amt. Es hat 2009 sieben Kinder ausgelost. Die Eltern unterschrieben.",
+   "Akte 08 bin ich: Rückläufer, braune Augen. Der Hund hieß Flocke. Das wusste ich nicht.",
+   "Lucy war im Tank. Dann war sie fort, und das graue Gesicht hat durch meine Augen gesehen."
+  ],
+  "4": [
+   "Lucy ist zurück. Sie friert.",
+   "Ein Ritter sucht seit 700 Jahren seine Tochter. Sie hat durch meine Augen gesucht.",
+   "Ich bin nicht der, mit dem Lucy geboren ist."
+  ],
+  "5": [
+   "Die vom Amt haben ein Bett für mich gemacht.",
+   "Ein Ring passt in meine Narbe.",
+   "Oben in der Villa hat eine Frau meinen Namen gesagt."
+  ],
+  "6": [
+   "Der Junge im Stall ist der, der ich sein sollte.",
+   "Ich hab ihn angesehen, und sie hat es gesehen.",
+   "Er ist in einen Wald gelaufen, der kein Echo hat."
+  ]
+ },
+ "phase": {
+  "1": [
+   "ANKOMMEN",
+   "DAS HAUS",
+   "DIE KELLERTÜR",
+   "DER KELLER",
+   "DAS LICHT",
+   "VERSTECKEN",
+   "DIE WAND"
+  ],
+  "2": [
+   "DER TUNNEL",
+   "DAS ARCHIV",
+   "DER STROM",
+   "DIE ZELLE",
+   "DER LANGE GANG",
+   "DIE BLECHMÄNNER",
+   "DER MESSRAUM",
+   "DER SCHACHT"
+  ],
+  "3": [
+   "DIE KREUZUNG",
+   "JUSTIN",
+   "FUNK UND ZÄHLBUCH",
+   "DIE LATERNEN",
+   "NIMMERHEIM",
+   "DER HOHE ABGRUND"
+  ],
+  "4": [
+   "DER MORGEN",
+   "DAS AMT KOMMT",
+   "ACHT SCHLÜSSEL",
+   "DIE VILLA",
+   "DER KÜHLRAUM",
+   "DIE TREPPE"
+  ],
+  "5": [
+   "DER ABEND",
+   "HAUS NR. 1",
+   "DIE SPIELUHR",
+   "DER STALL",
+   "DAS TAPPEN",
+   "DAS BETT"
+  ],
+  "6": [
+   "DER ZAUN",
+   "DER WALD",
+   "ZAYNS HÜTTE",
+   "TIEFER WALD",
+   "DER BAU",
+   "DER HOCHSITZ"
+  ]
+ },
+ "om": [
+  {
+   "id": "FS-1-OM-01",
+   "k": 1,
+   "z1": "AHORNSTRASSE",
+   "z2": "Ortsschild · 23 Uhr"
+  },
+  {
+   "id": "FS-1-OM-02",
+   "k": 1,
+   "z1": "NR. 7",
+   "z2": "Hildes Haus"
+  },
+  {
+   "id": "FS-1-OM-03",
+   "k": 1,
+   "z1": "NR. 7 · KELLER",
+   "z2": "unter der Erde"
+  },
+  {
+   "id": "FS-1-OM-04",
+   "k": 1,
+   "z1": "KREUZUNG",
+   "z2": "Telefonzelle · Funkkasten"
+  },
+  {
+   "id": "FS-2-OM-05",
+   "k": 2,
+   "z1": "AMT FÜR RÜCKFÜHRUNG",
+   "z2": "Ebene −2 · Tunnel"
+  },
+  {
+   "id": "FS-2-OM-06",
+   "k": 2,
+   "z1": "ARCHIV",
+   "z2": "Ordnungstafel · Akten"
+  },
+  {
+   "id": "FS-2-OM-07",
+   "k": 2,
+   "z1": "ZIMMER 7",
+   "z2": "Hildes Büro"
+  },
+  {
+   "id": "FS-2-OM-08",
+   "k": 2,
+   "z1": "SICHERUNGSRAUM",
+   "z2": "ohne Strom"
+  },
+  {
+   "id": "FS-2-OM-09",
+   "k": 2,
+   "z1": "PRÜFRAUM 3",
+   "z2": "Zelle"
+  },
+  {
+   "id": "FS-2-OM-10",
+   "k": 2,
+   "z1": "DER LANGE GANG",
+   "z2": "Rohre · Ölfass"
+  },
+  {
+   "id": "FS-2-OM-11",
+   "k": 2,
+   "z1": "MESSRAUM",
+   "z2": "acht Stühle · ein Tank"
+  },
+  {
+   "id": "FS-3-OM-12",
+   "k": 3,
+   "z1": "KREUZUNG · 03:13",
+   "z2": "alle Uhren stehen"
+  },
+  {
+   "id": "FS-3-OM-13",
+   "k": 3,
+   "z1": "OSTENDE",
+   "z2": "Nebel"
+  },
+  {
+   "id": "FS-3-OM-14",
+   "k": 3,
+   "z1": "NIMMERHEIM · RAUM 1",
+   "z2": "Kinderzimmer, Juli 2009"
+  },
+  {
+   "id": "FS-3-OM-15",
+   "k": 3,
+   "z1": "NIMMERHEIM · RAUM 2",
+   "z2": "Hildes Küche"
+  },
+  {
+   "id": "FS-3-OM-16",
+   "k": 3,
+   "z1": "NIMMERHEIM · RAUM 3",
+   "z2": "die Nacht von 1312"
+  },
+  {
+   "id": "FS-3-OM-17",
+   "k": 3,
+   "z1": "DER HOHE ABGRUND",
+   "z2": ""
+  },
+  {
+   "id": "FS-4-OM-18",
+   "k": 4,
+   "z1": "AHORNSTRASSE · MORGEN",
+   "z2": "Nebel, die Laternen sind aus"
+  },
+  {
+   "id": "FS-4-OM-19",
+   "k": 4,
+   "z1": "NR. 3",
+   "z2": "Vegas"
+  },
+  {
+   "id": "FS-4-OM-20",
+   "k": 4,
+   "z1": "NR. 9",
+   "z2": "vernagelt seit 2009"
+  },
+  {
+   "id": "FS-4-OM-21",
+   "k": 4,
+   "z1": "VILLA SEILER · GARTEN",
+   "z2": "Prägepresse"
+  },
+  {
+   "id": "FS-4-OM-22",
+   "k": 4,
+   "z1": "VILLA SEILER · HALLE",
+   "z2": "acht Schlösser"
+  },
+  {
+   "id": "FS-4-OM-23",
+   "k": 4,
+   "z1": "ZELLE OST · KÜHLRAUM",
+   "z2": "Nicht öffnen"
+  },
+  {
+   "id": "FS-5-OM-24",
+   "k": 5,
+   "z1": "NR. 3 · VERANDA",
+   "z2": "Abend"
+  },
+  {
+   "id": "FS-5-OM-25",
+   "k": 5,
+   "z1": "NR. 1",
+   "z2": "Küche · vier Gedecke"
+  },
+  {
+   "id": "FS-5-OM-26",
+   "k": 5,
+   "z1": "KINDERZIMMER",
+   "z2": "Lucys Spieluhr"
+  },
+  {
+   "id": "FS-5-OM-27",
+   "k": 5,
+   "z1": "STALL AM HOF",
+   "z2": "Brot, Augen zu"
+  },
+  {
+   "id": "FS-5-OM-28",
+   "k": 5,
+   "z1": "FRIEDHOF",
+   "z2": "Gedenkfeld · offenes Grab"
+  },
+  {
+   "id": "FS-6-OM-29",
+   "k": 6,
+   "z1": "NORDZAUN",
+   "z2": "das Gitter"
+  },
+  {
+   "id": "FS-6-OM-30",
+   "k": 6,
+   "z1": "DUSTWOODS",
+   "z2": "Lichtung"
+  },
+  {
+   "id": "FS-6-OM-31",
+   "k": 6,
+   "z1": "ZAYNS HÜTTE",
+   "z2": ""
+  },
+  {
+   "id": "FS-6-OM-32",
+   "k": 6,
+   "z1": "TIEFER WALD",
+   "z2": "Hochsitz"
+  },
+  {
+   "id": "FS-6-OM-33",
+   "k": 6,
+   "z1": "AMTSBUS",
+   "z2": "sieben Kindersitze"
+  },
+  {
+   "id": "FS-6-OM-34",
+   "k": 6,
+   "z1": "FRASSSTELLE",
+   "z2": "hier ist es still"
+  },
+  {
+   "id": "FS-6-OM-35",
+   "k": 6,
+   "z1": "DER BAU",
+   "z2": "Wrack"
+  }
+ ],
+ "zl": [
+  {
+   "id": "FS-1-ZL-01",
+   "k": 1,
+   "text": "Finde Haus Nr. 7. Lucy hat dich dorthin gerufen.",
+   "alt": "Lucy hat angerufen: „Haus Nummer 7. Der Keller.“ Finde Haus Nr. 7."
+  },
+  {
+   "id": "FS-1-ZL-03",
+   "k": 1,
+   "text": "Durchsuche Nr. 7. Lucys Zettel nennt ein Band im Keller.",
+   "alt": "Durchsuche Haus Nr. 7. Lucy hat dir ein Band im Keller hinterlassen."
+  },
+  {
+   "id": "FS-1-ZL-05",
+   "k": 1,
+   "text": "Finde im Keller, was Lucy hinterlassen hat.",
+   "alt": "Finde heraus, was Lucy hinterlassen hat."
+  },
+  {
+   "id": "FS-1-ZL-06",
+   "k": 1,
+   "text": "Etwas ist an dir vorbei die Treppe hinauf. Geh nach oben.",
+   "alt": "Irgendwas ist an dir vorbei die Treppe hoch. Hinterher."
+  },
+  {
+   "id": "FS-1-ZL-07",
+   "k": 1,
+   "text": "Der Strom ist weg. Geh nach draußen und sieh nach, was da kommt.",
+   "alt": "Der Strom ist weg, die Laternen erlöschen. Geh nach draußen und sieh nach, was da kommt."
+  },
+  {
+   "id": "FS-1-ZL-08",
+   "k": 1,
+   "text": "Versteck dich vor dem Licht. Zurück in den Keller von Nr. 7.",
+   "alt": "Versteck dich vor dem Licht. Zurück in den Keller – unter der Erde sieht sie dich nicht."
+  },
+  {
+   "id": "FS-1-ZL-09",
+   "k": 1,
+   "text": "Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen.",
+   "alt": "Hilde hat auf die Zeichnungswand gezeigt. Leg die Hand an die Zeichnungen."
+  },
+  {
+   "id": "FS-2-ZL-03",
+   "k": 2,
+   "text": "Ordne die Namen an der Tafel im Archiv: Wer zuerst zurückkam, steht links.",
+   "alt": "Bring die Namen in die richtige Reihenfolge. Die Ordnungstafel im Archiv: wer zuerst zurückkam, steht links."
+  },
+  {
+   "id": "FS-2-ZL-05",
+   "k": 2,
+   "text": "Die Stahltür im Osten braucht Strom. Finde den Sicherungsraum.",
+   "alt": "Ohne Strom geht die Stahltür im Osten nicht auf. Finde den Sicherungsraum und schalte den Strom ein."
+  },
+  {
+   "id": "FS-2-ZL-06",
+   "k": 2,
+   "text": "Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen.",
+   "alt": "Der Strom ist da. Weiter nach Osten – die Stahltür sollte jetzt aufgehen."
+  },
+  {
+   "id": "FS-2-ZL-08",
+   "k": 2,
+   "text": "SCHÜTTLE SIE AB: Maus wild bewegen oder A und D abwechselnd hämmern",
+   "alt": "SCHÜTTEL SIE AB — Maus wild bewegen, A/D hämmern | SCHÜTTLE SIE AB — Maus wild bewegen oder A und D abwechselnd hämmern"
+  },
+  {
+   "id": "FS-2-ZL-09",
+   "k": 2,
+   "text": "Die östliche Stahltür ist frei. Geh weiter.",
+   "alt": "Die östliche Stahltür ist frei. Geh weiter."
+  },
+  {
+   "id": "FS-2-ZL-13",
+   "k": 2,
+   "text": "Lies die achte Akte. Das Fach neben dem Klavier ist offen.",
+   "alt": "Lies die achte Akte."
+  },
+  {
+   "id": "FS-2-ZL-14",
+   "k": 2,
+   "text": "Lucy. Sie ist im Tank. Sprich mit ihr.",
+   "alt": "Lucy."
+  },
+  {
+   "id": "FS-2-ZL-17",
+   "k": 2,
+   "text": "Raus hier. In der Decke steht eine Luke offen. Die Leiter führt hinauf.",
+   "alt": "Raus hier. In der Decke steht eine Luke offen – eine Leiter führt nach oben."
+  },
+  {
+   "id": "FS-3-ZL-03",
+   "k": 3,
+   "text": "Justin steht an der Kreuzung. Sprich mit ihm, sieh dich um – oder geh los.",
+   "alt": "Justin steht an der Kreuzung. Sprich mit ihm, sieh dich um – oder geh los."
+  },
+  {
+   "id": "FS-3-ZL-04",
+   "k": 3,
+   "text": "Lösch die Laternen, dann muss sie herunter. Frau Wendts Notizen und der Funkkasten helfen.",
+   "alt": "Die Laternen müssen aus, dann muss sie herunter. Wie, steht bei Frau Wendt in Nr. 7 – und der Funkkasten an der Kreuzung spricht noch."
+  },
+  {
+   "id": "FS-3-ZL-05",
+   "k": 3,
+   "text": "Lösch die Laternen vor den Häusern in der Reihenfolge, in der sie die Kinder geholt hat.",
+   "alt": "Lösch die Laternen vor den Häusern – in der Reihenfolge, … | …, in der Reihenfolge, …"
+  },
+  {
+   "id": "FS-3-ZL-08",
+   "k": 3,
+   "text": "Geh weiter. Der Raum baut sich vor dir auf.",
+   "alt": "Geh weiter. Tiefer nach Nimmerheim."
+  },
+  {
+   "id": "FS-3-ZL-09",
+   "k": 3,
+   "text": "Der Hohe Abgrund. Nimm Justins Hand und geh hinein.",
+   "alt": "Der Hohe Abgrund. Geh hinein."
+  },
+  {
+   "id": "FS-3-ZL-13",
+   "k": 3,
+   "text": "Eine Erinnerung lügt. Sieh genau hin: Wo enden die Spuren?",
+   "alt": "Eine Erinnerung lügt. Sieh genau hin."
+  },
+  {
+   "id": "FS-3-ZL-15",
+   "k": 3,
+   "text": "Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Zurück: die Leiter.",
+   "alt": "Atlantschiss, die versunkene Stadt. Finde, was hier unten erinnert. Die Leiter führt zurück."
+  },
+  {
+   "id": "FS-4-ZL-00",
+   "k": 4,
+   "text": "Sieh nach Lucy. Sie liegt bei Vegas in Nr. 3.",
+   "alt": "(keine Zielzeile bis zu den Schlüsselteilen; Intro setzt direkt 'Die Villa Seiler. Dir fehlen noch N Schlüsselteile – frag den Raben.')"
+  },
+  {
+   "id": "FS-4-ZL-02",
+   "k": 4,
+   "text": "Die Villa Seiler. Sieh dich in der Halle um.",
+   "alt": "Die Villa Seiler. Sieh dich um."
+  },
+  {
+   "id": "FS-4-ZL-03",
+   "k": 4,
+   "text": "Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen.",
+   "alt": "Die Villa Seiler. Die Presse im Garten fügt die acht Teile zusammen."
+  },
+  {
+   "id": "FS-5-ZL-01",
+   "k": 5,
+   "text": "Lucy schläft bei Vegas. Warte auf der Veranda von Nr. 3.",
+   "alt": "Lucy schläft bei Vegas. Warte auf der Veranda."
+  },
+  {
+   "id": "FS-5-ZL-02",
+   "k": 5,
+   "text": "Lucy ist am Fenster von Nr. 3. Geh hin.",
+   "alt": "Lucy. Am Fenster."
+  },
+  {
+   "id": "FS-5-ZL-05",
+   "k": 5,
+   "text": "Nr. 1. Wer deckt da den Tisch?",
+   "alt": "Nr. 1. Wer deckt da den Tisch?"
+  },
+  {
+   "id": "FS-5-ZL-10",
+   "k": 5,
+   "text": "Die Telefonzelle klingelt.",
+   "alt": "Die Telefonzelle klingelt."
+  },
+  {
+   "id": "FS-5-ZL-12",
+   "k": 5,
+   "text": "Hinterher.",
+   "alt": "Hinterher."
+  },
+  {
+   "id": "FS-6-ZL-01",
+   "k": 6,
+   "text": "Hinter dem Gitter ist der Junge. Aber erst: Wer parkt da hinter dir?",
+   "alt": "Hinter dem Gitter ist der Junge. Aber erst: wer parkt da hinter dir?"
+  },
+  {
+   "id": "FS-6-ZL-02",
+   "k": 6,
+   "text": "Das Gitter aufbiegen: E halten. Der Junge ist darunter durch.",
+   "alt": "Das Gitter aufbiegen: E halten, am Gitter. Der Junge ist darunter durch."
+  },
+  {
+   "id": "FS-6-ZL-03",
+   "k": 6,
+   "text": "Der Hochsitz. Whiskey wartet oben.",
+   "alt": "Der Hochsitz."
+  }
+ ],
+ "wa": [
+  {
+   "id": "FS-1-WA-01",
+   "k": 1,
+   "rx": "^Finde Haus Nr\\. 7",
+   "text": "Lucy ist seit dem 23. weg. Ihr Anruf sagte nur: Haus Nummer 7. Der Keller."
+  },
+  {
+   "id": "FS-1-WA-03",
+   "k": 1,
+   "rx": "Durchsuche Nr\\. 7",
+   "text": "Der Schlüssel hing an Lucys Panda. Sie war hier. Das Band liegt im Keller."
+  },
+  {
+   "id": "FS-1-WA-06",
+   "k": 1,
+   "rx": "die Treppe hinauf\\. Geh nach oben",
+   "text": "Das Band ist zu Ende, die Gurte sind offen. Was auch immer das war: Es ist nach oben."
+  },
+  {
+   "id": "FS-1-WA-07",
+   "k": 1,
+   "rx": "Der Strom ist weg\\. Geh nach draußen",
+   "text": "Das Brummen hat aufgehört. Wenn die Laternen ausgehen, will ich wissen, wer sie ausmacht."
+  },
+  {
+   "id": "FS-1-WA-09",
+   "k": 1,
+   "rx": "Leg die Hand an die Zeichnungen",
+   "text": "Hilde hat auf die Wand gezeigt, nicht auf mich. Sie wusste, was dahinter ist."
+  },
+  {
+   "id": "FS-2-WA-05",
+   "k": 2,
+   "rx": "Stahltür im Osten braucht Strom",
+   "text": "Ohne Strom bleibt die Stahltür zu. Und ohne die Tür komm ich hier nicht weiter."
+  },
+  {
+   "id": "FS-2-WA-13",
+   "k": 2,
+   "rx": "Lies die achte Akte",
+   "text": "Sieben Kinder, sieben Akten. Und eine achte. Ich muss wissen, wer das ist."
+  },
+  {
+   "id": "FS-2-WA-14",
+   "k": 2,
+   "rx": "^Lucy\\. Sie ist im Tank",
+   "text": "Der Tank ist offen. Sie hat gesummt, und jetzt sieht sie mich an."
+  },
+  {
+   "id": "FS-3-WA-05",
+   "k": 3,
+   "rx": "Lösch die Laternen vor den Häusern",
+   "text": "Die Laternen sind ihre Augen. Wenn ich sie richtig ausmache, sieht sie mich nicht kommen."
+  },
+  {
+   "id": "FS-4-WA-00",
+   "k": 4,
+   "rx": "Sieh nach Lucy\\. Sie liegt bei Vegas",
+   "text": "Sie hat gefroren, als ich sie zuletzt gesehen hab. Erst Lucy, dann alles andere."
+  },
+  {
+   "id": "FS-5-WA-02",
+   "k": 5,
+   "rx": "Lucy ist am Fenster",
+   "text": "Sie klopft. Sie will mir etwas sagen, das Vegas nicht hören soll."
+  },
+  {
+   "id": "FS-5-WA-05",
+   "k": 5,
+   "rx": "Nr\\. 1\\. Wer deckt da den Tisch",
+   "text": "Nr. 1 ist unser Haus. Mamas Haus. Da wohnt keiner mehr, und trotzdem klappert Geschirr."
+  }
+ ],
+ "gf": [
+  {
+   "id": "FS-1-GF-03",
+   "k": 1,
+   "rx": "Durchsuche Nr\\. 7",
+   "text": "Irgendwo hier muss es einen Hinweis geben. Zettel, Kalender, alles, was Hilde aufgeschrieben hat."
+  },
+  {
+   "id": "FS-2-GF-15",
+   "k": 2,
+   "rx": "Peter ins Öl locken",
+   "text": "Peter folgt dem Licht. Das Öl im Fass, oder die Notentriegelung an der Wand. Eins davon."
+  },
+  {
+   "id": "FS-2-GF-16",
+   "k": 2,
+   "rx": "Weiter in den Messraum",
+   "text": "Der Gang geht weiter nach Osten. Am Ende liegt der Messraum."
+  },
+  {
+   "id": "FS-2-GF-18",
+   "k": 2,
+   "rx": "Der Messraum\\. (Hier ist es passiert|Das Klavier)",
+   "text": "Der Raum mit den Stühlen im Kreis. Das Klavier steht an der Wand, das Fach daneben."
+  },
+  {
+   "id": "FS-2-GF-19",
+   "k": 2,
+   "rx": "Die Matratze\\. Da glänzt was",
+   "text": "In der Zelle glänzt etwas auf der Matratze. Hinsehen kostet nichts."
+  },
+  {
+   "id": "FS-3-GF-16",
+   "k": 3,
+   "rx": "^Geh Justin nach",
+   "text": "Justin geht voraus. Nicht zu weit zurückfallen."
+  },
+  {
+   "id": "FS-1-GF-05",
+   "k": 1,
+   "rx": "im Keller, was Lucy hinterlassen",
+   "text": "Lucy war hier unten. Etwas zum Anhören: ein Kassettenrekorder, bei der Zeichnungswand."
+  },
+  {
+   "id": "FS-1-GF-06",
+   "k": 1,
+   "rx": "die Treppe hinauf\\. Geh nach oben",
+   "text": "Die Kellertreppe. Die Haustür war vorhin zu."
+  },
+  {
+   "id": "FS-1-GF-07",
+   "k": 1,
+   "rx": "Der Strom ist weg\\. Geh nach draußen",
+   "text": "Das Brummen. Die Laternen gehen aus, eine nach der anderen. Raus, nicht festsitzen."
+  },
+  {
+   "id": "FS-2-GF-03",
+   "k": 2,
+   "rx": "Ordne die Namen an der Tafel",
+   "text": "Wer zuerst zurückkam, steht links. Die Zeiten stehen in den Akten."
+  },
+  {
+   "id": "FS-2-GF-05",
+   "k": 2,
+   "rx": "Stahltür im Osten braucht Strom",
+   "text": "Sechs Hebel. Wer schon leuchtet, bleibt in Ruhe."
+  },
+  {
+   "id": "FS-2-GF-06",
+   "k": 2,
+   "rx": "Der Strom ist da\\. Weiter nach Osten",
+   "text": "Nach Osten. Der Strom ist an, also muss die Stahltür aufgehen."
+  },
+  {
+   "id": "FS-2-GF-09",
+   "k": 2,
+   "rx": "östliche Stahltür ist frei",
+   "text": "Offen. Weiter nach Osten, so weit der Gang geht."
+  },
+  {
+   "id": "FS-2-GF-13",
+   "k": 2,
+   "rx": "Lies die achte Akte",
+   "text": "Das Fach an der Westwand, neben dem Klavier. Die Akte ohne Namen."
+  },
+  {
+   "id": "FS-2-GF-14",
+   "k": 2,
+   "rx": "^Lucy\\. Sie ist im Tank",
+   "text": "Sie wartet im Tank. Hingehen, ansprechen."
+  },
+  {
+   "id": "FS-2-GF-17",
+   "k": 2,
+   "rx": "Die Leiter führt hinauf",
+   "text": "Die Leiter. Nach oben. Nicht umdrehen."
+  },
+  {
+   "id": "FS-3-GF-03",
+   "k": 3,
+   "rx": "Justin steht an der Kreuzung",
+   "text": "Er steht an der Kreuzung und tut nichts. Hingehen, ansprechen."
+  },
+  {
+   "id": "FS-3-GF-04",
+   "k": 3,
+   "rx": "Lösch die Laternen, dann muss sie herunter",
+   "text": "Frau Wendt in Nr. 7 hat ihre Nächte notiert. Und der Funkkasten spricht noch."
+  },
+  {
+   "id": "FS-3-GF-08",
+   "k": 3,
+   "rx": "Geh weiter\\. Der Raum baut sich",
+   "text": "Nur ein Weg: weiter, wo sich der Raum aufbaut. Justin geht voraus."
+  },
+  {
+   "id": "FS-3-GF-09",
+   "k": 3,
+   "rx": "Der Hohe Abgrund\\. Nimm Justins Hand",
+   "text": "Das Weiße vor mir ist der Rand. Justin hat gesagt: Nicht loslassen."
+  },
+  {
+   "id": "FS-3-GF-13",
+   "k": 3,
+   "rx": "Eine Erinnerung lügt",
+   "text": "Die Spuren enden am Rand. Sieh hin, wo sie aufhören."
+  },
+  {
+   "id": "FS-3-GF-15",
+   "k": 3,
+   "rx": "Atlantschiss",
+   "text": "Eine Stadt unter dem Dorf. Alles Wichtige steht irgendwo auf Wänden und Schildern."
+  },
+  {
+   "id": "FS-4-GF-00",
+   "k": 4,
+   "rx": "Sieh nach Lucy\\. Sie liegt bei Vegas",
+   "text": "Nr. 3, die Veranda. Vegas macht auf, wenn man klopft."
+  },
+  {
+   "id": "FS-4-GF-02",
+   "k": 4,
+   "rx": "Die Villa Seiler\\. Sieh dich in der Halle um",
+   "text": "Die Halle hat mehr als eine Tür. Erst alle ansehen, dann eine nehmen."
+  },
+  {
+   "id": "FS-4-GF-03",
+   "k": 4,
+   "rx": "Die Presse im Garten fügt",
+   "text": "Die Presse steht im Garten und braucht Strom. Acht Teile hinein, ein Schlüssel heraus."
+  },
+  {
+   "id": "FS-5-GF-01",
+   "k": 5,
+   "rx": "Warte auf der Veranda",
+   "text": "Auf der Veranda von Nr. 3 warten. Vegas redet durch den Türspalt."
+  },
+  {
+   "id": "FS-5-GF-02",
+   "k": 5,
+   "rx": "Lucy ist am Fenster",
+   "text": "Das Fenster neben der Veranda. Sie klopft, sie will etwas sagen."
+  },
+  {
+   "id": "FS-5-GF-05",
+   "k": 5,
+   "rx": "Nr\\. 1\\. Wer deckt da den Tisch",
+   "text": "Licht in Nr. 1, zum ersten Mal seit Mama. Erst ansehen, dann hineingehen."
+  },
+  {
+   "id": "FS-5-GF-10",
+   "k": 5,
+   "rx": "Die Telefonzelle klingelt",
+   "text": "Wieder die Zelle. Diesmal hör ich auf die Spieluhr unter der Stimme."
+  },
+  {
+   "id": "FS-5-GF-12",
+   "k": 5,
+   "rx": "^Hinterher\\.$",
+   "text": "Er läuft vor mir. Ich folge dem Tappen, so weit es geht."
+  },
+  {
+   "id": "FS-6-GF-01",
+   "k": 6,
+   "rx": "[Ww]er parkt da hinter dir",
+   "text": "Hinter mir steht ein Wagen. Erst klären, wer das ist, dann durchs Gitter."
+  },
+  {
+   "id": "FS-6-GF-02b",
+   "k": 6,
+   "rx": "Das Gitter aufbiegen",
+   "text": "Er hat sich durchgezwängt. Ich muss nur lange genug drücken."
+  },
+  {
+   "id": "FS-6-GF-03",
+   "k": 6,
+   "rx": "^Der Hochsitz\\. Whiskey wartet oben",
+   "text": "Whiskey ist vorausgeflogen. Ihm nach, dann die Leiter hinauf."
+  }
+ ],
+ "tp": [
+  {
+   "id": "FS-1-TP-01",
+   "k": 1,
+   "text": "Gehen: W A S D. Umsehen: Maus. / Springen: Leertaste.",
+   "zeilen": [
+    "Gehen: W A S D. Umsehen: Maus.",
+    "Springen: Leertaste."
+   ]
+  },
+  {
+   "id": "FS-1-TP-02",
+   "k": 1,
+   "text": "Shift halten: rennen.",
+   "zeilen": [
+    "Shift halten: rennen."
+   ]
+  },
+  {
+   "id": "FS-1-TP-03",
+   "k": 1,
+   "text": "F: Taschenlampe an und aus. / R: Batterie wechseln.",
+   "zeilen": [
+    "F: Taschenlampe an und aus.",
+    "R: Batterie wechseln."
+   ]
+  },
+  {
+   "id": "FS-1-TP-04",
+   "k": 1,
+   "text": "E halten: aufstemmen, aufschieben, klettern.",
+   "zeilen": [
+    "E halten: aufstemmen, aufschieben, klettern."
+   ]
+  },
+  {
+   "id": "FS-1-TP-05",
+   "k": 1,
+   "text": "Z: Ziel noch einmal zeigen. / Tab: Fibel, Reiter WAS JETZT?",
+   "zeilen": [
+    "Z: Ziel noch einmal zeigen.",
+    "Tab: Fibel, Reiter WAS JETZT?"
+   ]
+  },
+  {
+   "id": "FS-1-TP-06",
+   "k": 1,
+   "text": "M: Karte. Sie füllt sich, wo du gewesen bist.",
+   "zeilen": [
+    "M: Karte. Sie füllt sich, wo du gewesen bist."
+   ]
+  },
+  {
+   "id": "FS-1-TP-07",
+   "k": 1,
+   "text": "Eingesteckt. Tab, Reiter INVENTAR: / ansehen und kombinieren.",
+   "zeilen": [
+    "Eingesteckt. Tab, Reiter INVENTAR:",
+    "ansehen und kombinieren."
+   ]
+  },
+  {
+   "id": "FS-1-TP-08",
+   "k": 1,
+   "text": "Strg: ducken. Leertaste an Kanten: hochziehen.",
+   "zeilen": [
+    "Strg: ducken. Leertaste an Kanten: hochziehen."
+   ]
+  },
+  {
+   "id": "FS-1-TP-09",
+   "k": 1,
+   "text": "Hecken, Autos, Tonnen: dahinter bist du im Schatten. / Lampe aus (F): sie sehen dich später.",
+   "zeilen": [
+    "Hecken, Autos, Tonnen: dahinter bist du im Schatten.",
+    "Lampe aus (F): sie sehen dich später."
+   ]
+  },
+  {
+   "id": "FS-1-TP-10",
+   "k": 1,
+   "text": "Enter oder Klick: weiter. / X: alles überspringen.",
+   "zeilen": [
+    "Enter oder Klick: weiter.",
+    "X: alles überspringen."
+   ]
+  },
+  {
+   "id": "FS-1-TP-11",
+   "k": 1,
+   "text": "Gespeichert wird an Speicherpunkten. / Festgesteckt? Esc, dann FESTGESTECKT?.",
+   "zeilen": [
+    "Gespeichert wird an Speicherpunkten.",
+    "Festgesteckt? Esc, dann FESTGESTECKT?."
+   ]
+  },
+  {
+   "id": "FS-2-TP-01",
+   "k": 2,
+   "text": "Leertaste halten: Atem anhalten. / Lampe aus, nicht bewegen.",
+   "zeilen": [
+    "Leertaste halten: Atem anhalten.",
+    "Lampe aus, nicht bewegen."
+   ]
+  },
+  {
+   "id": "FS-2-TP-02",
+   "k": 2,
+   "text": "Q halten: Augen zu.",
+   "zeilen": [
+    "Q halten: Augen zu."
+   ]
+  },
+  {
+   "id": "FS-2-TP-03",
+   "k": 2,
+   "text": "Maus wild bewegen oder A und D abwechselnd hämmern.",
+   "zeilen": [
+    "Maus wild bewegen oder A und D abwechselnd hämmern."
+   ]
+  },
+  {
+   "id": "FS-3-TP-01",
+   "k": 3,
+   "text": "G: Kinderblick. Er zeigt, wo man suchen muss. / Er lädt sich langsam wieder auf.",
+   "zeilen": [
+    "G: Kinderblick. Er zeigt, wo man suchen muss.",
+    "Er lädt sich langsam wieder auf."
+   ]
+  },
+  {
+   "id": "FS-3-TP-02",
+   "k": 3,
+   "text": "Regler drehen, bis das Rauschen kippt. / Wort auf Kanal: schreiben, senden.",
+   "zeilen": [
+    "Regler drehen, bis das Rauschen kippt.",
+    "Wort auf Kanal: schreiben, senden."
+   ]
+  },
+  {
+   "id": "FS-5-TP-01",
+   "k": 5,
+   "text": "C: Kamera heben. Klick: abdrücken. / Es sind nur drei Bilder.",
+   "zeilen": [
+    "C: Kamera heben. Klick: abdrücken.",
+    "Es sind nur drei Bilder."
+   ]
+  },
+  {
+   "id": "FS-5-TP-02",
+   "k": 5,
+   "text": "Q halten: Augen zu. Nicht hinsehen.",
+   "zeilen": [
+    "Q halten: Augen zu. Nicht hinsehen."
+   ]
+  },
+  {
+   "id": "FS-6-TP-01",
+   "k": 6,
+   "text": "Kriechen: Unter 70 cm Höhe geht es nur geduckt. / Strg halten.",
+   "zeilen": [
+    "Kriechen: Unter 70 cm Höhe geht es nur geduckt.",
+    "Strg halten."
+   ]
+  },
+  {
+   "id": "FS-6-TP-02",
+   "k": 6,
+   "text": "R: Batterie wechseln. Danach E: Feuerzeug.",
+   "zeilen": [
+    "R: Batterie wechseln. Danach E: Feuerzeug."
+   ]
+  }
+ ],
+ "sc": {
+  "FS-1-KZ-01": "Weiße Kinderkreide. Alle Pfeile zeigen die Straße hinunter, nach Osten. / Ich folge ihnen. Besser als gar kein Plan.",
+  "FS-1-KZ-02": "Weiß: Kinderkreide, alt und frisch, zeigt nach Osten. / Blau mit Kreis am Schaft: Lucys Zeichen. / Gelb: meine eigene Kreide (K).",
+  "FS-1-KZ-03": "Blau, mit Kreis am Schaft. Lucys Pfeil. / Der führt von Nr. 7 weg, den Kirchweg hinauf. Gegen die weißen.",
+  "FS-1-KZ-04": "(kein Text)",
+  "FS-1-SC-01": "Lost Eyengless. „Einwohner 214“, zweimal rot durchgestrichen. Darunter: 211. / Darunter ein Bleistiftstrich. Als hätte jemand schon angesetzt, sie wieder zu ändern.",
+  "FS-1-SC-03": "Lost Eyengless. 214 und 211 sind durchgestrichen. / Darunter, frisch in Kreide: 210.",
+  "FS-1-SC-04": "214, dann 211. Irgendwer führt hier Buch.",
+  "FS-1-SC-05": "210. Die Kreide ist noch frisch. Frau Wendt ist erst vor Minuten fort.",
+  "FS-1-SC-06": "Einw. 214 (durchgestrichen) / 211 (durchgestrichen ab Kap. 2) / 210 (darunter)",
+  "FS-1-SC-07": "Einwohner 214. Rot durchgestrichen, darunter 211. / Später: 211 durchgestrichen, darunter 210."
+ },
+ "sz": [
+  {
+   "id": "FS-ALLE-SP-01",
+   "text": "STIMME VON DRAUSSEN",
+   "ausloeser": "Kap. 1 Ostende '… Lu–?'; Kap. 3 Ruf aus dem Nebel"
+  },
+  {
+   "id": "FS-ALLE-SP-02",
+   "text": "STIMME AM TELEFON",
+   "ausloeser": "Kap. 1 Telefonzelle (bisher 'DAS KIND'), Kap. 5 Zelle (bisher 'ANRUF')"
+  },
+  {
+   "id": "FS-ALLE-SP-03",
+   "text": "STIMME IM FUNK",
+   "ausloeser": "Kap. 3 vor dem ersten Namen; Amt Kap. 2 AG-06"
+  },
+  {
+   "id": "FS-ALLE-SP-04",
+   "text": "FUNK · LUCY",
+   "ausloeser": "Kap. 3 Funk-Rätsel"
+  },
+  {
+   "id": "FS-ALLE-SP-05",
+   "text": "TONBAND · LUCY",
+   "ausloeser": "Kap. 1 UK5"
+  },
+  {
+   "id": "FS-ALLE-SP-06",
+   "text": "TONBAND · MAMA",
+   "ausloeser": "Kap. 4/5 Villa (Marion 2009)"
+  },
+  {
+   "id": "FS-ALLE-SP-07",
+   "text": "TONBAND · PELL",
+   "ausloeser": "Kap. 6 Pells Heft/Band"
+  },
+  {
+   "id": "FS-ALLE-SP-08",
+   "text": "MAILBOX · KÜHN",
+   "ausloeser": "Prolog Aufwachen"
+  },
+  {
+   "id": "FS-ALLE-SP-09",
+   "text": "LAUTSPRECHER · AMT",
+   "ausloeser": "Kap. 2 Sicherungsraum, Gänge"
+  },
+  {
+   "id": "FS-ALLE-SP-10",
+   "text": "LUCY · IM TANK",
+   "ausloeser": "Kap. 2 Messraum"
+  },
+  {
+   "id": "FS-ALLE-SP-11",
+   "text": "VEGAS · HINTER DER TÜR",
+   "ausloeser": "Kap. 1, 4, 5"
+  },
+  {
+   "id": "FS-ALLE-SP-12",
+   "text": "DER RABE",
+   "ausloeser": "Traum"
+  },
+  {
+   "id": "FS-ALLE-SP-13",
+   "text": "KINDERSTIMME",
+   "ausloeser": "Kap. 1–3 bis Raum 'Luna' (justin.js luna/name)"
+  },
+  {
+   "id": "FS-ALLE-SP-14",
+   "text": "LUNA",
+   "ausloeser": "Kap. 3 ab UK 8, Kap. 5, Kap. 6"
+  },
+  {
+   "id": "FS-ALLE-SP-15",
+   "text": "NACHBILD · 2009",
+   "ausloeser": "alle Nachbilder"
+  },
+  {
+   "id": "FS-ALLE-SP-16",
+   "text": "DRUCKER (Papier)",
+   "ausloeser": "Kap. 2"
+  },
+  {
+   "id": "FS-1-SZ-01",
+   "text": "STIMME VON DRAUSSEN",
+   "ausloeser": "kapitel1.js Z.~265 kapitel1_ostTick: subtitle('… Lu–?', 2400, '')"
+  },
+  {
+   "id": "FS-1-SZ-02",
+   "text": "KINDERSTIMME · TELEFON",
+   "ausloeser": "post.js Z.326 Telefonzelle: 'DAS KIND'"
+  },
+  {
+   "id": "FS-3-SZ-01",
+   "text": "KINDERSTIMME",
+   "ausloeser": "lucy3.js Z.135: 'KINDERSTIMME'"
+  },
+  {
+   "id": "FS-5-SZ-01",
+   "text": "STIMME AM TELEFON",
+   "ausloeser": "kapitel5.js K5_W.A = 'ANRUF' (Z.997/999)"
+  },
+  {
+   "id": "FS-5-SZ-02",
+   "text": "VEGAS · AM FENSTER",
+   "ausloeser": "kapitel5.js Z.1410 k5_jagd: Zeile ohne Sprecher"
+  },
+  {
+   "id": "FS-ALLE-SZ-01",
+   "text": "HILDE WENDT",
+   "ausloeser": "Hilde: 'HILDE' / 'HILDE WENDT' / 'FRAU WENDT'"
+  },
+  {
+   "id": "FS-ALLE-SZ-02",
+   "text": "VEGAS bzw. VEGAS · HINTER DER TÜR",
+   "ausloeser": "Vegas: 'VEGAS' / 'LARS VEGAS' / 'HERR VEGAS · HINTER DER TÜR'"
+  }
+ ]
+};
+// =====================================================================  FÜHRUNG (Modul „fuehrung“, Nutzer 10.10./12.10.2026): man weiß jederzeit, wo man ist, in welcher Phase der Story, was zu tun ist und wer spricht
+// Konzept: docs/gameplay/fuehrung_story.md · Texte: docs/gameplay/fuehrung_texte.json → app/mods/fuehrung_daten.js (node app/tools/fuehrung_daten.mjs)
+// Bausteine (alles ohne Kanonänderung, nur Anzeige):
+//  · Zielzeilen: genau eine Stelle – #objText.textContent (alle Setter der Kapitel schreiben dort hinein) – ersetzt Bestandstexte durch die überarbeiteten Zeilen (FS_D.zl)
+//  · Warum/Faden: neue Einträge vorn in ZIELE_WARUM / GEDANKEN_FADEN, tote/verdeckte/zu breite Bestandseinträge bereinigt (selftest: jede Zielzeile hat Warum oder ist Takt)
+//  · Phasenanzeige: Zeile „KAPITEL 3 · 4 VON 6 · DIE LATERNEN“ über der Zielzeile, in der Fibel („Was jetzt?“) und im Pause-Menü (Phase springt nur vorwärts)
+//  · Kapitelkarten: Ort · Zeit · Bisher · Ziel (Tafeln K3–K6 über #intro; K1/K2 als Karte, ≤ 6 s, Klick/Enter/X weg)
+//  · Ortsmarken: 35 Orte, einmal je Ort und Spielstand, 3 s unten links
+//  · Sprecher: Anzeigename ≠ Stimmen-Schlüssel (Tabelle FS_ANZEIGE, nur der sichtbare .who-Text; die Aufnahme bleibt am alten Namen)
+// Testzugriff: window.__fuehrung (S, phase(), selftest(), karte(k), ort(id))
+const FS = { ph: {}, om: new Set(), cp: new Set(), k: 0, kT: 0, say: 0, card: null, cardT: 0, omQ: [], omT: 0, omAn: 0, ready: false, pT: 0, k1: false, alias: new Map(), test: false };
+MOD_SAVE.push(['fuehrung', () => ({ ph: FS.ph, om: [...FS.om], say: FS.say, k1: FS.k1 }),
+  v => { if (!v || typeof v !== 'object') return; if (v.ph) Object.assign(FS.ph, v.ph); (v.om || []).forEach(x => FS.om.add(x)); FS.say = v.say || 0; FS.k1 = !!v.k1; }]);
+const fs_norm = t => String(t == null ? '' : t).replace(/\s+/g, ' ').trim();
+const fs_esc = t => String(t == null ? '' : t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function fs_kap() { try { return typeof kap === 'function' ? kap() : typeof curChapter === 'function' ? curChapter() : 1; } catch (e) { return 1; } }
+function fs_dist(x, z) { return Math.hypot(player.pos.x - x, player.pos.z - z); }
+function fs_hilfe() { try { return typeof settings !== 'undefined' && settings.hilfe === 0 ? 0 : 1; } catch (e) { return 1; } }
+
+// ---------------------------------------------------------------- Zielzeilen (eine Stelle: #objText)
+function fs_aliasBauen() {
+  for (const z of FS_D.zl) { if (!z.alt || /^\(/.test(z.alt)) continue; for (const v of z.alt.split(' | ')) { const s = fs_norm(v); if (s && !/…$/.test(s) && !/^…/.test(s)) FS.alias.set(s, z.text); } }
+  // Fassungen, die zur Laufzeit zusammengesetzt werden (Bestand in kapitel1/lucy3/kapitel3 – drei Fassungen der Laternen-Zeile, K-10)
+  if (typeof KAPITEL3_ZIEL_LATERNEN === 'string') FS.alias.set(fs_norm(KAPITEL3_ZIEL_LATERNEN), FS_D.zl.find(z => z.id === 'FS-3-ZL-04').text);
+}
+function fs_zielAlias(t) {
+  const n = fs_norm(t); if (!n) return t; const a = FS.alias.get(n); if (a) return a;
+  // K4: bis Lucy bei Vegas besucht wurde, ist „Sieh nach Lucy“ das Ziel (FS-4-ZL-00), nicht die Villa
+  try { if (fs_kap() === 4 && /^Die Villa Seiler\. (Dir fehlen noch|Sieh dich um)/.test(n) && typeof villa_S !== 'undefined' && villa_S.uk < 2) return FS_D.zl.find(z => z.id === 'FS-4-ZL-00').text; } catch (e) {}
+  return t;
+}
+function fs_zielHaken() {
+  const el = document.getElementById('objText'); if (!el || el.__fs) return; el.__fs = 1;
+  const d = Object.getOwnPropertyDescriptor(Node.prototype, 'textContent');
+  Object.defineProperty(el, 'textContent', { configurable: true, get() { return d.get.call(this); }, set(v) { d.set.call(this, fs_zielAlias(v)); } });
+  el.textContent = d.get.call(el);   // schon gesetzten Text (Spielstart) nachträglich übersetzen
+}
+function fs_hilfeBereinigen() {
+  // Warum: neue Einträge vor die alten (erster Treffer gewinnt); Bestand K-12 („laufen alle zu Hilde Wendt“) bleibt dadurch unwirksam
+  try { for (const w of FS_D.wa.slice().reverse()) ZIELE_WARUM.unshift([new RegExp(w.rx), w.text]); } catch (e) { console.warn('Führung: Warum', e); }
+  try {
+    const G = GEDANKEN_FADEN, kill = [/^\/Das Tastenfeld will vier Ziffern\//, /Die Ordnungstafel im Archiv/, /Luke\|Leiter/];   // K-04 verdeckt, K-06 Doppelung, K-07 zu breit
+    for (const [re] of G.slice()) { const s = re.toString(); if (kill.some(k => k.test(s) || s.includes(k.source))) { const i = G.findIndex(x => x[0] === re); if (i >= 0) G.splice(i, 1); } }
+    for (const f of FS_D.gf.slice().reverse()) G.unshift([new RegExp(f.rx), f.text]);
+    // letzte Allzweck-Antwort bleibt am Ende (für Takt-Zeilen)
+    const i = G.findIndex(x => x[0].toString() === '/./'); if (i >= 0 && i !== G.length - 1) G.push(G.splice(i, 1)[0]);
+  } catch (e) { console.warn('Führung: Faden', e); }
+}
+// Selbsttest: jede Zielzeile (neu) hat einen Warum-Eintrag oder einen Faden mit eigenem Text, ausgenommen kurze Takt-Zeilen
+function fs_selftest() {
+  const R = { zeilen: 0, ohneWarum: [], ohneFaden: [], allzweck: [], lang: [] };
+  const taktRe = typeof ZIELE_TAKT !== 'undefined' ? ZIELE_TAKT : /^$/;
+  for (const z of FS_D.zl) { R.zeilen++; if (z.text.length > 90) R.lang.push(z.id);
+    const takt = taktRe.test(z.text) || z.text.length < 14;
+    const w = ZIELE_WARUM.find(([re]) => re.test(z.text)), f = GEDANKEN_FADEN.find(([re]) => re.test(z.text));
+    if (!w && !takt) R.ohneWarum.push(z.id + ' ' + z.text.slice(0, 40));
+    if (f && f[0].toString() === '/./' && !takt) R.allzweck.push(z.id + ' ' + z.text.slice(0, 40)); if (!f && !takt) R.ohneFaden.push(z.id); }
+  return R;
+}
+
+// ---------------------------------------------------------------- Phasen (springen nur vorwärts)
+function fs_phase(k) {
+  const P = player.pos; let p = 1;
+  try {
+    if (k === 1) { const m = story.main; p = m <= 1 ? 1 : m === 2 ? 2 : m === 3 ? 3 : m <= 5 ? 4 : m === 6 ? 5 : m === 7 ? 6 : 7; if (state.inBasement && m >= 3) p = Math.max(p, 4); }
+    else if (k === 2 && typeof C2 !== 'undefined') { const dx = P.x - C2.x; if (dx > 18.5) p = 2; if (typeof ch2 !== 'undefined' && ch2.fuseKey) p = 3; if (FS.cp.has('pruef')) p = Math.max(p, 4); if (FS.cp.has('gang') || FS.cp.has('flucht')) p = Math.max(p, 5);
+      if (FS.cp.has('flucht') && dx > 85) p = 6; if (FS.cp.has('messraum') || dx > 107.2) p = Math.max(p, 7); if (typeof uebergang3_S !== 'undefined' && uebergang3_S.phase) p = 8; }
+    else if (k === 3) { const u = typeof kapitel3_S !== 'undefined' ? kapitel3_S.uk : 0; p = u <= 3 ? 1 : u <= 5 ? 2 : u <= 7 ? 3 : u <= 10 ? 4 : u <= 13 ? 5 : 6;
+      if (typeof ch3 !== 'undefined') { if (ch3.met) p = Math.max(p, 2); if (ch3.radio || ch3.funk) p = Math.max(p, 3); if (ch3.part === 'white') p = Math.max(p, 5); if (typeof weiss_S !== 'undefined' && weiss_S.phase === 'abgrund') p = 6; } }
+    else if (k === 4) { const u = typeof villa_S !== 'undefined' ? villa_S.uk : 0; p = u <= 2 ? 1 : u <= 4 ? 2 : u === 5 ? 3 : u <= 9 ? 4 : u <= 12 ? 5 : 6;
+      if (typeof anwesen_count === 'function' && anwesen_count() > 0 && p < 3) p = 3; if (u >= 6) p = Math.max(p, 4); if (FS.cp.has('k4_keller') || FS.cp.has('k4_kasten') || FS.cp.has('k4_zelle')) p = Math.max(p, 5); if (FS.cp.has('k4_og') || FS.cp.has('k4_halle2') || FS.cp.has('k4_portraet')) p = 6; }
+    else if (k === 5 && typeof k5 !== 'undefined') { const b = k5.beat, T = { veranda: 1, kamera: 1, foto1: 1, licht: 1, tuer: 2, tisch: 2, schleife: 2, foto2: 2, heimweg: 3, lucy: 3, anruf: 3, anrufLaeuft: 3, brot: 4, stall: 4, augenauf: 4, tappen: 5, zaun: 5, grab: 6, ende: 6 }; p = T[b] || 1; }
+    else if (k === 6 && typeof K6 !== 'undefined') { const b = K6.beat, T = { zaun: 1, krumen: 2, huette: 3, faden: 4, hochsitz: 4, frass: 4, falle: 4, wrack: 5, bau: 5, oben: 6, epilog: 6, ende: 6 }; p = T[b] || 1; }
+  } catch (e) {}
+  return p;
+}
+function fs_phaseText(k = fs_kap()) { const L = FS_D.phase[k]; if (!L) return ''; const p = Math.min(L.length, Math.max(1, FS.ph[k] || 1)); return `KAPITEL ${k} · ${p} VON ${L.length} · ${L[p - 1]}`; }
+function fuehrung_phaseText() { return fs_phaseText(); }
+function fuehrung_bisherHtml(k = fs_kap()) { const L = FS_D.bisher[k]; if (!L || k < 2) return ''; return '<section class="zlBisher"><small>BISHER</small>' + L.map(l => `<p>${fs_esc(l)}</p>`).join('') + '</section>'; }
+
+// ---------------------------------------------------------------- Karten (Kapitelanfang)
+function fs_kartenEl() { if (FS.el) return FS.el; const el = document.createElement('div'); el.id = 'fsKarte'; el.innerHTML = '<div class="k"></div>'; (document.getElementById('hud') || document.body).appendChild(el); return FS.el = el; }
+function fs_karte(k, o = {}) {
+  const K = FS_D.kk[k]; if (!K) return false; const el = fs_kartenEl(), B = FS_D.bisher[k] || [];
+  el.querySelector('.k').innerHTML = `<small>${fs_esc(K.kopf)}</small><b>${fs_esc(K.ortzeit)}</b>` + (o.bisher !== false && B.length ? '<div class="bi">' + B.map(l => `<i>${fs_esc(l)}</i>`).join('') + '</div>' : '') + `<em>ZIEL: ${fs_esc(K.ziel)}</em><u>ENTER · KLICK · X – WEITER</u>`;
+  el.classList.add('an'); FS.card = k; FS.cardT = performance.now() + (o.ms || 6000); return true;
+}
+function fuehrung_kartenWeg() { if (!FS.card) return false; fs_kartenEl().classList.remove('an'); FS.card = null; return true; }
+function fs_introUmbauen() {   // Tafeln K3–K6 (und K2 per Menü): Ort · Zeit unter den Titel, Bisher (K2/K3), Ziel ans Ende
+  const I = document.getElementById('intro'); if (!I) return;
+  new MutationObserver(() => { if (I.dataset.fs === '1') return; const P = [...I.querySelectorAll('p')]; if (!P.length) return;
+    const t = P.find(p => /^KAPITEL \d/.test(p.textContent.trim())); if (!t) return; const k = +(t.textContent.match(/^KAPITEL (\d)/) || [])[1], K = FS_D.kk[k]; if (!K) return;
+    I.dataset.fs = '1'; const mk = (html, css) => { const p = document.createElement('p'); p.className = 'on'; p.style.cssText = css; p.innerHTML = html; return p; };
+    const ort = mk('<i>' + fs_esc(K.ortzeit) + '</i>', 'font-family:Georgia;font-size:14px;letter-spacing:.14em;color:#b9ab8c;margin:-10px 0 18px'); t.after(ort);
+    if ((k === 2 || k === 3) && !P.some(p => /^(BISHER|WAS BISHER)/.test(p.textContent.trim()))) { const B = FS_D.bisher[k] || [];
+      let last = ort; for (const l of B) { const p = mk('<i>' + fs_esc(l) + '</i>', 'font-size:.78em;opacity:.82'); last.after(p); last = p; } last.after(mk('', 'height:14px;margin:0')); }
+    I.appendChild(mk('ZIEL: ' + fs_esc(K.ziel), 'font-family:Georgia;font-size:15px;letter-spacing:.06em;color:#c9a36a;margin-top:26px')); }).observe(I, { childList: true });
+  // jede neue Tafel darf wieder umgebaut werden
+  const iS = document.getElementById('introSeq'); if (iS) new MutationObserver(() => { if (!iS.classList.contains('show')) I.dataset.fs = ''; }).observe(iS, { attributes: true, attributeFilter: ['class'] });
+}
+
+// ---------------------------------------------------------------- Ortsmarken
+const fs_P = () => player.pos;
+const fs_c2 = () => { try { return typeof C2 !== 'undefined' && fs_kap() === 2 ? { dx: fs_P().x - C2.x, dz: fs_P().z - C2.z } : null; } catch (e) { return null; } };
+function fs_in7() { try { const r = typeof indoorRect === 'function' ? indoorRect() : null; return !!r && typeof s7 !== 'undefined' && r.x0 === s7.x0 && r.zb === s7.zb; } catch (e) { return false; } }
+const FS_TRIG = {
+  'FS-1-OM-01': () => FS.k1 && fs_dist(-66, 2) > 4 && !state.inBasement,
+  'FS-1-OM-02': () => fs_in7() && !state.inBasement,
+  'FS-1-OM-03': () => state.inBasement && state.zone !== 'canal',
+  'FS-1-OM-04': () => fs_dist(4, 0) < 9 && !state.inBasement,
+  'FS-2-OM-05': () => { const c = fs_c2(); return !!c && c.dx > .4 && c.dx < 17; },
+  'FS-2-OM-06': () => { const c = fs_c2(); return !!c && c.dx > 18.5; },
+  'FS-2-OM-07': () => { try { return typeof z7_in === 'function' && z7_in(0) && fs_kap() === 2; } catch (e) { return false; } },
+  'FS-2-OM-08': () => { const c = fs_c2(); return !!c && c.dx > 30 && c.dx < 36.4 && c.dz > 1.5 && c.dz < 8; },
+  'FS-2-OM-09': () => fs_kap() === 2 && FS.cp.has('pruef'),
+  'FS-2-OM-10': () => fs_kap() === 2 && (FS.cp.has('gang') || FS.cp.has('flucht')),
+  'FS-2-OM-11': () => { const c = fs_c2(); return !!c && c.dx > 107.2; },
+  'FS-3-OM-12': () => fs_kap() === 3 && FS.kT > 3,
+  'FS-3-OM-13': () => { try { return fs_kap() === 3 && kapitel3_S.uk >= 4 && ch3.part === 'town'; } catch (e) { return false; } },
+  'FS-3-OM-14': () => { try { return ch3.part === 'white' && !ch3.room1; } catch (e) { return false; } },
+  'FS-3-OM-15': () => { try { return ch3.part === 'white' && ch3.room1 && !ch3.room2 && fs_P().x > X3 + 20; } catch (e) { return false; } },
+  'FS-3-OM-16': () => { try { return ch3.part === 'white' && ch3.room2 && fs_P().x > X3 + 29.5; } catch (e) { return false; } },
+  'FS-3-OM-17': () => { try { return weiss_S.phase === 'abgrund'; } catch (e) { return false; } },
+  'FS-4-OM-18': () => fs_kap() === 4 && FS.kT > 3,
+  'FS-4-OM-19': () => fs_kap() === 4 && fs_dist(-27.2, -10.6) < 5 && !state.inBasement,
+  'FS-4-OM-20': () => fs_kap() === 4 && FS.cp.has('k4_nr9'),
+  'FS-4-OM-21': () => fs_kap() === 4 && fs_P().x < -800 && !FS.cp.has('villa_halle'),
+  'FS-4-OM-22': () => fs_kap() === 4 && FS.cp.has('villa_halle'),
+  'FS-4-OM-23': () => fs_kap() === 4 && (FS.cp.has('k4_keller') || FS.cp.has('k4_kasten') || FS.cp.has('k4_zelle')),
+  'FS-5-OM-24': () => fs_kap() === 5 && FS.kT > 3,
+  'FS-5-OM-25': () => { try { return fs_kap() === 5 && typeof k5_in1 === 'function' && k5_in1(); } catch (e) { return false; } },
+  'FS-5-OM-26': () => { try { return fs_kap() === 5 && fs_dist(-53.2, -19.4) < 4; } catch (e) { return false; } },
+  'FS-5-OM-27': () => fs_kap() === 5 && fs_dist(-135.6, -30.1) < 9,
+  'FS-5-OM-28': () => fs_kap() === 5 && fs_dist(-52.5, 64.6) < 9,
+  'FS-6-OM-29': () => fs_kap() === 6 && FS.kT > 3,
+  'FS-6-OM-30': () => { try { return fs_kap() === 6 && typeof wald_in === 'function' && wald_in(fs_P().x, fs_P().z) && !(typeof tief_in === 'function' && tief_in(fs_P().x, fs_P().z)); } catch (e) { return false; } },
+  'FS-6-OM-31': () => fs_kap() === 6 && FS.cp.has('k6_huette'),
+  'FS-6-OM-32': () => fs_kap() === 6 && FS.cp.has('k6_hochsitz'),
+  'FS-6-OM-33': () => fs_kap() === 6 && FS.cp.has('k6_bus'),
+  'FS-6-OM-34': () => { try { return fs_kap() === 6 && typeof K6 !== 'undefined' && K6.beat === 'frass'; } catch (e) { return false; } },
+  'FS-6-OM-35': () => fs_kap() === 6 && FS.cp.has('k6_wrack'),
+};
+function fs_omZeigen(o) {
+  FS.om.add(o.id); let el = FS.omEl; if (!el) { el = FS.omEl = document.createElement('div'); el.id = 'fsOrt'; (document.getElementById('hud') || document.body).appendChild(el); }
+  el.innerHTML = `<b>${fs_esc(o.z1)}</b>` + (o.z2 ? `<span>${fs_esc(o.z2)}</span>` : ''); el.classList.add('an'); FS.omAn = performance.now() + 3200;
+  try { if (typeof ziele_ton === 'function') ziele_ton('ui_stift', .18); } catch (e) {}
+}
+function fs_omRuhig() {
+  try { if (!state.started || (typeof menu !== 'undefined' && menu.attract) || state.talking || ui.overlay || ui.paused || FS.card) return false;
+    if (typeof hunt !== 'undefined' && hunt.on) return false; if (typeof kino_S !== 'undefined' && kino_S.on) return false;
+    if (typeof ziele_stress === 'function' && ziele_stress()) return false; if (document.getElementById('introSeq').classList.contains('show')) return false;
+  } catch (e) { return false; } return true;
+}
+
+// ---------------------------------------------------------------- Sprecher: Anzeigename ≠ Stimmen-Schlüssel
+// Anzeige nur sichtbar ändern; stimmen.js bekommt weiter den alten Namen (st_finde: unbekannter Sprecher → stumm).
+// Das Kind: bis Justin den Namen sagt (ab Kap. 3, UK 8) „KINDERSTIMME“, danach „LUNA“; am Telefon „STIMME AM TELEFON“ (FS-ALLE-SP-02/13/14, K-16).
+function fs_kindName() { try { return (fs_kap() >= 4 || (fs_kap() === 3 && kapitel3_S.uk >= 8)) ? 'LUNA' : 'KINDERSTIMME'; } catch (e) { return 'KINDERSTIMME'; } }
+const FS_ANZEIGE = [
+  [/^(KÜHN · MAILBOX|MAILBOX · KÜHN)$/i, 'MAILBOX · KÜHN'], [/^LUCYS STIMME$/i, 'TONBAND · LUCY'],
+  [/^DAS KIND$/i, () => (typeof ST !== 'undefined' && ST.telefon) ? 'STIMME AM TELEFON' : fs_kindName()], [/^KINDERSTIMME$/i, () => fs_kindName()],
+  [/^ANRUF$/i, 'STIMME AM TELEFON'], [/^(HILDE|FRAU WENDT)$/i, 'HILDE WENDT'], [/^(LARS VEGAS|HERR VEGAS)$/i, 'VEGAS'], [/^(LARS VEGAS · HINTER DER TÜR|HERR VEGAS · HINTER DER TÜR)$/i, 'VEGAS · HINTER DER TÜR'],
+];
+function fuehrung_anzeige(who) { const w = String(who || '').trim(); if (!w) return null; for (const [re, neu] of FS_ANZEIGE) if (re.test(w)) { const n = typeof neu === 'function' ? neu() : neu; return n === w ? null : n; } return null; }
+
+// ---------------------------------------------------------------- Takt
+function fs_tick(dt) {
+  if (!FS.ready || !state.started || (typeof menu !== 'undefined' && menu.attract)) return;
+  const k = fs_kap(); if (k !== FS.k) { FS.k = k; FS.kT = 0; }
+  const intro = document.getElementById('introSeq'); if (!(intro && intro.classList.contains('show'))) FS.kT += dt;
+  FS.pT -= dt; if (FS.pT <= 0) { FS.pT = .5; const p = fs_phase(k); if (p > (FS.ph[k] || 1)) FS.ph[k] = p; else if (!FS.ph[k]) FS.ph[k] = 1;
+    const el = document.getElementById('objPhase'); if (el) { const t = fs_phaseText(k); if (el.textContent !== t) el.textContent = t; }
+    const pm = document.getElementById('fsPausePhase'); if (pm && ui.paused) pm.textContent = fs_phaseText(k);
+    if (FS.card && performance.now() > FS.cardT) fuehrung_kartenWeg();
+    if (FS.omAn && performance.now() > FS.omAn) { FS.omAn = 0; FS.omEl && FS.omEl.classList.remove('an'); }
+    // Ortsmarken: höchstens eine je Zyklus, nie in Szenen
+    if (fs_hilfe() && fs_omRuhig()) for (const o of FS_D.om) { if (o.k !== k || FS.om.has(o.id)) continue; let ok = false; try { ok = FS_TRIG[o.id] && FS_TRIG[o.id](); } catch (e) {} if (ok) { fs_omZeigen(o); break; } } }
+}
+
+// ---------------------------------------------------------------- Haken
+function fs_haken() {
+  // Speicherpunkte als Ortswechsel-/Phasen-Auslöser
+  if (typeof todCheckpoint === 'function' && !todCheckpoint.__fs) { const o = todCheckpoint; todCheckpoint = function (id) { try { FS.cp.add(id); } catch (e) {} return o.apply(this, arguments); }; todCheckpoint.__fs = 1; }
+  // Kapitelkarten K1/K2 im Spielfluss: die Fibel-Frage nach der Mailbox (K-14: vierte Tab-Nennung) wird zur Karte von Kapitel 1; „KAPITEL 2“ aus uebergang.js zur Karte von Kapitel 2
+  if (typeof questPop === 'function' && !questPop.__fs) { const o = questPop; questPop = function (kind, text) {
+      if (kind === 'ABENTEUERFIBEL' && /Taste Tab/.test(String(text))) { FS.k1 = true; fs_karte(1, { ms: 7000 }); return; }
+      if (kind === 'KAPITEL 2' && /Das achte Kind/.test(String(text))) { fs_karte(2, { ms: 5200 }); return; }
+      return o.apply(this, arguments); }; questPop.__fs = 1; }
+  // Anzeigename der Sprecher
+  if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { const n = fuehrung_anzeige(who); if (n) { const wh = document.querySelector('#subtitle .who'); if (wh && !/LUKE|DU/.test(String(who))) wh.textContent = n; } } catch (e) {} return r; })(subShow);
+  // Bisher K4–K6 in den kürzeren Fassungen aus der Führung (nur Wortlaut, V-8 unverändert im Aufbau)
+  try { for (const k of [4, 5, 6]) if (typeof RECAP !== 'undefined' && RECAP[k] && FS_D.bisher[k]) RECAP[k] = ['BISHER', ...FS_D.bisher[k]]; } catch (e) {}
+}
+
+// ---------------------------------------------------------------- Aussehen
+(function fs_css() { const st = document.createElement('style'); st.id = 'fsCss'; st.textContent = `
+#objPhase { font: 600 11px var(--f-ui-sc, Georgia, serif); letter-spacing: .34em; color: #b99a63; margin: 2px 0 7px; text-shadow: 0 0 6px #000; text-transform: uppercase; }
+#objPhase:empty { display: none; }
+#fsKarte { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(closest-side, rgba(0,0,0,.78), rgba(0,0,0,.6) 60%, rgba(0,0,0,.28)); opacity: 0; transition: opacity .7s ease; pointer-events: none; z-index: 7; }
+#fsKarte.an { opacity: 1; }
+#fsKarte .k { text-align: center; max-width: min(760px, 86vw); font-family: var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #eadfc8; text-shadow: 0 1px 2px #000, 0 0 14px #000; }
+#fsKarte small { display: block; font: 600 13px var(--f-ui-sc, Georgia, serif); letter-spacing: .42em; color: #c9a36a; margin-bottom: 14px; }
+#fsKarte b { display: block; font-weight: 500; font-size: 20px; letter-spacing: .06em; margin-bottom: 18px; color: #d6c8a8; }
+#fsKarte .bi { margin: 4px 0 20px; } #fsKarte .bi i { display: block; font-size: 17px; opacity: .82; line-height: 1.5; }
+#fsKarte em { display: block; font: 600 15px var(--f-ui-sc, Georgia, serif); letter-spacing: .14em; color: #c9a36a; font-style: normal; margin-top: 8px; }
+#fsKarte u { display: block; margin-top: 26px; text-decoration: none; font: 600 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .36em; color: #7f7562; }
+#fsOrt { position: absolute; left: 30px; bottom: 112px; opacity: 0; transition: opacity 1s ease; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 12px #000; }
+#fsOrt.an { opacity: 1; }
+#fsOrt b { display: block; font: 600 16px var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: #e0c38f; }
+#fsOrt span { display: block; margin-top: 4px; font: italic 16px var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #cdbf9f; letter-spacing: .04em; }
+#fsPausePhase { margin-top: 6px; font: 600 12px Georgia, serif; letter-spacing: .3em; color: #b99a63; text-align: center; }
+#jBody .zlBisher { margin: 0 0 14px; } #jBody .zlBisher small { display: block; font: 700 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: var(--pdim, #5a4a35); margin-bottom: 6px; }
+#jBody .zlBisher p { margin: 0 0 4px; font: italic 16px/1.35 var(--f-buch, "Cormorant Garamond", Georgia, serif); opacity: .85; }
+#jBody .zlPhase { font: 700 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .3em; color: #7a5a3a; margin: 0 0 10px; }
+`; document.head.appendChild(st); })();
+
+WORLD_MODS.push(['Führung', async () => {
+  fs_aliasBauen(); fs_zielHaken(); fs_hilfeBereinigen(); fs_haken(); fs_introUmbauen();
+  const o = document.getElementById('objective'), l = o && o.querySelector('b'); if (o && !document.getElementById('objPhase')) { const p = document.createElement('div'); p.id = 'objPhase'; o.insertBefore(p, l ? l.nextSibling : o.firstChild); }
+  const pt = document.querySelector('#pause .panel .t'); if (pt && !document.getElementById('fsPausePhase')) { const p = document.createElement('div'); p.id = 'fsPausePhase'; pt.after(p); }
+  // Enter/Klick/X nehmen die Karte weg (wie Toasts)
+  addEventListener('keydown', e => { if (!FS.card || e.repeat) return; if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'KeyX' || e.code === 'Escape') fuehrung_kartenWeg(); }, true);
+  addEventListener('mousedown', e => { if (FS.card && e.button === 0 && document.pointerLockElement) fuehrung_kartenWeg(); }, true);
+  FS.ready = true;
+  window.__fuehrung = { S: FS, D: FS_D, faden: GEDANKEN_FADEN, warum: ZIELE_WARUM, phase: fs_phase, phaseText: fs_phaseText, selftest: fs_selftest, karte: fs_karte, weg: fuehrung_kartenWeg, ort: id => { const o = FS_D.om.find(x => x.id === id); if (o) fs_omZeigen(o); return !!o; }, alias: fs_zielAlias, trig: id => { try { return !!FS_TRIG[id](); } catch (e) { return null; } }, anzeige: fuehrung_anzeige };
+}]);
+WORLD_TICK.push(dt => { try { fs_tick(dt); } catch (e) { if (!FS.err) { FS.err = 1; console.warn('Führung: Takt', e); } } });
+// =====================================================================  TIPPS (Modul „tipps“, Nutzer 10.10./12.10.2026): Tutorial im AAA-Maß – kontextbezogen, einmalig, überspringbar, ohne Textwand
+// Konzept: docs/gameplay/fuehrung_tutorial.md · Texte: fuehrung_daten.js (FS_D.tp, 20 Einträge, IDs FS-<Kap>-TP-<Nr>) · Kreidepfeile: FS-1-KZ-01…04 (hier unten: tipps_kreide)
+// Regeln: ein Tipp erscheint erst, wenn die Situation ihn braucht · höchstens einer je 60 s · nie in Jagd, Kino, QTE, Dialog, offener Fibel · 5 s sichtbar, Enter/Klick/X weg ·
+// einmal je Spielstand (MOD_SAVE 'tipps'); wer die Aktion von selbst ausführt, sieht den Tipp nie · Einstellung „Hilfe“: aus = nur Priorität 1, deutlich = Stillstand schon nach 20 s.
+// Position: unten links über der Akkuanzeige (Textspur unten Mitte, Ortsmarken darüber).
+// Nicht doppelt: „Q halten – Augen zu“ (FS-2-TP-02, FS-5-TP-02) zeigt augenzu.js selbst mit Tastenkappe am Bild; Ducken/Kriechen/Hochziehen (FS-1-TP-08, FS-6-TP-01) laufen über
+// bewegung.js (BHINT) → tipps_zeige; das Erklärwort „Strg“ ersetzt „Strg oder C“ (C ist in Kap. 5 die Kamera).
+const TP = { done: new Set(), shown: new Set(), cur: null, hideT: 0, lastT: -999, t: 0, kd: {}, still: 0, run: 0, walk0: null, walked: 0, goalT: 0, goal: '', ready: false, q: [], poll: 0, el: null };
+MOD_SAVE.push(['tipps', () => ({ done: [...TP.done], shown: [...TP.shown] }), v => { if (!v || typeof v !== 'object') return; (v.done || []).forEach(x => TP.done.add(x)); (v.shown || []).forEach(x => TP.shown.add(x)); }]);
+const tp_txt = id => (FS_D.tp.find(x => x.id === id) || {});
+const tp_k = (...c) => c.some(k => TP.kd[k]);
+const tp_hilfe = () => { try { const h = settings.hilfe; return h === 0 || h === 2 ? h : 1; } catch (e) { return 1; } };
+const tp_kap = () => { try { return typeof kap === 'function' ? kap() : curChapter(); } catch (e) { return 1; } };
+function tp_ruhig() {
+  try { if (!state.started || menu.attract || state.talking || ui.overlay || ui.paused || state.ending || state.blackout || (typeof scripted !== 'undefined' && scripted)) return false;
+    if (typeof hunt !== 'undefined' && hunt.on) return false; if (typeof kino_S !== 'undefined' && kino_S.on) return false; if (typeof ziele_stress === 'function' && ziele_stress()) return false;
+    if (typeof qte_aktiv === 'function' && qte_aktiv()) return false; if (typeof FS !== 'undefined' && FS.card) return false;
+    const i = document.getElementById('introSeq'); if (i && i.classList.contains('show')) return false;
+  } catch (e) { return false; } return true;
+}
+// ---------------------------------------------------------------- Anzeige
+function tp_el() { if (TP.el) return TP.el; const el = document.createElement('div'); el.id = 'fsTipp'; (document.getElementById('hud') || document.body).appendChild(el); return TP.el = el; }
+function tipps_zeigen(id, o = {}) {
+  if (TP.done.has(id) || TP.cur) return false; const X = tp_txt(id), Z = X.zeilen || X.text.split(' / ');
+  const h = tp_hilfe(); if (h === 0 && !o.prio1) return false;
+  const el = tp_el(), T = o.tasten || [];
+  // Tastennamen im Text werden zu Tastenkappen (Stil wie #kamTip kbd); Tasten, die im Text nicht vorkommen, stehen vorn als Kappen
+  const kap = k => `<kbd>${k}</kbd>`; let vorn = [];
+  const html = Z.map(l => { let s = l.replace(/&/g, '&amp;').replace(/</g, '&lt;'); s = s.replace(/W A S D/, () => kap('W') + kap('A') + kap('S') + kap('D'));
+    for (const k of T) { if (/^[WASD]$/.test(k)) continue; const re = new RegExp('(^|[^A-Za-zÄÖÜäöüß>])' + k + '(?![A-Za-zÄÖÜäöüß])'); s = s.replace(re, (m, a) => a + kap(k)); }
+    return `<p>${s}</p>`; }).join('');
+  for (const k of T) if (!html.includes(`<kbd>${k}</kbd>`)) vorn.push(k);
+  el.innerHTML = (vorn.length ? `<div class="kb">${vorn.map(kap).join('')}</div>` : '') + html;
+  el.classList.add('an'); TP.cur = id; TP.hideT = TP.t + (o.sek || 5.2); TP.lastT = TP.t; TP.shown.add(id);
+  try { if (typeof ziele_ton === 'function') ziele_ton('ui_stift', .16); } catch (e) {}
+  return true;
+}
+function tipps_weg(gelernt) { if (!TP.cur) return false; if (gelernt) TP.done.add(TP.cur); tp_el().classList.remove('an'); TP.cur = null; return true; }
+// Aus anderen Modulen (bewegung.js): Tipp nach ID; Rückgabe true = Tipp übernimmt (kein zusätzlicher Gedanke)
+function tipps_zeige(id) { const D = { 'FS-1-TP-08': ['Strg', 'Leertaste'], 'FS-6-TP-01': ['Strg'] }[id]; if (!D) return false; if (TP.done.has(id) || TP.shown.has(id)) return true;
+  if (!tp_ruhig() || TP.t - TP.lastT < 8) return false; return tipps_zeigen(id, { tasten: D }); }
+// ---------------------------------------------------------------- Auslöser (2 mal je Sekunde)
+const TP_LISTE = [
+  // [id, Kapitel, Priorität, Tasten, wann(), gelernt()]
+  ['FS-1-TP-01', [1], 1, ['W', 'A', 'S', 'D', 'Leertaste'], () => TP.still > (tp_hilfe() === 2 ? 2 : 3.5) && TP.walked < 5 && !FS.card, () => TP.walked >= 5],
+  ['FS-1-TP-02', [1], 3, ['Shift'], () => TP.run > 25, () => tp_k('ShiftLeft', 'ShiftRight')],
+  ['FS-1-TP-03', [1, 2], 2, ['F', 'R'], () => { try { return (!flashOn && (state.inBasement || (typeof indoorRect === 'function' && indoorRect()))) || FLASH.charge < .25; } catch (e) { return false; } }, () => tp_k('KeyF')],
+  ['FS-1-TP-04', [1, 2, 3, 4, 5, 6], 2, ['E'], () => { const p = document.getElementById('promptText'); return !!p && /halten|aufbiegen|aufstemmen|Gitter|Leiter|Deckel/i.test(p.textContent) && p.offsetParent !== null; }, () => TP.eHeld > .6],
+  ['FS-1-TP-05', [1, 2, 3, 4, 5, 6], 2, ['Z', 'Tab'], () => TP.goalT > (tp_hilfe() === 2 ? 20 : 40) && TP.t > 240, () => tp_k('KeyZ', 'KeyY', 'Tab')],
+  ['FS-1-TP-06', [1, 2, 3, 4, 5, 6], 3, ['M'], () => TP.t > 420 && tp_kap() <= 3 && !state.inBasement && (typeof FS !== 'undefined' && (FS.om.has('FS-1-OM-04') || tp_kap() > 1)), () => tp_k('KeyM')],
+  ['FS-1-TP-07', [1, 2, 3, 4, 5, 6], 2, ['Tab'], () => { try { return story.items.filter(k => k !== 'fibel').length >= 1 && TP.t > 60; } catch (e) { return false; } }, () => tp_k('Tab')],
+  ['FS-1-TP-09', [1], 1, ['F'], () => { try { return typeof K1 !== 'undefined' && K1.v && K1.v.on; } catch (e) { return false; } }, () => false],
+  ['FS-1-TP-10', [1, 2, 3, 4, 5, 6], 2, ['Enter', 'X'], () => FS.say >= 3 && !state.talking && tp_k('__nie'), () => tp_k('Enter', 'NumpadEnter', 'KeyX')],
+  ['FS-1-TP-11', [1, 2, 3, 4, 5, 6], 2, ['Esc'], () => typeof FS !== 'undefined' && FS.cp.size >= 1 && TP.t > 150, () => false],
+  ['FS-2-TP-01', [2], 1, ['Leertaste'], () => { try { const c = typeof C2 !== 'undefined' ? player.pos.x - C2.x : 0; return tp_kap() === 2 && c > 96 && c < 107; } catch (e) { return false; } }, () => false],
+  ['FS-2-TP-03', [2], 1, ['Maus', 'A', 'D'], () => { try { return typeof ch2 !== 'undefined' && ch2.spiderPhase && ch2.spiderPhase !== 'gone' && ch2.spiderPhase !== 'idle' && /SCH.TTLE/.test(document.getElementById('objText').textContent); } catch (e) { return false; } }, () => false],
+  ['FS-3-TP-01', [3, 4, 5, 6], 2, ['G'], () => { try { return story.items.some(k => /lichtstein/i.test(k)); } catch (e) { return false; } }, () => tp_k('KeyG')],
+  ['FS-3-TP-02', [3], 3, ['Maus'], () => { try { return typeof lucy3_S !== 'undefined' && !!lucy3_S.win; } catch (e) { return false; } }, () => false],
+  ['FS-5-TP-01', [5], 1, ['C', 'Klick'], () => { try { return tp_kap() === 5 && typeof kamera_S !== 'undefined' && kamera_S.film > 0 && !kamera_S.frei; } catch (e) { return false; } }, () => tp_k('KeyC')],
+  ['FS-6-TP-02', [6], 1, ['R', 'E'], () => { try { return tp_kap() === 6 && FLASH.charge <= 0; } catch (e) { return false; } }, () => tp_k('KeyR')],
+];
+function tp_tick(dt) {
+  if (!TP.ready || !state.started || menu.attract) return; TP.t += dt;
+  const P = player.pos; if (!TP.walk0) TP.walk0 = [P.x, P.z]; else if (TP.walked < 5) TP.walked = Math.max(TP.walked, Math.hypot(P.x - TP.walk0[0], P.z - TP.walk0[1]));
+  const mv = (typeof keys !== 'undefined') && (keys.KeyW || keys.KeyA || keys.KeyS || keys.KeyD || keys.ArrowUp);
+  TP.still = mv ? 0 : TP.still + dt; TP.run = mv && !(keys.ShiftLeft || keys.ShiftRight) ? TP.run + dt : (mv ? 0 : TP.run * .98);
+  TP.eHeld = (typeof keys !== 'undefined' && keys.KeyE) ? (TP.eHeld || 0) + dt : 0;
+  const obj = (document.getElementById('objText') || {}).textContent || ''; if (obj !== TP.goal) { TP.goal = obj; TP.goalT = 0; } else if (tp_ruhig() && !mv) TP.goalT += dt; else if (tp_ruhig()) TP.goalT += dt * .5;
+  if (TP.cur && TP.t > TP.hideT) tipps_weg(false);
+  TP.poll -= dt; if (TP.poll > 0) return; TP.poll = .5;
+  // gelernt: von selbst ausgeführt → nie zeigen
+  const k = tp_kap();
+  for (const [id, kaps, prio, tasten, wann, gel] of TP_LISTE) { if (TP.done.has(id)) continue; let g = false; try { g = gel(); } catch (e) {} if (g) { TP.done.add(id); if (TP.cur === id) tipps_weg(false); } }
+  if (TP.cur || !tp_ruhig() || TP.t - TP.lastT < 60) return;
+  for (const [id, kaps, prio, tasten, wann] of TP_LISTE) { if (TP.done.has(id) || TP.shown.has(id) || !kaps.includes(k)) continue; let ok = false; try { ok = wann(); } catch (e) {} if (!ok) continue;
+    if (tp_hilfe() === 0 && prio !== 1) continue; if (tipps_zeigen(id, { tasten, prio1: prio === 1 })) break; }
+}
+// ---------------------------------------------------------------- Kreidepfeile: genau ein Moment je Farbe (Gedanke + Fibel-Fund; die weißen Pfeile glimmen kurz auf)
+// Positionen stehen in kapitel1.js (K1.pfeileW weiß, K1.pfeileB blau, [x, z, dx, dz]). Auslöser: Pfeil < 7 m (blau < 6 m) und im Blickfeld, ≥ 0,8 s; spätestens 70 s nach Spielbeginn.
+const TPK = { w: false, b: false, t: 0, wT: 0, wAt: 0, glim: 0 };
+function tp_sieht(L, r) { const P = player.pos; for (const [x, z] of L) { if (Math.hypot(x - P.x, z - P.z) < r) { try { if (leben_facing(x, .05, z) > .55) return true; } catch (e) { return true; } } } return false; }
+function tp_kreideTick(dt) {
+  if (!TP.ready || !state.started || menu.attract || tp_kap() !== 1 || (TPK.w && TPK.b)) { if (TPK.glim > 0) tp_glimmen(dt); return; }
+  if (TPK.glim > 0) tp_glimmen(dt);
+  TPK.t += dt; if (TPK.t < .4) return; const d = TPK.t; TPK.t = 0; if (!tp_ruhig() || state.inBasement) return;
+  const K = typeof K1 !== 'undefined' ? K1 : null; if (!K) return;
+  if (!TPK.w && TP.t > 12) { TPK.wT = tp_sieht(K.pfeileW || [], 7) ? TPK.wT + d : 0; if (TPK.wT >= .8 || TP.t > 70) { TPK.w = true; tp_kreideW(); } }
+  else if (TPK.w && !TPK.b && TP.t - TPK.wAt > 20 && tp_sieht(K.pfeileB || [], 6)) { TPK.b = true; try { gedanke('fs_kz_blau', FS_D.sc['FS-1-KZ-03'].split(' / ').join(' '), 500, 2); } catch (e) {} }
+}
+function tp_kreideW() {
+  TPK.wAt = TP.t; TPK.glim = 2.4;
+  try { gedanke('fs_kz_weiss', FS_D.sc['FS-1-KZ-01'].split(' / ').join(' '), 400, 3); } catch (e) {}
+  try { if (!story.lore.some(l => l.key === 'kreidezeichen')) story.lore.push({ key: 'kreidezeichen', title: 'Kreidezeichen', html: FS_D.sc['FS-1-KZ-02'].split(' / ').join('\n') }); } catch (e) {}
+}
+function tp_glimmen(dt) { const im = typeof K1 !== 'undefined' ? K1.weissIM : null; if (!im) { TPK.glim = 0; return; } const m = im.material; TPK.glim = Math.max(0, TPK.glim - dt);
+  if (!m.emissiveMap) { m.emissive = new THREE.Color(0xffffff); m.emissiveMap = m.map; m.needsUpdate = true; }
+  const k = TPK.glim / 2.4; m.emissiveIntensity = TPK.glim <= 0 ? 0 : .85 * Math.sin(Math.PI * (1 - k)); }
+
+// ---------------------------------------------------------------- Aussehen
+(function tp_css() { const st = document.createElement('style'); st.id = 'tpCss'; st.textContent = `
+#fsTipp { position: absolute; left: 30px; bottom: 64px; max-width: 420px; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 12px #000; }
+#fsTipp.an { opacity: 1; transform: none; }
+#fsTipp .kb { margin-bottom: 6px; } #fsTipp kbd { display: inline-block; min-width: 20px; margin-right: 5px; padding: 1px 7px; border: 1px solid rgba(201,163,106,.65); border-radius: 2px; background: rgba(0,0,0,.42); font: 600 12px Georgia, serif; color: #e0c38f; text-align: center; }
+#fsTipp p { margin: 0 0 2px; font: italic 17px/1.3 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #e6dcc4; }
+`; document.head.appendChild(st); })();
+
+WORLD_MODS.push(['Tipps', async () => {
+  tp_el();
+  addEventListener('keydown', e => { TP.kd[e.code] = (TP.kd[e.code] || 0) + 1; if (!TP.cur || e.repeat) return;
+    const gel = { 'FS-1-TP-01': ['KeyW'], 'FS-1-TP-02': ['ShiftLeft', 'ShiftRight'], 'FS-1-TP-03': ['KeyF'], 'FS-1-TP-05': ['KeyZ', 'KeyY', 'Tab'], 'FS-1-TP-06': ['KeyM'], 'FS-1-TP-07': ['Tab'], 'FS-1-TP-09': ['KeyF'], 'FS-3-TP-01': ['KeyG'], 'FS-5-TP-01': ['KeyC'], 'FS-6-TP-02': ['KeyR'] }[TP.cur];
+    if (gel && gel.includes(e.code)) tipps_weg(true); else if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.code === 'KeyX') tipps_weg(true); }, true);
+  addEventListener('mousedown', e => { if (TP.cur && e.button === 0 && document.pointerLockElement) tipps_weg(true); }, true);
+  TP.ready = true;
+  window.__tipps = { S: TP, K: TPK, zeigen: tipps_zeigen, weg: tipps_weg, liste: TP_LISTE.map(x => x[0]), done: () => [...TP.done] };
+}]);
+WORLD_TICK.push(dt => { try { tp_tick(dt); tp_kreideTick(dt); } catch (e) { if (!TP.err) { TP.err = 1; console.warn('Tipps: Takt', e); } } });
 // =====================================================================  AUFTRITT / ABGANG (Modul „auftritt“, 08.10.2026)
 // Gemeinsamer Hilfsbaustein: alles, was ins Bild kommt und wieder geht (Rabe, Krähen, Fledermäuse, Katzen, Ratten, Figuren, Kreaturen, Erscheinungen,
 // UFO …), taucht nie sichtbar auf oder verschwindet nie sichtbar. Zwei Schichten:

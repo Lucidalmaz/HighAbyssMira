@@ -24,8 +24,12 @@ const ST_MAXBUF = 40;
 function st_kuerze() { const ids = Object.keys(ST.buf); if (ids.length <= ST_MAXBUF) return; const lauf = new Set(ST.cur.map(h => h.id).concat((ST.halt || []).map(x => x.h.id)));
   for (const id of ids) { if (Object.keys(ST.buf).length <= ST_MAXBUF) break; if (!lauf.has(id)) delete ST.buf[id]; } }
 // Zeile → IDs (gestapelte Wendigo-Zeilen liefern mehrere). who entscheidet, wenn derselbe Text mehrfach besetzt ist.
+// Anzeigenamen der Story-Führung (fuehrung.js) → Stimmen-Schlüssel des Bestands: neue Namen sind nur Aliase, unbekannte Sprecher bleiben stumm (kein Zuordnen auf Verdacht)
+const ST_OHNE = new Set(['STIMME VON DRAUSSEN']);   // früher ohne Sprecherzeile: Zuordnung allein über den Text
+const ST_ALIAS = { 'MAILBOX · KÜHN': 'KÜHN · MAILBOX', 'TONBAND · LUCY': 'LUCYS STIMME', 'HILDE WENDT': 'HILDE', 'FUNK · LUCY': 'LUCY · FUNK', 'VEGAS · HINTER DER TÜR': 'HERR VEGAS · HINTER DER TÜR', 'STIMME AM TELEFON': 'ANRUF' };
 function st_finde(t, who) { const M = ST.man; if (!M) return null; const L = (M.t[st_norm(t)] || []).filter(i => M.z[i]); if (!L.length) return null;
-  const s = ST.wer[who] || ST.wer[st_norm(who)]; if (s && s.includes('+')) { const ids = s.split('+').map(v => L.find(i => M.z[i][2] === v)).filter(Boolean); return ids.length ? ids : null; }
+  if (ST_OHNE.has(who)) who = '';
+  const s = ST.wer[who] || ST.wer[st_norm(who)] || (ST_ALIAS[who] ? ST.wer[ST_ALIAS[who]] : null); if (s && s.includes('+')) { const ids = s.split('+').map(v => L.find(i => M.z[i][2] === v)).filter(Boolean); return ids.length ? ids : null; }
   const id = s ? L.find(i => M.z[i][2] === s) : who ? null : L[0]; return id ? [id] : null; } // unbekannter Sprecher → stumm (keine fremde Stimme)
 function stimmen_dauer(t, who) { try { if (!st_an()) return 0; const ids = st_finde(t, who); const d = ids ? Math.max(0, ...ids.filter(i => !ST.bad[i]).map(i => +ST.man.z[i][1] || 0)) : 0; return d > 0 && d < 60 ? d : 0; } catch (e) { return 0; } }
 function stimmen_pegel() { return ST.env; }
@@ -103,7 +107,8 @@ function stimmen_spielen(key, pos) { if (!ST.man || !st_an()) return false; cons
 if (typeof subShow === 'function') subShow = (o => function (t, ms, who) { try { const m0 = ms === undefined ? 4000 : ms, v = m0 ? stimmen_dauer(t, who) : 0; if (v && m0 < v * 1000 + 350) arguments[1] = v * 1000 + 350; } catch (e) {} const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subShow);
 else subtitle = (o => function (t, ms, who) { const r = o.apply(this, arguments); try { stimmen_zeile(t, who); } catch (e) {} return r; })(subtitle);
 // say(): wartet, bis die Stimme ausgesprochen hat (Lesezeit bleibt Mindestdauer); lädt die Zeilen des Blocks vor
-say = async function (lines) { try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
+say = async function (lines) { try { SAY_C.n = lines.length; if (typeof FS !== 'undefined') FS.say++; } catch (e) {}
+  try { if (ST.man && st_an()) for (const l of lines) { const ids = st_finde(l[0], l[2]); if (ids) ids.forEach(st_lade); } } catch (e) {}
   SAY_C.all = false;
   for (const l of lines) { if (SAY_C.all) break; const [t, ms, who] = l, d0 = Math.max(ms, readMs(trX(t)));
     let v = who === 'LUKE' ? 0 : stimmen_dauer(t, who); if (v) { try { const ids = st_finde(t, who); if (!(await Promise.all(ids.map(st_lade))).some(Boolean)) v = 0; } catch (e) { v = 0; } } // Aufnahme nicht ladbar → kein Warten auf eine Stimme, die nicht kommt
@@ -112,7 +117,9 @@ say = async function (lines) { try { if (ST.man && st_an()) for (const l of line
 // Dialog steuern (Nutzer 08.10.2026): Klick/Enter = nächste Zeile sofort, X = den ganzen Block überspringen. Das Spiel läuft dabei weiter (siehe Tastenbehandlung der Basis: freeTalk).
 const SAY_C = { cur: null, all: false };
 function say_warte(d) { return new Promise(res => { const t = gtAfter(d, () => { SAY_C.cur = null; res(); }); SAY_C.cur = () => { try { gtCancel(t); } catch (e) {} SAY_C.cur = null; res(); }; say_hinweis(true); }); }
-function say_hinweis(an) { let h = document.getElementById('sayHint'); if (!h) { h = document.createElement('div'); h.id = 'sayHint'; h.textContent = 'KLICK · WEITER      X · ÜBERSPRINGEN'; h.style.cssText = 'position:fixed;left:50%;bottom:3.2%;transform:translateX(-50%);font:600 11px Georgia,serif;letter-spacing:.35em;color:#8e8470;opacity:0;transition:opacity .5s;pointer-events:none;z-index:5;text-shadow:0 0 6px #000'; document.body.appendChild(h); } h.style.opacity = an ? .8 : 0; }
+// Story-Führung: die ersten drei Blöcke eines Spielstands mit vollem Hinweis, danach nur noch „ENTER · WEITER“ bei langen Blöcken (> 3 Zeilen)
+function say_hinweisText() { const n = typeof FS !== 'undefined' ? FS.say : 0; return n <= 3 ? 'KLICK · WEITER      X · ÜBERSPRINGEN' : (SAY_C.n > 3 ? 'ENTER · WEITER' : ''); }
+function say_hinweis(an) { let h = document.getElementById('sayHint'); if (!h) { h = document.createElement('div'); h.id = 'sayHint'; h.style.cssText = 'position:fixed;left:50%;bottom:3.2%;transform:translateX(-50%);font:600 11px Georgia,serif;letter-spacing:.35em;color:#8e8470;opacity:0;transition:opacity .5s;pointer-events:none;z-index:5;text-shadow:0 0 6px #000'; document.body.appendChild(h); } const tx = say_hinweisText(); if (h.textContent !== tx) h.textContent = tx; h.style.opacity = an && tx ? .8 : 0; }
 function say_weiter(alle) { if (!SAY_C.cur) return false; if (alle) SAY_C.all = true; const f = SAY_C.cur; try { subMin = 0; subQ.length = 0; if (typeof st_stop === 'function') st_stop(.15); const el = document.getElementById('subtitle'); if (el) el.style.opacity = 0; } catch (e) {} f(); return true; }
 addEventListener('mousedown', e => { if (e.button === 0 && state.started && !ui.overlay && !ui.paused && document.pointerLockElement === renderer.domElement) say_weiter(false); }, true);
 addEventListener('keydown', e => { if (e.repeat || !state.started || ui.overlay || ui.paused) return; if (e.code === 'Enter' || e.code === 'NumpadEnter') say_weiter(false); else if (e.code === 'KeyX') say_weiter(true); }, true);

@@ -1395,6 +1395,72 @@
    "bem": "der bisherige zweite /Lucy hinterlassen/-Faden war verdeckt und feuerte nie"
   },
   {
+   "id": "FS-1-GF-03",
+   "kapitel": 1,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s bei Zielzeile FS-1-ZL-03 (Bestand-Regex traf die neue Zeile nicht: Allzweck-Antwort)",
+   "text": "Irgendwo hier muss es einen Hinweis geben. Zettel, Kalender, alles, was Hilde aufgeschrieben hat.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Durchsuche Nr\\. 7",
+   "bem": "neu (12.10., Integrationslauf)"
+  },
+  {
+   "id": "FS-2-GF-15",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (Allzweck-Fall K-08, im Integrationslauf ergänzt)",
+   "text": "Peter folgt dem Licht. Das Öl im Fass, oder die Notentriegelung an der Wand. Eins davon.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Peter ins Öl locken",
+   "bem": "neu (12.10.)"
+  },
+  {
+   "id": "FS-2-GF-16",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (Allzweck-Fall K-08, im Integrationslauf ergänzt)",
+   "text": "Der Gang geht weiter nach Osten. Am Ende liegt der Messraum.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Weiter in den Messraum",
+   "bem": "neu (12.10.)"
+  },
+  {
+   "id": "FS-2-GF-18",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (Allzweck-Fall K-08, im Integrationslauf ergänzt)",
+   "text": "Der Raum mit den Stühlen im Kreis. Das Klavier steht an der Wand, das Fach daneben.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Der Messraum\\. (Hier ist es passiert|Das Klavier)",
+   "bem": "neu (12.10.)"
+  },
+  {
+   "id": "FS-2-GF-19",
+   "kapitel": 2,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (Allzweck-Fall K-08, im Integrationslauf ergänzt)",
+   "text": "In der Zelle glänzt etwas auf der Matratze. Hinsehen kostet nichts.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "Die Matratze\\. Da glänzt was",
+   "bem": "neu (12.10.)"
+  },
+  {
+   "id": "FS-3-GF-16",
+   "kapitel": 3,
+   "art": "gedanke_faden",
+   "ausloeser": "Festhängen > 150 s (Allzweck-Fall K-08, im Integrationslauf ergänzt)",
+   "text": "Justin geht voraus. Nicht zu weit zurückfallen.",
+   "ziel": "gedanken.js GEDANKEN_FADEN",
+   "sprecher": "LUKE · GEDANKE",
+   "regex": "^Geh Justin nach",
+   "bem": "neu (12.10.)"
+  },
+  {
    "id": "FS-1-GF-05",
    "kapitel": 1,
    "art": "gedanke_faden",
@@ -2027,7 +2093,7 @@
    "text": "Hinter mir steht ein Wagen. Erst klären, wer das ist, dann durchs Gitter.",
    "ziel": "gedanken.js GEDANKEN_FADEN",
    "sprecher": "LUKE · GEDANKE",
-   "regex": "wer parkt da hinter dir"
+   "regex": "[Ww]er parkt da hinter dir"
   },
   {
    "id": "FS-6-ZL-02",

@@ -3,6 +3,48 @@
 // Autos (inkl. Lucys Auto mit echter Tür, Geisterauto), Briefkästen (inkl. mailbox7 mit Klappe + Schlüssel), Holzmasten + Leitungen + Hausanschlüsse,
 // Ortstafel, Verkehrsschilder, Absperrung, Telefonzelle, Hydranten, Mülltonnen/-säcke, Bordsteine, Straßenschutt/-schmutz, Kanaldeckel,
 // Vermisstenzettel an Laternen und Masten, Post in den Briefkästen, liegengelassenes Spielzeug.
+// ---------------------------------------------------------------- Ortstafel-Zusatzschild: Einwohnerzahl 214 → 211 → 210 (Nutzer 10.10./12.10.: alte Zahl sauber durchstreichen, die neue DARUNTER in Kreide)
+// Drei Zeilen: A „Einwohner 214“ gedruckt, zwei rote Lackstriche über der Zahl · B „211“ rot (Lack) · C „210“ in dunkler Kreide (ab Kap.-1-Ende; vorher nur ein Bleistiftansatz).
+// Ziffern sind Handschrift-Polylinien (wachsen mit dem Zug) – ortsschild_zeichne(ctx, w, h, o) zeichnet das ganze Schild; o.z: 0 Start · 1 ab Kap.-1-Ende · 'alle'; o.anim: Fortschritte
+// { s1, s2: Striche über der 211 (0…1), d: [0…1 ×3] Ziffern der 210 } für den Abspann (kino.js kino_schildAnim). Geteilt mit kino.js, karte.js nutzt dieselbe Logik in 2D.
+const ORTSSCHILD = { W: 512, H: 328, basis: null, kreideAus: null,
+  Z: { '0': [[.37, .03], [.52, .04], [.64, .16], [.69, .38], [.66, .64], [.55, .9], [.38, .98], [.2, .9], [.1, .62], [.1, .34], [.2, .12], [.37, .03]],
+       '1': [[.2, .3], [.34, .14], [.47, .02], [.47, .32], [.47, .62], [.46, .98]],
+       '2': [[.1, .3], [.15, .13], [.3, .04], [.5, .05], [.64, .17], [.63, .34], [.5, .52], [.3, .74], [.1, .96], [.72, .97]] } };
+function ortsschild_pfad(ch, ox, oy, h, rot = 0) { const P = ORTSSCHILD.Z[ch], c = Math.cos(rot), s = Math.sin(rot); return P.map(([u, v]) => { const x = u * h * .8, y = v * h; return [ox + x * c - y * s, oy + x * s + y * c]; }); }
+function ortsschild_strich(x, pts, w, f, col, korn) {   // teilweise gezeichneter Zug (Anteil f der Länge), runde Enden; korn = Kreidekorn
+  if (f <= 0) return; let L = 0; for (let i = 1; i < pts.length; i++) L += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); let rest = L * Math.min(1, f);
+  x.save(); x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = col; x.lineWidth = w; x.beginPath(); x.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length && rest > 0; i++) { const a = pts[i - 1], b = pts[i], d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, t = Math.min(1, rest / d); x.lineTo(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t); rest -= d; }
+  x.stroke();
+  if (korn) { x.globalCompositeOperation = 'destination-out'; for (let i = 0; i < 90 * Math.min(1, f) + 10; i++) { const k = Math.random() * pts.length, j = Math.min(pts.length - 2, k | 0), t = k - j, px = pts[j][0] + (pts[j + 1][0] - pts[j][0]) * t, py = pts[j][1] + (pts[j + 1][1] - pts[j][1]) * t;
+      x.fillStyle = `rgba(0,0,0,${.25 + Math.random() * .5})`; x.fillRect(px + (Math.random() - .5) * w, py + (Math.random() - .5) * w, 1 + Math.random() * 2, 1 + Math.random()); } }
+  x.restore(); }
+function ortsschild_basis() {   // Papierfarbe, Korn, Rahmen, gedruckter Schriftzug – ohne handschriftliche Zahlen
+  const O = ORTSSCHILD; if (O.basis) return O.basis; const c = document.createElement('canvas'); c.width = O.W; c.height = O.H; const x = c.getContext('2d'), w = O.W, h = O.H;
+  x.fillStyle = '#ecebe4'; x.fillRect(0, 0, w, h);
+  for (let i = 0; i < 2600; i++) { x.fillStyle = `rgba(${Math.random() < .5 ? '60,48,30' : '255,250,235'},${Math.random() * .2})`; x.fillRect(Math.random() * w, Math.random() * h, 1 + Math.random() * 2, 1 + Math.random() * 2); }
+  x.strokeStyle = '#111'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20);
+  x.fillStyle = '#111'; x.textAlign = 'left'; x.font = 'bold 56px Arial'; const t1 = 'Einwohner ', t2 = '214', w1 = x.measureText(t1).width, w2 = x.measureText(t2).width, x0 = (w - w1 - w2) / 2;
+  x.fillText(t1, x0, 86); x.fillText(t2, x0 + w1, 86); O.zx0 = x0 + w1; O.zx1 = x0 + w1 + w2; O.links = x0 + w1 - 2;
+  return O.basis = c; }
+function ortsschild_zeichne(x, w, h, o = {}) {
+  const O = ORTSSCHILD, B = ortsschild_basis(), z = o.z || 0, A = o.anim || null, f = (v, d = 1) => v === undefined ? d : v; x.clearRect(0, 0, w, h); x.drawImage(B, 0, 0);
+  const lack = 'rgba(150,10,10,.92)', kreide = 'rgba(58,56,52,.9)', hb = 64, hc = 76, xl = O.links;   // Ziffernhöhe in Pixeln: drei Ziffern müssen vor dem Rahmen enden (Schild 512 px = 0,72 m)
+  // A: 214 zweimal rot durchgestrichen (gleich zu Anfang)
+  ortsschild_strich(x, [[O.zx0 - 8, 74], [O.zx1 + 10, 58]], 7, 1, lack, false); ortsschild_strich(x, [[O.zx0 - 6, 54], [O.zx1 + 8, 76]], 7, 1, lack, false);
+  // B: 211 in Lack, ab Kap.-1-Ende (oder im Abspann) zweimal in Kreide durchgestrichen
+  let px = xl; for (const ch of '211') { ortsschild_strich(x, ortsschild_pfad(ch, px, 116, hb, ch === '1' ? .03 : -.02), 7, 1, lack, false); px += hb * .66; }
+  const bw = px - xl;
+  const s1 = A ? f(A.s1, 0) : (z ? 1 : 0), s2 = A ? f(A.s2, 0) : (z ? 1 : 0);
+  ortsschild_strich(x, [[xl - 8, 168], [xl + bw + 6, 132]], 6, s1, kreide, true); ortsschild_strich(x, [[xl + bw + 4, 128], [xl - 6, 162]], 6, s2, kreide, true);
+  // C: 210 in Kreide (Schreibweise: Ziffer für Ziffer, 0 zuletzt geschlossen); davor nur ein Bleistiftansatz
+  const d = A ? (A.d || [0, 0, 0]) : (z ? [1, 1, 1] : [0, 0, 0]); let cx = xl;
+  if (!(d[0] > 0)) { ortsschild_strich(x, [[xl + 6, 236], [xl + 2, 266]], 2.4, 1, 'rgba(90,88,84,.55)', false); }
+  for (let i = 0; i < 3; i++) { const ch = '210'[i]; ortsschild_strich(x, ortsschild_pfad(ch, cx, 216, hc, i === 1 ? .03 : -.02), 7, d[i], kreide, true); cx += hc * .66; }
+  if (z === 'alle') { x.save(); x.fillStyle = 'rgba(40,60,160,.9)'; x.font = 'bold 54px "Comic Sans MS", cursive'; x.translate(cx + 22, 296); x.rotate(-.04); x.fillText('ALLE', 0, 0); x.restore(); }
+  if (z === 5) ortsschild_strich(x, [[cx + 18, 240], [cx + 12, 296]], 2.4, 1, 'rgba(60,58,56,.6)', false);   // ab Kap. 5: ein kurzer Bleistiftstrich daneben (wie auf der Karte)
+}
 const strasse_S = { lenaPiv: null, lenaProxy: null, boothGlow: null, signGlow: [], info: {} };
 WORLD_MODS.push(['Straßenraum', async () => {
   const S = strasse_S, T = THREE, V3 = (x, y, z) => new T.Vector3(x, y, z);
@@ -311,12 +353,15 @@ diffuseColor.rgb = mix(diffuseColor.rgb, uDirt * (.55 + .45 * diffuseColor.rgb),
     }), 'sauber') }), { amt: .22, lowAmt: 0, scale: .8 });
     const back = new T.MeshStandardMaterial({ color: 0x8a8c88, roughness: .6, metalness: .6 });
     const plate = new T.Mesh(new T.BoxGeometry(1.4, .77, .025), [back, back, back, back, plateMat(false), plateMat(true)]); plate.position.set(-72.3, 2.05, 6.3); plate.rotation.y = PI / 2; plate.castShadow = true; scene.add(plate);
-    const zus = new T.Mesh(new T.BoxGeometry(.72, .3, .02), [back, back, back, back, weather(new T.MeshStandardMaterial({ roughness: .55, metalness: .1, map: canvasTex(512, 214, (x, w, h) => {
-      x.fillStyle = '#ecebe4'; x.fillRect(0, 0, w, h); grain(x, w, h, 2000, .2); x.strokeStyle = '#111'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#111'; x.textAlign = 'center'; x.font = 'bold 62px Arial'; x.fillText('Einwohner 214', w / 2, 128);
-      x.strokeStyle = 'rgba(150,10,10,.9)'; x.lineWidth = 9; x.beginPath(); x.moveTo(248, 112); x.lineTo(470, 96); x.stroke(); x.fillStyle = 'rgba(150,10,10,.9)'; x.font = '64px Caveat'; x.fillText('211', 430, 196); x.strokeStyle = 'rgba(55,55,58,.75)'; x.lineWidth = 2.4; x.beginPath(); x.moveTo(482, 150); x.lineTo(476, 171); x.lineTo(489, 197); x.stroke(); }) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);
-    zus.position.set(-72.28, 1.47, 6.3); zus.rotation.y = PI / 2; zus.castShadow = true; scene.add(zus);
+    const zus = new T.Mesh(new T.BoxGeometry(.72, .46, .02), [back, back, back, back, weather(new T.MeshStandardMaterial({ roughness: .55, metalness: .1, map: canvasTex(ORTSSCHILD.W, ORTSSCHILD.H, (x, w, h) => ortsschild_zeichne(x, w, h, { z: 0 })) }), { amt: .3, lowAmt: 0, scale: 1.3 }), back]);   // drei Zeilen statt einer (12.10.): höher, größere Ziffern
+    zus.position.set(-72.28, 1.39, 6.3); zus.rotation.y = PI / 2; zus.castShadow = true; scene.add(zus);
     const pole = signGeo('Road_Sign_03', true); if (pole) for (const dz of [-.52, .52]) { const m = new T.Mesh(pole.geo, pole.mat); m.position.set(-72.2, 2.4 - pole.top, 6.3 + dz); /* hinter der Tafel (vorher davor: verdeckten „L“ und „s“ des Ortsnamens) */ m.castShadow = true; scene.add(m); }
-    for (const o of [plate, zus]) interact(o, 'Ortstafel', () => toast(state.ch1Done || (typeof kap === 'function' && kap() >= 2) ? 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben, frisch in Kreide: 210.' : 'Lost Eyengless. Darunter „Einwohner 214“ – durchgestrichen, 211. Daneben ein frischer Bleistiftstrich. Als hätte jemand schon angesetzt, die Zahl noch einmal zu ändern.', 5200)); } // Kap. 1 (AP-14): ab dem Abspann steht 210 (kino.js tauscht die Textur)
+    // Texte: FS-1-SC-01 (Start) / FS-1-SC-03 (ab Kap.-1-Ende), Gedanke FS-1-SC-04/05 beim ersten Lesen, Fibel-Fund FS-1-SC-07 (fuehrung_daten.js, docs/gameplay/fuehrung_ortsschild.md)
+    for (const o of [plate, zus]) interact(o, 'Ortstafel', () => { const neu = state.ch1Done || (typeof kap === 'function' && kap() >= 2), D = typeof FS_D !== 'undefined' ? FS_D.sc : null;
+      const txt = D ? (neu ? D['FS-1-SC-03'] : D['FS-1-SC-01']).split(' / ').join(' ') : 'Lost Eyengless. Einwohner 214, durchgestrichen. Darunter die neue Zahl.';
+      toast(txt, 6200);
+      if (D) { try { const k = neu ? 'sc_zehn' : 'sc_erst'; if (typeof gedanke === 'function') gedanke(k, neu ? D['FS-1-SC-05'] : D['FS-1-SC-04'], 2600, 2);
+        if (!story.lore.some(l => l.key === 'ortsschild')) story.lore.push({ key: 'ortsschild', title: 'Ortsschild', html: D['FS-1-SC-07'].split(' / ').join('<br>') }); } catch (e) {} } }); } // Kap. 1 (AP-14): ab dem Abspann steht 210 (kino.js tauscht die Textur)
   // Gemeinde-Schild (Scan eines Parkschilds, Blech neu beschriftet) am Gehweg nahe der Kirchweg-Gasse – STORY-HOOK: die Gemeinde weiß Bescheid
   if (parkSrc && parkTex) { const o = parkSrc.clone(true); o.traverse(m => { if (m.isMesh) { m.material = m.material.clone(); m.material.map = parkTex; m.material.needsUpdate = true; } }); const g = msGround(o); msPlace(g, -12.6, 0, 5.62, PI);
     interact(hitBox(.7, .6, .15, 0, 1.45, 0, g), 'Schild lesen', () => openNote('Schild der Gemeinde', '<b>GEMEINDE LOST EYENGLESS</b>\nNACHTRUHE 3 – 4 UHR\nStraße nicht betreten.\nKinder im Haus behalten.\n— Der Bürgermeister\n\nDas Schild ist neu, die Schrauben glänzen noch. Unter der Farbe schimmert eine ältere Schrift durch.', 'strasse_schild')); }
