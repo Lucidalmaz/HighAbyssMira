@@ -226,3 +226,10 @@ Geprüft wurden alle 55 `GEDANKEN_FADEN`-Einträge und 22 `ZIELE_WARUM`-Einträg
 - Phasen-Auslöser (§2.2) nennen Bezeichner, die bei Integration einzeln zu prüfen sind (besonders K3 `ch3`-Zustände und K5 `k5.beat`-Namen).
 - Ob Vollkarten für K1/K2 gewünscht sind (derzeit Kurzkarte) entscheidet der Nutzer.
 - Stimmen-Manifest: neue Anzeigenamen nur als Alias einführen, sonst werden Zeilen still.
+
+## ENTSCHEIDUNGEN (Koordinator im Auftrag des Autors/Nutzers, 12.10.; Empfehlung = Entscheidung)
+1. Ortsschild: Die neue Zahl steht DARUNTER (Nutzerwunsch, Autorenwille); der Kanon-Wortlaut 'daneben' (story_final.md Z.743/893) wird zugunsten des Nutzers überstimmt; Kanon-Text nicht ändern, Darstellung folgt dem Wunsch.
+2. Tastenkonflikt C: Ducken bleibt auf Strg (bzw. dessen Belegung), C bleibt Kamera in Kap. 5; Tutorial nennt nur Strg.
+3. Kapitelkarten: Kap. 1 Vollkarte (vorhandener Intro-Ablauf, überspringbar), Kap. 2–6 Vollkarte mit 'Bisher' (≤ 3 s, überspringbar mit Klick/Enter/X); Lower-Third nur für Ortswechsel innerhalb eines Kapitels.
+4. Neue Sprecher-Anzeigenamen nur als Alias in stimmen.js einführen (unbekannte Sprecher bleiben absichtlich stumm).
+5. Vor jedem Einbau: Leistungs-Gate (perf_gate.mjs) grün.
