@@ -1,0 +1,1 @@
+CLIP sturm FR 8 action <bpy_struct, Action("sturm") at 0x000001C4FB8D8888> mn <Vector (-0.4824, -1.6410, 0.1003)> mx <Vector (0.4829, 1.2042, 2.8575)> head [(-4.0207825804827735e-05, -1.1235363483428955, 1.623004674911499)]

@@ -76,7 +76,9 @@ RD.bau.amt_planung = async c => { const X = C2.x, Z = C2.z, r = c.r, S = rd_samm
   await c.b('hocker', X + 33.0, Z + 12.4, { r: .5 }); await c.b('hocker', X + 35.4, Z + 9.6, { r: .5, ry: 1 }); await c.b('tonne', X + 30.6, Z + 13.4, { r: .3 });
   await c.b('schreibtisch', X + 31.0, Z + 11.2, { r: .3, ry: PI / 2 }); await c.A('wecker', X + 31.0, Z + 11.5, { r: .2, min: .6, max: .9 });
   await c.w('wanduhr', 'S', X + 37.0, 2.0, { r: .4 }); await c.w('feuerlk', 'W', Z + 9.0, 1.2, { r: .3 });
-  c.fleck('grime', 3.0, 1.0, X + 34, .013, Z + 11, 'floor', 0, 0x2a2622, .45);
+  await c.stapel('karton', X + 30.7, Z + 9.0, 3, { r: .4 }); await c.b('rollwagen', X + 36.8, Z + 10.4, { r: .6, ry: -.5 });          // Material für das Modell: Kartons, Rollwagen
+  await c.A('klemmbrett', X + 31.0, Z + 10.9, { r: .3, min: .6, max: .9 }); await c.w('kamera', 'N', X + 34.0, 2.2, { r: 1.0 });
+  c.fleck('grime', 3.0, 1.0, X + 34, .013, Z + 11, 'floor', 0, 0x2a2622, .45); c.fleck('grime', 1.2, .9, X + 36.4, .013, Z + 10.2, 'floor', .5, 0x2a2622, .5);
   S.fertig(); };
 
 // ================= Amt · Zimmer 7: Hildes Büro – Teetasse, Familienfoto; Jacke am Haken, Stiefel an der Tür

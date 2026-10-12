@@ -39,12 +39,27 @@ RD.bau.nr4 = async c => { const Y = 0, S = rd_sammler(c);
     { x0: -1399.94, x1: -1394.2, z0: 1395.2, z1: 1399.94 },  // Schlafzimmer (Dielen vorhanden: nur Leisten)
     { x0: -1405.8, x1: -1400.06, z0: 1400.06, z1: 1404.8 }, { x0: -1399.94, x1: -1394.2, z0: 1400.06, z1: 1404.8 }],
     [{ ax: 'x', at: 1400.0, pos: -1403.0, w: 1.0 }, { ax: 'x', at: 1400.0, pos: -1397.0, w: 1.0 }, { ax: 'z', at: -1400.0, pos: 1402.5, w: 1.1 }], { fy: .012 });
-  await c.A('teeset', -1403.0, 1397.2, { r: .6, min: .6, max: 1.1 }); await c.A('kessel', -1405.0, 1396.3, { r: .5, min: .6, max: 1.2 });     // Küche
+  // Küche (NW): Porzellan und Töpfe, Besen, Eimer; Bild und Wandzettel über der Eckbank
+  await c.A('teeset', -1403.0, 1397.2, { r: .6, min: .6, max: 1.1 }); await c.A('kessel', -1405.0, 1396.3, { r: .5, min: .6, max: 1.2 });
   await c.b('holzeimer', -1401.0, 1395.7, { r: .4 }); await c.bw('holzbesen', 'W', 1399.0, { lehnen: .1, r: .5, ry: PI / 2 });
-  await c.A('vase1', -1395.0, 1403.0, { r: .8, min: .5, max: 1.3 }); await c.A('stehrahmen1', -1396.2, 1404.3, { r: .8, min: .5, max: 1.3 });   // Stube: Omas Sammlung
+  await c.w('bild1', 'S', -1402.7, 1.75, { r: .6 }); await c.w('wanduhr', 'S', -1401.2, 2.0, { r: .5 });
+  c.papier('zettel', .12, .17, -1404.0, 1.45, 1395.115, { rx: 0, ry: 0, rz: .04 }); c.papier('zettel', .12, .17, -1402.0, 1.3, 1395.115, { rx: 0, ry: 0, rz: -.05 });
+  // Schlafzimmer (NO): Bilder über dem Bett, Rahmen, Wecker – Omas Fotos von Erna und Walter
+  await c.w('zierrahmen', 'S', -1397.0, 1.8, { r: .6 }); await c.w('bild2', 'S', -1395.4, 1.7, { r: .5 }); await c.w('bild1', 'O', 1398.0, 1.7, { r: .5 });
+  await c.A('wecker', -1396.2, 1396.0, { r: .8, min: .3, max: 1.1 }); await c.b('koffer', -1399.0, 1396.0, { r: .5, ry: .2 });
+  c.papier('zettel', .12, .17, -1394.115, 1.35, 1399.0, { rx: 0, ry: -PI / 2, rz: .06 });
+  // Flur (SW): Spiegel, Garderobe, Stiefel
+  await c.w('spiegel', 'N', -1403.0, 1.6, { r: .5 }); await c.w('bild2', 'N', -1401.4, 1.7, { r: .4 }); await c.b('gummistiefel', -1404.8, 1404.2, { r: .4, ry: .3 });
+  c.papier('zettel', .12, .17, -1402.0, 1.25, 1404.885, { rx: 0, ry: PI, rz: -.03 });
+  // Stube (SO): Omas Sammlung – Vasen, Rahmen, Pflanze, Schaukelstuhl, Standuhr, Bilder
+  await c.A('vase1', -1395.0, 1403.0, { r: .8, min: .5, max: 1.3 }); await c.A('stehrahmen1', -1396.2, 1404.3, { r: .8, min: .5, max: 1.3 });
   await c.b('pflanze', -1395.0, 1404.4, { r: .4 }); await c.b('schaukel', -1396.5, 1401.0, { r: .5, ry: -PI * .8 });
-  await c.A('wecker', -1396.2, 1396.0, { r: .8, min: .3, max: 1.1 }); await c.b('koffer', -1399.0, 1396.0, { r: .5, ry: .2 });             // Schlafzimmer
-  await c.b('gummistiefel', -1404.8, 1404.2, { r: .4, ry: .3 });                                                                        // Flur
+  await c.w('zierrahmen', 'N', -1398.3, 1.8, { r: .6 }); await c.w('bild2', 'N', -1396.0, 1.7, { r: .6 }); await c.w('spiegel', 'O', 1402.0, 1.6, { r: .6 });
+  c.papier('zettel', .12, .17, -1394.115, 1.3, 1403.4, { rx: 0, ry: -PI / 2, rz: .03 });
+  // weitere Alltagsdinge: Nachttisch am Bett, Telefontischchen im Flur, Beistelltisch neben dem Sofa – jedes mit etwas darauf
+  await c.b('nachttisch', -1394.9, 1398.1, { r: .4, ry: -PI / 2 }); await c.A('stehrahmen2', -1394.9, 1398.1, { r: .2, min: .4, max: .8, ry: -PI / 2 + .3 });
+  await c.b('kleintisch', -1401.2, 1404.3, { r: .4 }); await c.A('telefon', -1401.2, 1404.3, { r: .2, min: .4, max: .9 });
+  await c.b('beistelltisch', -1398.2, 1403.8, { r: .5 }); await c.A('vase4', -1398.2, 1403.8, { r: .2, min: .4, max: .8 });
   S.fertig(); };
 
 // ================= Nr. 4 oben: Lukes Jugendzimmer (2016) und Bad – Fliesen im Bad
