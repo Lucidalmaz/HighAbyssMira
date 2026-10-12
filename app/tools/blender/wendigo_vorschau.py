@@ -7,10 +7,11 @@ import bpy, sys, math
 from mathutils import Vector
 a = sys.argv[sys.argv.index('--') + 1:]
 GLB, OUT, MODE, VIEWS = a[0], a[1], a[2], a[3].split(',')
-CLIP = a[4] if len(a) > 4 and a[4] not in ('', '-') else None
-FR = int(a[5]) if len(a) > 5 and a[5] not in ('', '-') else 0
-SHAPES = dict(kv.split('=') for kv in a[6].split(',')) if len(a) > 6 and a[6] not in ('', '-') else {}
+CLIP = a[4] if len(a) > 4 and a[4] not in ('', '-', '_') else None
+FR = int(a[5]) if len(a) > 5 and a[5] not in ('', '-', '_') else 0
+SHAPES = dict(kv.split('=') for kv in a[6].split(',')) if len(a) > 6 and a[6] not in ('', '-', '_') else {}
 PX = int(a[7]) if len(a) > 7 else 960
+PRUEF = a[8] if len(a) > 8 else ''
 for o in list(bpy.data.objects): bpy.data.objects.remove(o, do_unlink=True)
 bpy.ops.import_scene.gltf(filepath=GLB, bone_heuristic='BLENDER')
 scn = bpy.context.scene
@@ -31,12 +32,24 @@ for m in meshes:
       elif k.name != 'Basis': k.value = 0.0
     if sk.animation_data: sk.animation_data.action = None
 scn.frame_set(FR)
+if PRUEF == 'ohne_normal':
+  for mt in bpy.data.materials:
+    if mt.node_tree:
+      for l in list(mt.node_tree.links):
+        if l.to_socket.name == 'Normal': mt.node_tree.links.remove(l)
+if PRUEF == 'nur_farbe':
+  for mt in bpy.data.materials:
+    nt = mt.node_tree
+    if not nt: continue
+    tx = next((n for n in nt.nodes if n.type == 'TEX_IMAGE' and any(l.to_socket.name == 'Base Color' for l in n.outputs[0].links)), None)
+    out = next((n for n in nt.nodes if n.type == 'OUTPUT_MATERIAL'), None)
+    if tx and out: em = nt.nodes.new('ShaderNodeEmission'); nt.links.new(tx.outputs[0], em.inputs[0]); nt.links.new(em.outputs[0], out.inputs[0])
 dg = bpy.context.evaluated_depsgraph_get()
 ps = []
 for m in meshes:
   e = m.evaluated_get(dg); me = e.to_mesh(); ps += [m.matrix_world @ v.co for v in me.vertices]; e.to_mesh_clear()
 mn = Vector((min(p.x for p in ps), min(p.y for p in ps), min(p.z for p in ps))); mx = Vector((max(p.x for p in ps), max(p.y for p in ps), max(p.z for p in ps)))
-c = (mn + mx) / 2; sz = max(mx - mn)
+c = (mn + mx) / 2; sz = max(mx - mn) * 1.18  # etwas Rand
 print('BOUNDS', [round(v, 3) for v in mn], [round(v, 3) for v in mx])
 bpy.ops.mesh.primitive_plane_add(size=sz * 30, location=(c.x, c.y, mn.z - .001)); pl = bpy.context.object
 pm = bpy.data.materials.new('boden'); pm.use_nodes = True; bp = pm.node_tree.nodes['Principled BSDF']

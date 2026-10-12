@@ -1,1 +1,0 @@
-CLIP stehen FR 20 action <bpy_struct, Action("stehen") at 0x00000171EAFED488> mn <Vector (-0.4550, -0.4939, 0.0015)> mx <Vector (0.5096, 0.8040, 4.0829)> head [(0.03616415709257126, -0.1941186934709549, 2.8436403274536133)]

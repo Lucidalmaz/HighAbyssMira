@@ -1,1 +1,0 @@
-CLIP lauern FR 30 action <bpy_struct, Action("lauern") at 0x000001D3B6CCC288> mn <Vector (-0.4420, -0.9821, 0.0043)> mx <Vector (0.5234, 0.9502, 3.4410)> head [(0.0404142327606678, -0.6829235553741455, 2.1892166137695312)]

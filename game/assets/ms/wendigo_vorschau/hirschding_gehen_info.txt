@@ -1,1 +1,0 @@
-CLIP gehen FR 12 action <bpy_struct, Action("gehen") at 0x0000015F1FDD7708> mn <Vector (-0.3789, -0.5346, 0.0015)> mx <Vector (0.5865, 0.8149, 4.0732)> head [(0.10441717505455017, -0.2170364111661911, 2.8339645862579346)]

@@ -6,7 +6,16 @@ import bpy, bmesh, math, os, sys, json, time
 import numpy as np
 from mathutils import Vector, Quaternion, Matrix, Euler
 T0 = time.time()
-def log(*a): print('[%5.0fs]' % (time.time() - T0), *a, flush=True)
+LOGF = [None]
+def log(*a):
+  t = '[%5.0fs] ' % (time.time() - T0) + ' '.join(str(x) for x in a); print(t, flush=True)
+  if LOGF[0]:
+    with open(LOGF[0], 'a', encoding='utf8') as f: f.write(t + chr(10))
+def run_main(fn, logfile):
+  import traceback; LOGF[0] = logfile
+  open(logfile, 'w').close()
+  try: fn()
+  except Exception: log('FEHLER' + chr(10) + traceback.format_exc())
 scn = bpy.context.scene
 
 # ---------------------------------------------------------------- Rahmen: Spiel (x links, y oben, z vorn) → Blender (x links, y = −vorn, z oben); glTF-Export dreht zurück
@@ -135,10 +144,12 @@ def ramp(nt, stops, inp=None):
   return r
 
 # ---------------------------------------------------------------- Backen (Cycles, Hoch → Niedrig, Objektraum-unabhängig durch Attribute)
-def uv_unwrap(o, angle=66, margin=.004):
+def uv_unwrap(o, angle=82, margin=.003):
   sel([o]); bpy.ops.object.mode_set(mode='EDIT'); bpy.ops.mesh.select_all(action='SELECT')
-  bpy.ops.uv.smart_project(angle_limit=math.radians(angle), island_margin=margin, area_weight=.4, correct_aspect=True, scale_to_bounds=False)
-  bpy.ops.uv.pack_islands(margin=margin); bpy.ops.object.mode_set(mode='OBJECT')
+  bpy.ops.uv.smart_project(angle_limit=math.radians(angle), island_margin=margin, area_weight=.6, correct_aspect=True, scale_to_bounds=True)
+  bpy.ops.object.mode_set(mode='OBJECT')
+  uv = np.empty(len(o.data.loops) * 2); o.data.uv_layers.active.data.foreach_get('uv', uv); uv = uv.reshape(-1, 2)
+  log('UV', uv.min(0).round(3), uv.max(0).round(3))
 def bake_pass(low, hi_objs, kind, size, path, ray=.05, cage=.02, margin=10, samples=8, pass_filter=None, normal=False):
   """Backt `kind` (NORMAL/DIFFUSE/ROUGHNESS/AO) von hi_objs auf low in ein Bild und speichert es als PNG. low braucht ein Material mit aktivem Bild-Knoten."""
   scn.render.engine = 'CYCLES'; scn.cycles.device = 'CPU'; scn.cycles.samples = samples; scn.cycles.use_denoising = False
@@ -185,3 +196,38 @@ def quick_render(objs, out, views=('seite', 'vorn', '34'), res=720, target=None,
     cam.location = cc + d * dd; cam.rotation_euler = (cc - cam.location).to_track_quat('-Z', 'Y').to_euler()
     scn.render.filepath = out + '_' + v + '.jpg'; bpy.ops.render.render(write_still=True)
   scn.camera = old; bpy.data.objects.remove(cam, do_unlink=True)
+
+# ================================================================ Tierbasis (animal_deerdoe / animal_deerstag): Laden, Fell entfernen, Maße
+GAME = 'C:/Users/GIGABYTE/HighAbyssMira-Repo/game/assets/ms/'
+def load_base(kind, clear=True):
+  """kind: 'doe' | 'stag' → (Armature, Körpernetz). Netz hat 2 Materialien: 0 Körper, 1 Fellschale."""
+  if clear: clear_scene()
+  before = set(scn.objects)
+  bpy.ops.import_scene.gltf(filepath=GAME + ('animal_deerdoe' if kind == 'doe' else 'animal_deerstag') + '/model.glb', bone_heuristic='BLENDER')
+  new = [o for o in scn.objects if o not in before]
+  arm = next(o for o in new if o.type == 'ARMATURE'); arm.data.pose_position = 'REST'
+  me = max((o for o in new if o.type == 'MESH'), key=lambda o: len(o.data.polygons))
+  for o in new:
+    if o.type == 'MESH' and o is not me: bpy.data.objects.remove(o, do_unlink=True)
+  return arm, me
+def strip_fur(me):
+  bm = bmesh.new(); bm.from_mesh(me.data)
+  bmesh.ops.delete(bm, geom=[f for f in bm.faces if f.material_index == 1], context='FACES')
+  bm.verts.ensure_lookup_table(); bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context='VERTS')
+  bm.to_mesh(me.data); bm.free(); me.data.update()
+def bone_pos(arm, key):
+  b = next(b for b in arm.data.bones if b.name.endswith(key)); return np.array(arm.matrix_world @ b.head_local)
+def group_weight(me, names):
+  """Summe der Gewichte je Punkt für Knochen, deren Name auf eines der Suffixe endet."""
+  idx = [g.index for g in me.vertex_groups if any(g.name.endswith(n) for n in names)]
+  w = np.zeros(len(me.data.vertices))
+  for v in me.data.vertices:
+    for g in v.groups:
+      if g.group in idx: w[v.index] += g.weight
+  return np.clip(w, 0, 1)
+
+def densify(me, ratio=.5):
+  """Unterteilung (Catmull-Clark) + Kollaps-Reduktion: glattere Silhouette bei kontrollierter Dreieckszahl; Gewichte bleiben."""
+  sel([me]); s_ = me.modifiers.new('s', 'SUBSURF'); s_.levels = 1; s_.render_levels = 1
+  d = me.modifiers.new('d', 'DECIMATE'); d.ratio = ratio; d.use_collapse_triangulate = True
+  apply_mods(me); smooth(me); return me
