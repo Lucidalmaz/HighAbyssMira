@@ -7,7 +7,7 @@
 //  · Kapitelkarten: Ort · Zeit · Bisher · Ziel (Tafeln K3–K6 über #intro; K1/K2 als Karte, ≤ 6 s, Klick/Enter/X weg)
 //  · Ortsmarken: 35 Orte, einmal je Ort und Spielstand, 3 s unten links
 //  · Sprecher: Anzeigename ≠ Stimmen-Schlüssel (Tabelle FS_ANZEIGE, nur der sichtbare .who-Text; die Aufnahme bleibt am alten Namen)
-// Testzugriff: window.__fuehrung (S, phase(), selftest(), karte(k), ort(id))
+// Testzugriff: __fuehrung (S, phase, selftest, karte, ort)
 const FS = { ph: {}, om: new Set(), cp: new Set(), k: 0, kT: 0, say: 0, card: null, cardT: 0, omQ: [], omT: 0, omAn: 0, ready: false, pT: 0, k1: false, alias: new Map(), test: false };
 MOD_SAVE.push(['fuehrung', () => ({ ph: FS.ph, om: [...FS.om], say: FS.say, k1: FS.k1 }),
   v => { if (!v || typeof v !== 'object') return; if (v.ph) Object.assign(FS.ph, v.ph); (v.om || []).forEach(x => FS.om.add(x)); FS.say = v.say || 0; FS.k1 = !!v.k1; }]);

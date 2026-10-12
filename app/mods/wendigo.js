@@ -361,10 +361,11 @@ function wd_tick(dt) {
 }
 WORLD_TICK.push(dt => { try { wd_tick(dt); } catch (e) { console.warn('Wendigo: Takt', e); wd_S.ready = false; } });
 
+function wd_tonband() { try { subtitle('<i>' + WENDIGO_TEXTE.t_band + '</i>', 4200, 'BAND?'); } catch (e) {} const e = WD_AUFTRITTE.find(x => x.id === 'k3_funk'); if (e) { try { wd_ton('knochen', [player.pos.x + 8, 1.2, player.pos.z], .18); } catch (x) {} setTimeout(() => wd_text(e), 3500); wd_fertig(e); } }
 // ---------------------------------------------------------------- Haken in andere Module (ohne deren Dateien zu ändern; alles typeof-geprüft)
 function wd_haken() {
   // Kap. 3: Funkkasten zu Ende gesprochen → ein Satz auf dem Band, Wort für Wort ein zweites Mal, ohne Atem
-  try { if (typeof lucy3_funk === 'function' && !lucy3_funk.__wd) { const o = lucy3_funk; lucy3_funk = function () { const r = o.apply(this, arguments); try { if (wd_k() === 3 && !wd_S.done.has('k3_funk')) { let n = 0; const iv = setInterval(() => { n++; try { if (n > 90 || wd_k() !== 3) return clearInterval(iv); if (typeof lucy3_S !== 'undefined' && lucy3_S.win) return; if (state.talking || (typeof ui !== 'undefined' && ui.overlay)) return; clearInterval(iv); setTimeout(() => window.__wd && window.__wd.tonband(), 2500); } catch (e) { clearInterval(iv); } }, 2000); } } catch (e) {} return r; }; lucy3_funk.__wd = 1; } } catch (e) {}
+  try { if (typeof lucy3_funk === 'function' && !lucy3_funk.__wd) { const o = lucy3_funk; lucy3_funk = function () { const r = o.apply(this, arguments); try { if (wd_k() === 3 && !wd_S.done.has('k3_funk')) { let n = 0; const iv = setInterval(() => { n++; try { if (n > 90 || wd_k() !== 3) return clearInterval(iv); if (typeof lucy3_S !== 'undefined' && lucy3_S.win) return; if (state.talking || (typeof ui !== 'undefined' && ui.overlay)) return; clearInterval(iv); setTimeout(() => wd_tonband(), 2500); } catch (e) { clearInterval(iv); } }, 2000); } } catch (e) {} return r; }; lucy3_funk.__wd = 1; } } catch (e) {}
 }
 
 // ---------------------------------------------------------------- Einstieg
@@ -378,7 +379,7 @@ WORLD_MODS.push(['Wendigo (Präsenz, Vorboten, Formen Kap. 1–5)', async () => 
     report: () => ({ mode: S.mode, k: S.k, t: Math.round(S.t), next: Math.round(S.next), praeT: Math.round(S.praeT), done: [...S.done], n: S.n, stat: S.stat, log: S.log.slice(-12), modelle: Object.keys(S.models).filter(k => S.models[k]), kadaver: S.dec.length, wissen: S.wissen }),
     auftritt: id => { const e = WD_AUFTRITTE.find(x => x.id === id); return e ? wd_start(e, true) : false; },
     zettel: id => { const e = WD_AUFTRITTE.find(x => x.id === 'k2_' + id); if (e) { wd_text(e); wd_fertig(e); } },
-    tonband: () => { try { subtitle('<i>' + WENDIGO_TEXTE.t_band + '</i>', 4200, 'BAND?'); } catch (e) {} const e = WD_AUFTRITTE.find(x => x.id === 'k3_funk'); if (e) { try { wd_ton('knochen', [player.pos.x + 8, 1.2, player.pos.z], .18); } catch (x) {} setTimeout(() => wd_text(e), 3500); wd_fertig(e); } },
+    tonband: () => wd_tonband(),
     fenster: () => { const e = WD_AUFTRITTE.find(x => x.id === 'k4_fenster'); const ok = wd_fensterHofer(); if (e) { wd_ton('knochen', [player.pos.x + 6, 3, player.pos.z], .3); setTimeout(() => wd_text(e), ok ? 1500 : 0); wd_fertig(e); } return ok; },
     praesenz: () => wd_praesenz(), frei: (x, z, r) => wd_frei(x, z, r), boden: (x, z) => wd_boden(x, z),
     pelz: p => wd_pelz(p || wd_spot(8, 12) || [player.pos.x + 8, 0, player.pos.z]), blut: (x, z, r) => wd_blutfleck(x, z, r || 1),
