@@ -167,8 +167,8 @@ function mz_fotos(list) { // dieselbe Kamera, dieselbe Auslese, dieselbe Nachbea
   const cam = camera, p0 = cam.position.clone(), q0 = cam.quaternion.clone(), f0 = cam.fov, fi0 = flashlight.intensity, out = document.createElement('canvas'); out.width = 360; out.height = 296; const ox = out.getContext('2d');
   const frame = () => { sky.position.copy(cam.position); fogUniforms.camPos.value.copy(cam.position); PERF_CULL.t = 0; perfCullTick(0); try { rigFarHide(); vcullHide(); dcullHide(); composer.render(); } finally { rigFarShow(); } };
   try { for (const [n, ph] of list) { const [a, b] = MZ_FOTO[n]; cam.position.set(a[0], a[1], a[2]); cam.lookAt(b[0], b[1], b[2]); cam.fov = 58; cam.updateProjectionMatrix(); cam.updateMatrixWorld(true);
-      flashRig.position.copy(cam.position); flashRig.quaternion.copy(cam.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = 16; // Blitz
-      fogUniforms.flP.value.copy(cam.position); fogUniforms.flD.value.set(0, 0, -1).applyQuaternion(cam.quaternion); fogUniforms.flK.value.set(16 / 18, Math.cos(flashlight.angle)); frame();
+      flashRig.position.copy(cam.position); flashRig.quaternion.copy(cam.quaternion); flashRig.updateMatrixWorld(true); flashlight.intensity = 7; // Blitz (schwach: ein starker Blitz zeichnete eine helle Nebelkugel mitten ins Foto)
+      fogUniforms.flP.value.copy(cam.position); fogUniforms.flD.value.set(0, 0, -1).applyQuaternion(cam.quaternion); fogUniforms.flK.value.set(7 / 18, Math.cos(flashlight.angle)); frame();
       const cv = renderer.domElement, Wd = cv.width, Hd = cv.height, sw = Math.min(Wd, Hd * 360 / 296), sh = sw * 296 / 360; ox.drawImage(cv, (Wd - sw) / 2, (Hd - sh) / 2, sw, sh, 0, 0, 360, 296);
       MZ.fotos[n] = out.toDataURL('image/jpeg', .85); ph.style.backgroundImage = `url(${MZ.fotos[n]})`; } }
   catch (e) { console.warn('Menü: Polaroids', e); }

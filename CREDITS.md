@@ -348,3 +348,7 @@ Oberflächen (Texturen b/n/orm, 1k) von https://polyhaven.com, CC0; Ablage `game
 - Old Wooden Floor 02 (Charlotte Baglioni, Jenelle van Heerden) – https://polyhaven.com/a/old_wooden_floor_02
 - Plank Flooring 03 (Jenelle van Heerden, Matterfield) – https://polyhaven.com/a/plank_flooring_03
 - Wood Floor Worn (Dimitrios Savva) – https://polyhaven.com/a/wood_floor_worn
+
+
+## Oberfläche (14.10.2026)
+assets/ui/blech.jpg und beton.jpg sind verkleinerte Ausschnitte der schon lizenzierten Oberflächen-Scans rust_sheet und wall_damaged (siehe docs/technical/lizenzen_release.md).
