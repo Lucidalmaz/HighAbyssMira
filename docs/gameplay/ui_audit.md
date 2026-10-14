@@ -23,7 +23,7 @@ Bilder: `docs/gameplay/fotos_1410/` (`vorher_*`, `nachher_*`, 1584 × 861, Entwi
 | Untertitel/Textbox, Toast | Basis, textweiter.js | Text mit Schatten | 3 | 2 | ja | nachher_hud |
 | Notizzettel | oberflaeche.js | gutes Papier, Klebeband = weißer Klotz | 3 | 2 | ja | vorher_note → nachher_note |
 | Fibel (Aufgaben/Inventar/Funde/Fotos/Fallwand) | Basis, inventar3d.js | unten abgeschnitten, Höhe sprang je Reiter, Taste überdeckte Inhalt, bunte Reiter | 3 | 2 | ja | vorher_jr_inv → nachher_jr_inv, jr_aufg, j_funde |
-| Inventar-Karten | inventar3d.js | 3D-Vorschau schon echt; Platzhaltersymbole bis Render fertig | 3 | 3 | ja | nachher_jr_inv (siehe offen) |
+| Inventar-Karten | ui2.js (CSS auf inventar3d.js) | flache Beige-Kacheln, dünne Strichsymbole | 3 | 2 | ja | vorher_jr_inv → nachher_inventar_karten |
 | Karte | karte.js | handgezeichnete Skizze auf Rasterpapier, Falze | 2 | 2 | ja | vorher_jr_karte / nachher_jr_karte |
 | Kapitelkarte | fuehrung.js | Goldtext mittig, flach | 3 | 2 | ja | vorher_kk → nachher_kk |
 | Ortsmarke | fuehrung.js | zwei Textzeilen | 3 | 2 | ja | vorher_ort → nachher_ort |
@@ -37,8 +37,12 @@ Bilder: `docs/gameplay/fotos_1410/` (`vorher_*`, `nachher_*`, 1584 × 861, Entwi
 ## 3. Umsetzung
 `app/mods/ui2.js` (neu, in `assemble.js` hinter `tipps`), `game/assets/ui/*.jpg` (neu), `menue.js` (Blitz der Kapitelwahl-Polaroids 16 → 7). Der Todesbildschirm zeigt die Tode als Kreide-Strichliste (Fünfergruppen, höchstens vier Gruppen).
 
-## 4. Offen / ehrlich
-* Inventar-Symbole sind bis zum 3D-Vorschaubild Strichsymbole (Basis-ICONS); das ist Logik in inventar3d.js, nicht angefasst.
+## 4. Nachtrag (Koordinator-Auflage)
+* **Inventar-Karten:** Pappanhänger mit Öse, Papierfaser, Stempelsymbol (dunkle Tinte, Multiplikation, leichter roter Versatz) wo noch keine 3D-Vorschau da ist, Schreibmaschinen-Etikett; ausgewählt = roter Rand. Bild `nachher_inventar_karten.jpg`.
+* **Auflösungen:** Bildschirm der Testmaschine ist 1600 × 1000, größere Fenster sind nicht möglich. Ersatz: Seitenzoom (0,825 ≙ 1920 × 1080, 0,619 ≙ 2560 × 1440 bei CSS-Pixeln). Das prüft Abstände/Umbruch/Überlauf der Oberfläche; das 3D-Bild wird dabei nicht mitskaliert (schwarze/abgeschnittene Spielfläche im Bild ist Messartefakt). Belege `r1080_*`, `r1440_*`: Menü, Pause, HUD, Kapitelkarte und Fibel brechen nicht um, nichts läuft über. Echtes Fenster in 1920/2560 nicht geprüft.
+* **Gefahr-Zittern gemessen:** 50 Proben in 2 s, `#objective` transform wechselt zwischen `translate(0,0)`, `(0,6; −0,5)`, `(−0,5; 0,4)`, `(0,4; 0,6)` px (4 verschiedene Werte, Soll ±0,6 px).
+* **Fotoalbum:** per Hook freigeschaltet (`album_S.hat`, Testfoto abgeheftet), `album_auf()`: Album öffnet (`ui.overlay = albumOv`), Doppelseite mit Beschriftung „Zayns Kamera“, Foto-Ecken, Notiz lesbar. Bild `nachher_album.jpg`; Album ist 3D-Modell/eigener Stil, nicht verändert.
+
+## 5. Offen / ehrlich
 * Hauptmenü-Titel/Karte/Papier nicht neu gemalt (waren schon Note 2).
-* Nur 1584 × 861 geprüft; andere Auflösungen nur über `clamp()`-Skalierung, nicht im Bild.
-* Gefahr-Zittern per Hook-Zustand nur im Bild einer Furcht-Vignette (ohne Bewegungsbeleg).
+* Echte Fenstergrößen 1920/2560 nur per Zoom-Ersatz belegt.
