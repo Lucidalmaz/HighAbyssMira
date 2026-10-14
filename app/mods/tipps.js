@@ -100,8 +100,8 @@ function tp_glimmen(dt) { const im = typeof K1 !== 'undefined' ? K1.weissIM : nu
 (function tp_css() { const st = document.createElement('style'); st.id = 'tpCss'; st.textContent = `
 #fsTipp { position: absolute; left: 30px; bottom: 64px; max-width: 420px; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 12px #000; }
 #fsTipp.an { opacity: 1; transform: none; }
-#fsTipp .kb { margin-bottom: 6px; } #fsTipp kbd { display: inline-block; min-width: 20px; margin-right: 5px; padding: 1px 7px; border: 1px solid rgba(201,163,106,.65); border-radius: 2px; background: rgba(0,0,0,.42); font: 600 12px Georgia, serif; color: #e0c38f; text-align: center; }
-#fsTipp p { margin: 0 0 2px; font: italic 17px/1.3 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #e6dcc4; }
+#fsTipp .kb { margin-bottom: 6px; } #fsTipp kbd { display: inline-block; min-width: 20px; margin-right: 5px; padding: 1px 7px; border: 1px solid rgba(201,163,106,.65); border-radius: 2px; background: rgba(0,0,0,.42); font: 600 clamp(13px, .95vw, 18px) Georgia, serif; color: #e0c38f; text-align: center; }
+#fsTipp p { margin: 0 0 2px; font: italic clamp(18px, 1.3vw, 26px)/1.3 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #e6dcc4; }
 `; document.head.appendChild(st); })();
 
 WORLD_MODS.push(['Tipps', async () => {

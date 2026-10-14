@@ -198,16 +198,16 @@ function fs_haken() {
 #objPhase:empty { display: none; }
 #fsKarte { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(closest-side, rgba(0,0,0,.78), rgba(0,0,0,.6) 60%, rgba(0,0,0,.28)); opacity: 0; transition: opacity .7s ease; pointer-events: none; z-index: 7; }
 #fsKarte.an { opacity: 1; }
-#fsKarte .k { text-align: center; max-width: min(760px, 86vw); font-family: var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #eadfc8; text-shadow: 0 1px 2px #000, 0 0 14px #000; }
-#fsKarte small { display: block; font: 600 13px var(--f-ui-sc, Georgia, serif); letter-spacing: .42em; color: #c9a36a; margin-bottom: 14px; }
-#fsKarte b { display: block; font-weight: 500; font-size: 20px; letter-spacing: .06em; margin-bottom: 18px; color: #d6c8a8; }
-#fsKarte .bi { margin: 4px 0 20px; } #fsKarte .bi i { display: block; font-size: 17px; opacity: .82; line-height: 1.5; }
-#fsKarte em { display: block; font: 600 15px var(--f-ui-sc, Georgia, serif); letter-spacing: .14em; color: #c9a36a; font-style: normal; margin-top: 8px; }
-#fsKarte u { display: block; margin-top: 26px; text-decoration: none; font: 600 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .36em; color: #7f7562; }
+#fsKarte .k { text-align: center; max-width: min(980px, 86vw); font-family: var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #eadfc8; text-shadow: 0 1px 2px #000, 0 0 14px #000; }
+#fsKarte small { display: block; font: 600 clamp(14px, 1.05vw, 20px) var(--f-ui-sc, Georgia, serif); letter-spacing: .42em; color: #c9a36a; margin-bottom: 14px; }
+#fsKarte b { display: block; font-weight: 500; font-size: clamp(23px, 1.75vw, 36px); letter-spacing: .06em; margin-bottom: 18px; color: #d6c8a8; }
+#fsKarte .bi { margin: 4px 0 20px; } #fsKarte .bi i { display: block; font-size: clamp(18px, 1.3vw, 26px); opacity: .82; line-height: 1.5; }
+#fsKarte em { display: block; font: 600 clamp(16px, 1.15vw, 23px) var(--f-ui-sc, Georgia, serif); letter-spacing: .14em; color: #c9a36a; font-style: normal; margin-top: 8px; }
+#fsKarte u { display: block; margin-top: 26px; text-decoration: none; font: 600 clamp(11px, .8vw, 15px) var(--f-ui-sc, Georgia, serif); letter-spacing: .36em; color: #7f7562; }
 #fsOrt { position: absolute; left: 30px; bottom: 112px; opacity: 0; transition: opacity 1s ease; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 12px #000; }
 #fsOrt.an { opacity: 1; }
-#fsOrt b { display: block; font: 600 16px var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: #e0c38f; }
-#fsOrt span { display: block; margin-top: 4px; font: italic 16px var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #cdbf9f; letter-spacing: .04em; }
+#fsOrt b { display: block; font: 600 clamp(17px, 1.2vw, 24px) var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: #e0c38f; }
+#fsOrt span { display: block; margin-top: 4px; font: italic clamp(18px, 1.3vw, 26px) var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #cdbf9f; letter-spacing: .04em; }
 #fsPausePhase { margin-top: 6px; font: 600 12px Georgia, serif; letter-spacing: .3em; color: #b99a63; text-align: center; }
 #jBody .zlBisher { margin: 0 0 14px; } #jBody .zlBisher small { display: block; font: 700 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: var(--pdim, #5a4a35); margin-bottom: 6px; }
 #jBody .zlBisher p { margin: 0 0 4px; font: italic 16px/1.35 var(--f-buch, "Cormorant Garamond", Georgia, serif); opacity: .85; }

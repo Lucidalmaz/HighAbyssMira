@@ -68,11 +68,13 @@ function todCheckpoint(id, label, opts = {}) {
 }
 function todCpShow(label) { const el = tod_S.el.cp; el.querySelector('span').textContent = trX(label); el.classList.add('show'); clearTimeout(tod_S.cpT); tod_S.cpT = setTimeout(() => el.classList.remove('show'), 3200); }
 // Fortschritt im Amt (Kapitel 2) für den Spielstand
-function tod_ch2Snap() { return { a: !!ch2.archiveSolved, k: !!ch2.fuseKey, p: !!ch2.power, s: ch2.spiderPhase === 'gone', c: ch2.chase === 'done', r: ch2.read ? [...ch2.read] : [] }; }
+function tod_ch2Snap() { return { f: !!ch2.safeOpen, a: !!ch2.archiveSolved, k: !!ch2.fuseKey, p: !!ch2.power, s: ch2.spiderPhase === 'gone', c: ch2.chase === 'done', r: ch2.read ? [...ch2.read] : [] }; }
 function tod_ch2Apply(p) {
   if (!p) return;
   if (p.r && p.r.length) { ch2.read = new Set(p.r); ch2.boardHint = p.r.length >= 3; }
   ch2.archiveSeen = true;
+  if (p.f && !ch2.safeOpen) { try { safeOpens(true); } catch (e) { console.warn('Klavier-Fach', e); } } // Klavier gelöst: Aktenfach offen, ohne Ton/Untertitel
+  if (p.c) ch2.lenaMet = true; // Lucy-Szene schon erlebt (nach der Verfolgung): nicht erneut
   if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; if (typeof archiveDrawerRead === 'function') interact(archiveDrawer, 'Schublade', archiveDrawerRead); /* QA K1/2: ohne das ließ sich das Protokoll nach dem Laden nicht mehr lesen */ }
   if (p.k) { ch2.fuseKey = true; fuseDoor.locked = false; if (!story.items.includes('fuse')) story.items.push('fuse'); } // nur mit dem Hakenschlüssel aus Zimmer 7 – die gelöste Tafel allein gibt ihn nicht mehr
   if (p.p && !ch2.power) { ch2.power = true; ch2.coverOpen = true; ch2.fuses = ch2.fuses.map(() => true); try { fuseLedUpdate(); } catch (e) {} spiderDoorIn.locked = false; spiderDoorIn.lockedText = ''; c2Lights.forEach(L => { L.k = 1; }); }

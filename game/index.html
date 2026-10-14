@@ -4035,9 +4035,9 @@ interact(piano, 'Klavier spielen', () => {
       if (ch2.piano.length === 5) { if (ch2.piano.join() === MELODY.join()) { setTimeout(() => { closeOverlay(); safeOpens(); }, 700); } else { setTimeout(() => { ch2.piano = []; box.querySelector('#pkSeq').textContent = '·  ·  ·  ·  ·'; if (typeof amt_klavierFalsch === 'function') { amt_klavierFalsch(); if (typeof amt_klavier === 'function') setTimeout(() => amt_klavier(box), 1600); } else { Audio.beep(false); toast('Falsch. Das Klavier verstimmt sich ein Stück weiter.'); } }, 500); } } });
   });
 });
-async function safeOpens() {
-  ch2.safeOpen = true; Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.'); if (typeof amt_safe === 'function') amt_safe(); // Fassung 3 (AP-16): B-K2-07 auf dem Klavierdeckel
-  subtitle('Beim letzten Ton springt ein Aktenfach ohne Griff auf. Darin: eine Akte ohne Namen.', 4000);
+async function safeOpens(quiet) {
+  ch2.safeOpen = true; if (!quiet) { Audio.chime(); Audio.slide(X + 121, Z); setC2Objective('Lies die achte Akte.'); } if (typeof amt_safe === 'function') amt_safe(); // Fassung 3 (AP-16): B-K2-07 auf dem Klavierdeckel
+  if (!quiet) subtitle('Beim letzten Ton springt ein Aktenfach ohne Griff auf. Darin: eine Akte ohne Namen.', 4000);
   const file8 = plane(.22, .3, X + 120.06, 1.42, Z - .2, paperMat, 0, -PI / 2); // Fix K2: lag flach auf dem Gerät (Oberkante 1,80 m, Augenhöhe 1,65 m: nie anvisierbar) → steckt senkrecht in einem Fach an der Westseite
   interact(file8, 'Akte 08', () => openNote('AKTE 08 · [kein Name] · R-Fall', 'Rückführung: <b>Mittwoch, in der Nacht</b>, Übergabe am Rand durch Subjekt EISEN. Er hat ihn getragen und abgesetzt. Er ist der Bergung nach unten gefolgt.\n\nBefund: <b>Rückläufer.</b> Augen braun (Vermessung Original: blau). Linke Handfläche: halbrunde Narbe, frisch, wie eingebrannt. Kennt den Hundenamen nicht. Lacht an falschen Stellen.\n\nOriginal Brandt, Luke: Verbleib im Objekt. Mutter informiert. Sie hat den Rückläufer angesehen und gesagt: „Das ist meiner.“ Sie unterschreibt. Schwester: weiß es. Vermerk H. W.: „Sie hat ihn am ersten Morgen gewählt.“\n\nVermerk Seiler: Der Rückläufer erfährt es nicht. Wer es weiß, durch den sieht es. Vorgesehen für Versuchsreihe K nach der nächsten Öffnung.\nAm Rand (hw): Sachschaden Messstuhl 8, siehe Meldung.\n\n<span class="hand" style="color:#8a1010">„Er darf es nie erfahren.“</span>' + (typeof amt_akte08Foto === 'function' ? amt_akte08Foto() : ''), 'akte8', () => { uninteract(file8); file8.visible = false; if (typeof amt_akte08 === 'function') amt_akte08(); else finale(); })); // Fassung 3 (AP-16): Foto, Durchschlag 7, ein Satz, Zettel, dann Lucy
 }
@@ -31988,7 +31988,7 @@ WORLD_MODS.push(['Nimmerheim · Raum 3 und Ende C', async () => {
   try { const src = await msModel('w_birke', 'lod.glb'); let mesh = null; src.traverse(o => { if (!mesh && o.isMesh) mesh = o; });
     const P = [[-7, 8.2], [-8.4, -8.6], [-2.2, 8.8], [2.6, 7.6], [6.8, 8.6], [8.6, 4.6], [8.9, -7.9], [3.8, -8.3], [-1.6, -8.9], [5.6, -5.2], [-5.5, -6.8]];
     const bm = mesh.material.clone(); bm.emissive = new THREE.Color(0x2a3240); bm.emissiveMap = bm.map; const im = new THREE.InstancedMesh(mesh.geometry, bm, P.length); im.castShadow = true; im.receiveShadow = true;
-    P.forEach(([dx, dz], i) => { const s = rand(.95, 1.3), x = CX + dx, z = CZ + dz; im.setMatrixAt(i, msM4(x, -.05, z, rand(0, 6.28), new V(s, 1.08, s), rand(-.03, .03), rand(-.03, .03))); const c = addCol(x - .15 * s, x + .15 * s, z - .15 * s, z + .15 * s); S.birchCols.push([c, { ...c }]); c.minX = c.maxX = -9999; });
+    P.forEach(([dx, dz], i) => { const s = rand(.95, 1.3), x = CX + dx, z = CZ + dz; im.setMatrixAt(i, msM4(x, -.05, z, rand(0, 6.28), new V(s, 1.08, s), rand(-.03, .03), rand(-.03, .03))); const c = addCol(x - .15 * s, x + .15 * s, z - .15 * s, z + .15 * s); S.birchCols.push([c, { ...c }]); });   // Stämme sind fest (Abschluss-Gate 13.10.: vorher beim Anlegen sofort abgeschaltet → durchlaufbar); Teil 2 schaltet sie ab (Z. 283/558)
     im.computeBoundingSphere(); im.userData.noCull = true; N.add(im); } catch (e) { console.warn('weiss Birken', e); }
   // Fackelflammen, die in der Luft stillstehen
   for (const [dx, y, dz] of [[-5.8, 2.1, 5.2], [-6.4, 1.95, -4.6], [-3.2, 2.2, 6.9], [4.6, 2.05, -3.9], [6.8, 2.2, 1.6]]) { const f = weiss_sprite(flameT, 0xffc890, .34, .72); f.position.set(CX + dx, y, CZ + dz); N.add(f); const g = weiss_sprite(glowT, 0xff9a48, 1.9, 1.9, false, .45); g.position.copy(f.position); N.add(g); }
@@ -35127,11 +35127,13 @@ function todCheckpoint(id, label, opts = {}) {
 }
 function todCpShow(label) { const el = tod_S.el.cp; el.querySelector('span').textContent = trX(label); el.classList.add('show'); clearTimeout(tod_S.cpT); tod_S.cpT = setTimeout(() => el.classList.remove('show'), 3200); }
 // Fortschritt im Amt (Kapitel 2) für den Spielstand
-function tod_ch2Snap() { return { a: !!ch2.archiveSolved, k: !!ch2.fuseKey, p: !!ch2.power, s: ch2.spiderPhase === 'gone', c: ch2.chase === 'done', r: ch2.read ? [...ch2.read] : [] }; }
+function tod_ch2Snap() { return { f: !!ch2.safeOpen, a: !!ch2.archiveSolved, k: !!ch2.fuseKey, p: !!ch2.power, s: ch2.spiderPhase === 'gone', c: ch2.chase === 'done', r: ch2.read ? [...ch2.read] : [] }; }
 function tod_ch2Apply(p) {
   if (!p) return;
   if (p.r && p.r.length) { ch2.read = new Set(p.r); ch2.boardHint = p.r.length >= 3; }
   ch2.archiveSeen = true;
+  if (p.f && !ch2.safeOpen) { try { safeOpens(true); } catch (e) { console.warn('Klavier-Fach', e); } } // Klavier gelöst: Aktenfach offen, ohne Ton/Untertitel
+  if (p.c) ch2.lenaMet = true; // Lucy-Szene schon erlebt (nach der Verfolgung): nicht erneut
   if (p.a && !ch2.archiveSolved) { ch2.archiveSolved = true; ch2.slots = ORDER.slice(); drawBoard(); archiveDrawer.position.z += .45; ch2.boardHint = true; if (typeof archiveDrawerRead === 'function') interact(archiveDrawer, 'Schublade', archiveDrawerRead); /* QA K1/2: ohne das ließ sich das Protokoll nach dem Laden nicht mehr lesen */ }
   if (p.k) { ch2.fuseKey = true; fuseDoor.locked = false; if (!story.items.includes('fuse')) story.items.push('fuse'); } // nur mit dem Hakenschlüssel aus Zimmer 7 – die gelöste Tafel allein gibt ihn nicht mehr
   if (p.p && !ch2.power) { ch2.power = true; ch2.coverOpen = true; ch2.fuses = ch2.fuses.map(() => true); try { fuseLedUpdate(); } catch (e) {} spiderDoorIn.locked = false; spiderDoorIn.lockedText = ''; c2Lights.forEach(L => { L.k = 1; }); }
@@ -43701,10 +43703,11 @@ function wd_tick(dt) {
 }
 WORLD_TICK.push(dt => { try { wd_tick(dt); } catch (e) { console.warn('Wendigo: Takt', e); wd_S.ready = false; } });
 
+function wd_tonband() { try { subtitle('<i>' + WENDIGO_TEXTE.t_band + '</i>', 4200, 'BAND?'); } catch (e) {} const e = WD_AUFTRITTE.find(x => x.id === 'k3_funk'); if (e) { try { wd_ton('knochen', [player.pos.x + 8, 1.2, player.pos.z], .18); } catch (x) {} setTimeout(() => wd_text(e), 3500); wd_fertig(e); } }
 // ---------------------------------------------------------------- Haken in andere Module (ohne deren Dateien zu ändern; alles typeof-geprüft)
 function wd_haken() {
   // Kap. 3: Funkkasten zu Ende gesprochen → ein Satz auf dem Band, Wort für Wort ein zweites Mal, ohne Atem
-  try { if (typeof lucy3_funk === 'function' && !lucy3_funk.__wd) { const o = lucy3_funk; lucy3_funk = function () { const r = o.apply(this, arguments); try { if (wd_k() === 3 && !wd_S.done.has('k3_funk')) { let n = 0; const iv = setInterval(() => { n++; try { if (n > 90 || wd_k() !== 3) return clearInterval(iv); if (typeof lucy3_S !== 'undefined' && lucy3_S.win) return; if (state.talking || (typeof ui !== 'undefined' && ui.overlay)) return; clearInterval(iv); setTimeout(() => window.__wd && window.__wd.tonband(), 2500); } catch (e) { clearInterval(iv); } }, 2000); } } catch (e) {} return r; }; lucy3_funk.__wd = 1; } } catch (e) {}
+  try { if (typeof lucy3_funk === 'function' && !lucy3_funk.__wd) { const o = lucy3_funk; lucy3_funk = function () { const r = o.apply(this, arguments); try { if (wd_k() === 3 && !wd_S.done.has('k3_funk')) { let n = 0; const iv = setInterval(() => { n++; try { if (n > 90 || wd_k() !== 3) return clearInterval(iv); if (typeof lucy3_S !== 'undefined' && lucy3_S.win) return; if (state.talking || (typeof ui !== 'undefined' && ui.overlay)) return; clearInterval(iv); setTimeout(() => wd_tonband(), 2500); } catch (e) { clearInterval(iv); } }, 2000); } } catch (e) {} return r; }; lucy3_funk.__wd = 1; } } catch (e) {}
 }
 
 // ---------------------------------------------------------------- Einstieg
@@ -43718,7 +43721,7 @@ WORLD_MODS.push(['Wendigo (Präsenz, Vorboten, Formen Kap. 1–5)', async () => 
     report: () => ({ mode: S.mode, k: S.k, t: Math.round(S.t), next: Math.round(S.next), praeT: Math.round(S.praeT), done: [...S.done], n: S.n, stat: S.stat, log: S.log.slice(-12), modelle: Object.keys(S.models).filter(k => S.models[k]), kadaver: S.dec.length, wissen: S.wissen }),
     auftritt: id => { const e = WD_AUFTRITTE.find(x => x.id === id); return e ? wd_start(e, true) : false; },
     zettel: id => { const e = WD_AUFTRITTE.find(x => x.id === 'k2_' + id); if (e) { wd_text(e); wd_fertig(e); } },
-    tonband: () => { try { subtitle('<i>' + WENDIGO_TEXTE.t_band + '</i>', 4200, 'BAND?'); } catch (e) {} const e = WD_AUFTRITTE.find(x => x.id === 'k3_funk'); if (e) { try { wd_ton('knochen', [player.pos.x + 8, 1.2, player.pos.z], .18); } catch (x) {} setTimeout(() => wd_text(e), 3500); wd_fertig(e); } },
+    tonband: () => wd_tonband(),
     fenster: () => { const e = WD_AUFTRITTE.find(x => x.id === 'k4_fenster'); const ok = wd_fensterHofer(); if (e) { wd_ton('knochen', [player.pos.x + 6, 3, player.pos.z], .3); setTimeout(() => wd_text(e), ok ? 1500 : 0); wd_fertig(e); } return ok; },
     praesenz: () => wd_praesenz(), frei: (x, z, r) => wd_frei(x, z, r), boden: (x, z) => wd_boden(x, z),
     pelz: p => wd_pelz(p || wd_spot(8, 12) || [player.pos.x + 8, 0, player.pos.z]), blut: (x, z, r) => wd_blutfleck(x, z, r || 1),
@@ -48952,7 +48955,7 @@ const FS_D = {
 //  · Kapitelkarten: Ort · Zeit · Bisher · Ziel (Tafeln K3–K6 über #intro; K1/K2 als Karte, ≤ 6 s, Klick/Enter/X weg)
 //  · Ortsmarken: 35 Orte, einmal je Ort und Spielstand, 3 s unten links
 //  · Sprecher: Anzeigename ≠ Stimmen-Schlüssel (Tabelle FS_ANZEIGE, nur der sichtbare .who-Text; die Aufnahme bleibt am alten Namen)
-// Testzugriff: window.__fuehrung (S, phase(), selftest(), karte(k), ort(id))
+// Testzugriff: __fuehrung (S, phase, selftest, karte, ort)
 const FS = { ph: {}, om: new Set(), cp: new Set(), k: 0, kT: 0, say: 0, card: null, cardT: 0, omQ: [], omT: 0, omAn: 0, ready: false, pT: 0, k1: false, alias: new Map(), test: false };
 MOD_SAVE.push(['fuehrung', () => ({ ph: FS.ph, om: [...FS.om], say: FS.say, k1: FS.k1 }),
   v => { if (!v || typeof v !== 'object') return; if (v.ph) Object.assign(FS.ph, v.ph); (v.om || []).forEach(x => FS.om.add(x)); FS.say = v.say || 0; FS.k1 = !!v.k1; }]);
@@ -49143,16 +49146,16 @@ function fs_haken() {
 #objPhase:empty { display: none; }
 #fsKarte { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(closest-side, rgba(0,0,0,.78), rgba(0,0,0,.6) 60%, rgba(0,0,0,.28)); opacity: 0; transition: opacity .7s ease; pointer-events: none; z-index: 7; }
 #fsKarte.an { opacity: 1; }
-#fsKarte .k { text-align: center; max-width: min(760px, 86vw); font-family: var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #eadfc8; text-shadow: 0 1px 2px #000, 0 0 14px #000; }
-#fsKarte small { display: block; font: 600 13px var(--f-ui-sc, Georgia, serif); letter-spacing: .42em; color: #c9a36a; margin-bottom: 14px; }
-#fsKarte b { display: block; font-weight: 500; font-size: 20px; letter-spacing: .06em; margin-bottom: 18px; color: #d6c8a8; }
-#fsKarte .bi { margin: 4px 0 20px; } #fsKarte .bi i { display: block; font-size: 17px; opacity: .82; line-height: 1.5; }
-#fsKarte em { display: block; font: 600 15px var(--f-ui-sc, Georgia, serif); letter-spacing: .14em; color: #c9a36a; font-style: normal; margin-top: 8px; }
-#fsKarte u { display: block; margin-top: 26px; text-decoration: none; font: 600 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .36em; color: #7f7562; }
+#fsKarte .k { text-align: center; max-width: min(980px, 86vw); font-family: var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #eadfc8; text-shadow: 0 1px 2px #000, 0 0 14px #000; }
+#fsKarte small { display: block; font: 600 clamp(14px, 1.05vw, 20px) var(--f-ui-sc, Georgia, serif); letter-spacing: .42em; color: #c9a36a; margin-bottom: 14px; }
+#fsKarte b { display: block; font-weight: 500; font-size: clamp(23px, 1.75vw, 36px); letter-spacing: .06em; margin-bottom: 18px; color: #d6c8a8; }
+#fsKarte .bi { margin: 4px 0 20px; } #fsKarte .bi i { display: block; font-size: clamp(18px, 1.3vw, 26px); opacity: .82; line-height: 1.5; }
+#fsKarte em { display: block; font: 600 clamp(16px, 1.15vw, 23px) var(--f-ui-sc, Georgia, serif); letter-spacing: .14em; color: #c9a36a; font-style: normal; margin-top: 8px; }
+#fsKarte u { display: block; margin-top: 26px; text-decoration: none; font: 600 clamp(11px, .8vw, 15px) var(--f-ui-sc, Georgia, serif); letter-spacing: .36em; color: #7f7562; }
 #fsOrt { position: absolute; left: 30px; bottom: 112px; opacity: 0; transition: opacity 1s ease; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 12px #000; }
 #fsOrt.an { opacity: 1; }
-#fsOrt b { display: block; font: 600 16px var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: #e0c38f; }
-#fsOrt span { display: block; margin-top: 4px; font: italic 16px var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #cdbf9f; letter-spacing: .04em; }
+#fsOrt b { display: block; font: 600 clamp(17px, 1.2vw, 24px) var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: #e0c38f; }
+#fsOrt span { display: block; margin-top: 4px; font: italic clamp(18px, 1.3vw, 26px) var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #cdbf9f; letter-spacing: .04em; }
 #fsPausePhase { margin-top: 6px; font: 600 12px Georgia, serif; letter-spacing: .3em; color: #b99a63; text-align: center; }
 #jBody .zlBisher { margin: 0 0 14px; } #jBody .zlBisher small { display: block; font: 700 10px var(--f-ui-sc, Georgia, serif); letter-spacing: .38em; color: var(--pdim, #5a4a35); margin-bottom: 6px; }
 #jBody .zlBisher p { margin: 0 0 4px; font: italic 16px/1.35 var(--f-buch, "Cormorant Garamond", Georgia, serif); opacity: .85; }
@@ -49272,8 +49275,8 @@ function tp_glimmen(dt) { const im = typeof K1 !== 'undefined' ? K1.weissIM : nu
 (function tp_css() { const st = document.createElement('style'); st.id = 'tpCss'; st.textContent = `
 #fsTipp { position: absolute; left: 30px; bottom: 64px; max-width: 420px; opacity: 0; transform: translateY(6px); transition: opacity .6s ease, transform .6s ease; pointer-events: none; text-shadow: 0 0 3px #000, 0 0 12px #000; }
 #fsTipp.an { opacity: 1; transform: none; }
-#fsTipp .kb { margin-bottom: 6px; } #fsTipp kbd { display: inline-block; min-width: 20px; margin-right: 5px; padding: 1px 7px; border: 1px solid rgba(201,163,106,.65); border-radius: 2px; background: rgba(0,0,0,.42); font: 600 12px Georgia, serif; color: #e0c38f; text-align: center; }
-#fsTipp p { margin: 0 0 2px; font: italic 17px/1.3 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #e6dcc4; }
+#fsTipp .kb { margin-bottom: 6px; } #fsTipp kbd { display: inline-block; min-width: 20px; margin-right: 5px; padding: 1px 7px; border: 1px solid rgba(201,163,106,.65); border-radius: 2px; background: rgba(0,0,0,.42); font: 600 clamp(13px, .95vw, 18px) Georgia, serif; color: #e0c38f; text-align: center; }
+#fsTipp p { margin: 0 0 2px; font: italic clamp(18px, 1.3vw, 26px)/1.3 var(--f-buch, "Cormorant Garamond", Georgia, serif); color: #e6dcc4; }
 `; document.head.appendChild(st); })();
 
 WORLD_MODS.push(['Tipps', async () => {
