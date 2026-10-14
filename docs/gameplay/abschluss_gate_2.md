@@ -57,7 +57,7 @@ Zusammen: **ca. 105 von 135 als Messartefakt, Absicht oder fest belegt**; **1 ec
 1. **Nach dem Einbau wiederholt und belegt:** Fix 1 (Nimmerheim-Eintritt: `r1Seen` nicht mehr früh, Ziel „Geh Justin nach.“ beim Ankommen, nach 10 m im Raum „Finde, was nicht in diese Nacht gehört…“; `_abs/out_fix1`), Fix 3 (K4/K5/K6-Zyklen), Fix 6 (`out_k4x4`). **Gebaut (`node --check`, `node build.js`), aber nicht in einem eigenen Lauf wiederholt:** Fix 2, 4, 5. **Fix 7** (Gitter Kap. 5): der Versuch, den Strahl auf die untere Wild-Fläche zu legen, traf „In den Wald rufen“ – nicht belegt.
 2. **Kap. 4–6 nur teilweise echt gespielt** (A, 1b–1d). Per Flag/Hook übersprungen: K4 Innenräume (R4-1, AG-13, AG-14, W-09…11), K5 ab „Tisch“ bis „Zaun“, K6 AG-18, Hirsch-Ereignis, Lager. Grund: Zeit (4 h) und die Länge der AG-Szenen (AG-18 > 150 s ohne Ende).
 3. **K3-Doppeltext-Protokoll mit voller Textlänge** gibt es nur für die Item-Strecke; der Hauptweg K3 wurde mit der abgeschnittenen 110-Zeichen-Aufzeichnung gelaufen (Sprecher dort aus dem Log gelesen, nicht maschinell).
-4. **Befund 8 offen:** X überspringt die Hochsitz-Szene (K6, `ECHTER LUKE`) nicht; Dauer rund 13 Minuten bis zur Endkarte (gemessen mit X im 0,5-s-Takt).
+4. ~~Befund 8~~ behoben, siehe F1.
 5. **Offen aus B:** Türblatt der Innentüren steht zu und ist durchlaufbar (Bild fehlt), Nr.-4-Bett durchlaufbar, Stämme der Bäume nicht von der Krone getrennt geprüft.
 6. **Ziel-Anzeige kurz veraltet** (gemessen, nicht geändert): K3 nach dem Anruf „Das Telefon an der Kreuzung klingelt. Nimm ab.“ bis Justin spricht; K4 „Lucy lebt. Fast ganz.“ während AG-12; K6 „Der Hochsitz. Hinauf.“ beim Falle-Start; Phasenzeile eine Stufe hinterher (K6 „3 VON 6“ bei Beat `faden`).
 7. Dauerinstanz Normal verliert bei belegter GPU (Stimmen-Prozess) den Kontext; Bilder/Leistung brauchen leere GPU.
@@ -77,3 +77,17 @@ Zusammen: **ca. 105 von 135 als Messartefakt, Absicht oder fest belegt**; **1 ec
 | Shader-Neukompilierungen nach Spielstart | 44 | 44 | 59 |
 
 Rohdaten: `app/tools/perf_last.json`.
+
+## F. Nachtrag 14.10. 18:30–19:00 (Auftrag des Koordinators)
+
+| # | Punkt | Befund / Änderung | Beleg |
+|---|---|---|---|
+| F1 | **Hochsitz-Szene K6 nicht überspringbar (Befund 8)** | Ursache: `k6_sayZu` wartete mit `k6_wait` (nicht überspringbar) und `k6_zuWarten` hielt jede Zeile bis zu 30 s an, solange „Augen zu“ (Q) nicht gehalten wurde; `say()`/`textweiter` griffen nie. Fix (`kapitel6.js`): Tastenabfang für X/Enter in Beat `oben` (`K6.zuSkip`), `k6_waitS` (überspringbare Wartezeit, in `k6_hochsitz` als `k6_wait` eingeblendet), `k6_sayZu` bricht bei X die Folge ab, `k6_zuWarten` und die Auswahl (`k6_tasteZu`) enden bei X/Enter. | Lauf `_abs/out_k6x`: Zeit bis Endkarte mit X alle 0,5 s **15,8 s** (vorher ≈ 13 min) |
+| F2 | Nr.-4-Bett durchlaufbar | `nr4.js`: Box-Collider (`bettKoll`, Höhe 0,9 m, aus `occluders` genommen) über die Bounding-Box beider Betten (Erdgeschoss, oben). | `_abs/out_bed2`: Lauf gegen das Bett stoppt nach 0,87 m bzw. 0,60 m (vorher durch); Collider-Box (−1403,31…−1401,69 | 1424,05…1426,15) im `colliders`-Array |
+| F3 | Innentür-Blätter (8) + Nr.-1-Haustür | Die `iap_pivot`-Blätter sind die Ausgangstüren der Kirchberg-Räume (Label „Hinaus …“, `passage`); sie schwingen beim E und fallen nach 2,2 s zu, das stehende Blatt der Messung ist die Kante des aufgeschwungenen Blatts neben der Türlücke. Die Türlücke selbst ist seit Fix 6 blockiert (5/5). Nr. 1: Spieler läuft von innen bei z −12,4 durch die Ostwand (x −47,5) hindurch, die Haustür (`door1`) liegt bei z −11,9 und ist geschlossen – dort ist in der Wand eine **Öffnung (Fenster/Tür-Netz 1,4 × 2,3 m ohne Kollision)**; nicht entschieden, ob Fenster oder Wandlücke. | `_abs/out_sub1`, `out_door2` |
+| F4 | Fix 2 (Ziele am Abgrund) | Beleg: Ziel nach `weiss_gestaendnisF3()` = „Der Hohe Abgrund. Nimm Justins Hand.“ | `_abs/out_fixA` |
+| F5 | Fix 4 (`hallDone`) | Beleg: Setter mit `{hallDone:true}` → `anwesen_S.hallDone = true` | `out_fixA` |
+| F6 | Fix 5 (Dorfsperre beim Laden) | Beleg: mit `ZUST.geladen` setzt `k6_sperre()` kein `told.sperre`, ohne wirkt sie weiter | `_abs/out_fixB` |
+| F7 | Fix 7 / K5-Gitter | Zwei übereinanderliegende „Absperrgitter“-Flächen (gruen.js Wild-Fläche 9,4 × 1,4 m, K5-Fläche 8 × 2,2 m). Jetzt löst E auf die Wild-Fläche in Kap. 5 (Beat `zaun`) `k5_gitter()` aus; ihr Label zeigt dort „Absperrgitter“ statt „Das Gitter aufbiegen“. | `out_fixA`: Strahl trifft die Wild-Fläche, E → `k5.f.gitter = true`, Endkarte „KAPITEL 5 — ENDE“, `KAP.done = 6` |
+
+**Leistungs-Gate nach den Nachträgen F1–F7 (19:30):** `perf_gate.mjs`, Median 3 Läufe, alle Zeilen „ok“ (GATE BESTANDEN laut Ausgabe nur wenn Zeile unten steht – siehe `perf_last.json`). Rechner war durch den Stimmen-Prozess unruhig (Fremdlast 20–88 %, ein Lauf wiederholt, Lauf 3 gestört: Ladezeit 232 s): Ladezeit Median 75,4 s (Ref. 70,1; Grenze 115), Kreuzung p95 66,7 ms (Grenze 79,3), Grafikspeicher 1865–1901 MB. Wegen der Fremdlast nur eingeschränkt aussagekräftig; Vorlauf Ende 18:00 (leer): 64,6 s / 42–55 ms.

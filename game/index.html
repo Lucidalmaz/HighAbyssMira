@@ -8943,7 +8943,7 @@ async function gruen_dustBarrierBau() {
   const D = gruen_S.dustBarrier = { A, B, pivB, sign, hit, col, open: false, kid: false, k: 0,
     setKid(on) { if (on === D.kid) return; D.kid = on; if (D.k === 0) pivB.rotation.set(0, 0, on ? .085 : 0); },
     setOpen(k) { D.k = k; const e = k * k * (3 - 2 * k); pivB.rotation.set(0, -1.15 * e, (D.kid ? .085 : 0) * (1 - e) + .05 * e); if (k >= 1 && !D.open) { D.open = true; col.minX = col.maxX = -9999; uninteract(hit); } } };
-  interact(hit, () => D.open ? '' : (typeof wald_frei === 'function' && wald_frei()) ? 'Das Gitter aufbiegen (E halten)' : 'Absperrgitter',
+  interact(hit, () => D.open ? '' : (typeof k5 !== 'undefined' && k5.on && k5.beat === 'zaun') ? 'Absperrgitter' : (typeof wald_frei === 'function' && wald_frei()) ? 'Das Gitter aufbiegen (E halten)' : 'Absperrgitter',
     () => { if (typeof k5 !== 'undefined' && k5.on && k5.beat === 'zaun' && typeof k5_gitter === 'function') return k5_gitter(); /* Kap. 5: dieselbe Fläche (Zielstrahl knapp unter der Kante der K5-Klickfläche) löst das Kapitelende aus, nicht den Wild-Hinweis */
       if (typeof wald_frei === 'function' && wald_frei()) return; Audio.play('metalHit2', { gain: .12, rate: .8 }); toast('Mit Draht an die Pfosten gebunden. Dahinter ist es still. Zu still.', 3800); });
 }
@@ -14547,6 +14547,7 @@ async function nr4_bau() {
   const sheerSpec = tint => ({ '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', a: 'DefaultMaterial_Opacity.png', ds: 1, transparent: true, alphaTest: .02, flipN: true, color: tint } });
   const retroSpec = { '*': { b: 'curtainroom_01_-_Default_BaseColor.jpg', n: 'curtainroom_01_-_Default_Normal.jpg', r: 'curtainroom_01_-_Default_Roughness.jpg', ds: 1, color: 0x8a7a70 } };
   const put = (o, x, y, z, ry, par) => kirchberg_setze(o, x, y, z, ry, par);
+  const bettKoll = b => { try { b.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(b), sz = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3()); const cb = box(sz.x, .9, sz.z, c.x, .45, c.z, hidden, { collide: true, cast: false }); cb.userData.noCol = true; const oi = occluders.indexOf(cb); if (oi >= 0) occluders.splice(oi, 1); } catch (e) { console.warn('Nr. 4 Bett-Kollision', e); } }; // Bett war durchlaufbar (Lauftest 14.10.)
   // Laken über Möbeln: dasselbe Möbel-Scan-Modell, mit Stoff überzogen (Gardinen-Scan als Tuch, leicht gewellt)
   const lakenMat = new T.MeshStandardMaterial({ map: msTex('curtain_sheer/DefaultMaterial_Base_color.png', true), normalMap: M.cloth && M.cloth.normalMap || null, color: 0xd8d2c4, roughness: 1, side: T.DoubleSide });
   const laken = o => { if (!o) return o; o.traverse(m => { if (m.isMesh) { m.material = lakenMat; } }); return o; };
@@ -14658,7 +14659,7 @@ async function nr4_bau() {
   { const d = await kirchberg_mod('door1', 'model.gltf', 2.0); if (d) put(d, C.x + 3, 0, C.z + .02, 0, g); box(1.1, 2.2, .08, C.x + 3, 1.1, C.z, hidden, { collide: true, cast: false, parent: g });
     nr4_zettel('E-10', C.x + 3.25, 1.45, C.z + .07, 0, { w: .13, h: .1 });
     S.peterHit = kirchberg_hit(1, 2, .4, C.x + 3, 1.1, C.z + .25, () => kapAb(3) ? 'Peters Zimmer' : 'Durchs Schlüsselloch sehen', () => nr4_schluesselloch());
-    const bett = await kirchberg_fbx('hospbed', bedSpec(0xe0dcd4)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, x1 - 1, 0, C.z - 3.6, PI / 2, g); }
+    const bett = await kirchberg_fbx('hospbed', bedSpec(0xe0dcd4)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, x1 - 1, 0, C.z - 3.6, PI / 2, g); bettKoll(bett); }
     const hund = await kirchberg_fbx('teddy_retro', { material0: { b: 'teddy-bear.jpg', color: 0xc8b8a0 }, material1: { b: 'teddy-bear1.jpg', color: 0xc8b8a0 } }, .3); if (hund) put(hund, x1 - .7, .55, C.z - 4.2, -PI / 2 - .3, g);
     const st = await kirchberg_fbx('chair', chairSpec, .9); if (st) { S.peterStuhl = put(st, C.x + 2, 0, C.z - 3.8, PI + .2, g); }
     await fenster(R, C.x + 2.4, z0 + .11, 0, 1.55, 'sheer'); kirchberg_licht(R, 0xb8c8e0, .35, 4, C.x + 2.4, 1.5, z0 + .5); // Mondlicht durchs Fenster
@@ -14674,7 +14675,7 @@ async function nr4_bau() {
     { const td = await kirchberg_mod('door1', 'model.gltf', 2.0); if (td) put(td, a0 + .115, 0, b1 - .75, PI / 2, g2); }
     kirchberg_hit(.4, 2, 1.1, a0 + .3, 1.05, b1 - .75, 'Treppe nach unten', () => nr4_wechsel('eg'));
     // Bett, frisch bezogen (E-01), Nachttisch mit Tonprobe, Schreibtisch mit Schublade (Grinder), Poster von 2016 (dahinter die Papes), Aufkleber, Schrank, CRT, Regal, Stehlampe
-    const bett = await kirchberg_fbx('hospbed', bedSpec(0x3a4a6a)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, a0 + 1.1, 0, b0 + 1.1, 0, g2); }
+    const bett = await kirchberg_fbx('hospbed', bedSpec(0x3a4a6a)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, a0 + 1.1, 0, b0 + 1.1, 0, g2); bettKoll(bett); }
     { const nt = await kirchberg_fbx('dresser', hutchSpec(0x6a5040), .5); if (nt) put(nt, a0 + .35, 0, b1 - 1.9, PI / 2, g2); nr4_zettel('t_zaehl', a0 + .36, .51, b1 - 1.9, 0, { liegt: true }); }
     const tisch = await kirchberg_mod('metaltable', 'model.gltf', 0); if (tisch) { tisch.scale.set(.36, .78, .6); S.lt = put(tisch, O.x - .2, 0, b0 + .42, 0, g2); }
     const ly = S.lt ? kirchberg_top(S.lt, O.x - .2, b0 + .42, 3, .75) : .75;
@@ -42727,15 +42728,19 @@ async function k6_boy(on) {
   const b = K6.boy; if (!b) return; b.g.visible = on; if (!on || b.P || b.loading || typeof figuren_embody !== 'function') return; b.loading = true;
   try { const P = await figuren_embody(b.g, 'luke_echt', { clip: 'idle', sit: 3.1 + .46 }); b.P = P; if (P) { P.obj.traverse(o => { if (o.isMesh) o.castShadow = true; }); if (P.mx) P.mx.stopAllAction(); } } catch (e) { console.warn('Kapitel6: Junge', e); } b.loading = false;
 }
-function k6_zuWarten() { return new Promise(res => { const t0 = performance.now(); const f = () => (typeof augenzu_zu !== 'function' || augenzu_zu() || performance.now() - t0 > 30000) ? res() : setTimeout(f, 80); f(); }); } /* Notausstieg nach 30 s: die Szene bleibt nie an geschlossenen Augen hängen */
-async function k6_sayZu(lines) { for (const l of lines) { await k6_zuWarten(); const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await k6_wait(d); } }
-function k6_tasteZu(n, ms) { return new Promise(res => { let done = false; const k = e => { const m = /^(Digit|Numpad)([1-9])$/.exec(e.code); if (!m || +m[2] > n) return; if (typeof augenzu_zu === 'function' && !augenzu_zu()) return; done = true; removeEventListener('keydown', k, true); res(+m[2] - 1); };
+function k6_zuWarten() { return new Promise(res => { const t0 = performance.now(); const f = () => (typeof augenzu_zu !== 'function' || augenzu_zu() || K6.zuSkip || performance.now() - t0 > 30000) ? res() : setTimeout(f, 80); f(); }); } /* Notausstieg nach 30 s: die Szene bleibt nie an geschlossenen Augen hängen */
+// Überspringen (Nutzerorder: alle Texte): X/Enter/Klick beenden die Zeile bzw. die ganze Folge, auch während „Augen zu“ gewartet wird (Hochsitz-Szene lief sonst bis 30 s je Zeile)
+window.addEventListener('keydown', e => { if (e.repeat || typeof K6 === 'undefined' || !K6.on || K6.beat !== 'oben') return; if (e.code === 'KeyX' || e.code === 'Enter' || e.code === 'NumpadEnter') { K6.zuSkip = true; K6.zuAlle = K6.zuAlle || e.code === 'KeyX'; setTimeout(() => { K6.zuSkip = false; }, 700); } }, true);
+function k6_waitS(ms) { return new Promise(res => { const t0 = performance.now(), iv = setInterval(() => { if (K6.zuSkip || performance.now() - t0 >= ms) { clearInterval(iv); res(); } }, 60); }); }
+async function k6_sayZu(lines) { K6.zuAlle = false; for (const l of lines) { if (K6.zuAlle) break; await k6_zuWarten(); const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await k6_waitS(d); if (K6.zuSkip && typeof textweiter === 'function') { /* Zeile sofort ausblenden */ try { const el = document.getElementById('subtitle'); if (el) el.style.opacity = 0; } catch (e) {} } } }
+function k6_tasteZu(n, ms) { return new Promise(res => { let done = false; const k = e => { if (e.code === 'KeyX' || e.code === 'Enter' || e.code === 'NumpadEnter') { done = true; removeEventListener('keydown', k, true); res(-1); return; } const m = /^(Digit|Numpad)([1-9])$/.exec(e.code); if (!m || +m[2] > n) return; if (typeof augenzu_zu === 'function' && !augenzu_zu()) return; done = true; removeEventListener('keydown', k, true); res(+m[2] - 1); };
   addEventListener('keydown', k, true); if (ms) setTimeout(() => { if (!done) { removeEventListener('keydown', k, true); res(-1); } }, ms); }); }
 // SB-12 vom echten Luke vorgelesen: stockend, „Vor-hang. Vorhang.“, „Wiese“ statt „Wîse“; die vierte Zeile je nach Antwort in Kapitel 3
 function k6_sb12Zeilen() { const P = typeof SAMMELN_SB !== 'undefined' ? SAMMELN_SB[11] : null, a = (typeof ch3 !== 'undefined' && (ch3.answer || ch3.choice)) || 'A';
   const L = P ? P.txt.map(t => t === '@4' ? (P.var && P.var[a]) || '' : t).filter(Boolean) : ['Luke. Ich schreib den Namen, weil ich ihn nicht sagen kann, ohne dass mir was wegbricht.'];
   return L.map(t => t.replace('Nicht hinterm Vorhang.', 'Nicht hinterm Vor-hang. … Vorhang.').replace('Wîse', 'Wiese')); }
 async function k6_hochsitz() {
+  const k6_wait = k6_waitS; // innerhalb der Szene überspringbar
   K6.epiBusy = true; k6_set('oben'); state.talking = true; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
   try {
     await k6_wait(800); k6_luke('Nicht hinsehen.', 2400); await k6_wait(1600);

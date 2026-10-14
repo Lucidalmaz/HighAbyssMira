@@ -165,6 +165,7 @@ async function nr4_bau() {
   const sheerSpec = tint => ({ '*': { b: 'DefaultMaterial_Base_color.png', n: 'DefaultMaterial_Normal_DirectX.jpg', r: 'DefaultMaterial_Roughness.png', a: 'DefaultMaterial_Opacity.png', ds: 1, transparent: true, alphaTest: .02, flipN: true, color: tint } });
   const retroSpec = { '*': { b: 'curtainroom_01_-_Default_BaseColor.jpg', n: 'curtainroom_01_-_Default_Normal.jpg', r: 'curtainroom_01_-_Default_Roughness.jpg', ds: 1, color: 0x8a7a70 } };
   const put = (o, x, y, z, ry, par) => kirchberg_setze(o, x, y, z, ry, par);
+  const bettKoll = b => { try { b.updateMatrixWorld(true); const bb = new THREE.Box3().setFromObject(b), sz = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3()); const cb = box(sz.x, .9, sz.z, c.x, .45, c.z, hidden, { collide: true, cast: false }); cb.userData.noCol = true; const oi = occluders.indexOf(cb); if (oi >= 0) occluders.splice(oi, 1); } catch (e) { console.warn('Nr. 4 Bett-Kollision', e); } }; // Bett war durchlaufbar (Lauftest 14.10.)
   // Laken über Möbeln: dasselbe Möbel-Scan-Modell, mit Stoff überzogen (Gardinen-Scan als Tuch, leicht gewellt)
   const lakenMat = new T.MeshStandardMaterial({ map: msTex('curtain_sheer/DefaultMaterial_Base_color.png', true), normalMap: M.cloth && M.cloth.normalMap || null, color: 0xd8d2c4, roughness: 1, side: T.DoubleSide });
   const laken = o => { if (!o) return o; o.traverse(m => { if (m.isMesh) { m.material = lakenMat; } }); return o; };
@@ -276,7 +277,7 @@ async function nr4_bau() {
   { const d = await kirchberg_mod('door1', 'model.gltf', 2.0); if (d) put(d, C.x + 3, 0, C.z + .02, 0, g); box(1.1, 2.2, .08, C.x + 3, 1.1, C.z, hidden, { collide: true, cast: false, parent: g });
     nr4_zettel('E-10', C.x + 3.25, 1.45, C.z + .07, 0, { w: .13, h: .1 });
     S.peterHit = kirchberg_hit(1, 2, .4, C.x + 3, 1.1, C.z + .25, () => kapAb(3) ? 'Peters Zimmer' : 'Durchs Schlüsselloch sehen', () => nr4_schluesselloch());
-    const bett = await kirchberg_fbx('hospbed', bedSpec(0xe0dcd4)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, x1 - 1, 0, C.z - 3.6, PI / 2, g); }
+    const bett = await kirchberg_fbx('hospbed', bedSpec(0xe0dcd4)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, x1 - 1, 0, C.z - 3.6, PI / 2, g); bettKoll(bett); }
     const hund = await kirchberg_fbx('teddy_retro', { material0: { b: 'teddy-bear.jpg', color: 0xc8b8a0 }, material1: { b: 'teddy-bear1.jpg', color: 0xc8b8a0 } }, .3); if (hund) put(hund, x1 - .7, .55, C.z - 4.2, -PI / 2 - .3, g);
     const st = await kirchberg_fbx('chair', chairSpec, .9); if (st) { S.peterStuhl = put(st, C.x + 2, 0, C.z - 3.8, PI + .2, g); }
     await fenster(R, C.x + 2.4, z0 + .11, 0, 1.55, 'sheer'); kirchberg_licht(R, 0xb8c8e0, .35, 4, C.x + 2.4, 1.5, z0 + .5); // Mondlicht durchs Fenster
@@ -292,7 +293,7 @@ async function nr4_bau() {
     { const td = await kirchberg_mod('door1', 'model.gltf', 2.0); if (td) put(td, a0 + .115, 0, b1 - .75, PI / 2, g2); }
     kirchberg_hit(.4, 2, 1.1, a0 + .3, 1.05, b1 - .75, 'Treppe nach unten', () => nr4_wechsel('eg'));
     // Bett, frisch bezogen (E-01), Nachttisch mit Tonprobe, Schreibtisch mit Schublade (Grinder), Poster von 2016 (dahinter die Papes), Aufkleber, Schrank, CRT, Regal, Stehlampe
-    const bett = await kirchberg_fbx('hospbed', bedSpec(0x3a4a6a)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, a0 + 1.1, 0, b0 + 1.1, 0, g2); }
+    const bett = await kirchberg_fbx('hospbed', bedSpec(0x3a4a6a)); if (bett) { bett.scale.set(.009, .009, -.009); put(bett, a0 + 1.1, 0, b0 + 1.1, 0, g2); bettKoll(bett); }
     { const nt = await kirchberg_fbx('dresser', hutchSpec(0x6a5040), .5); if (nt) put(nt, a0 + .35, 0, b1 - 1.9, PI / 2, g2); nr4_zettel('t_zaehl', a0 + .36, .51, b1 - 1.9, 0, { liegt: true }); }
     const tisch = await kirchberg_mod('metaltable', 'model.gltf', 0); if (tisch) { tisch.scale.set(.36, .78, .6); S.lt = put(tisch, O.x - .2, 0, b0 + .42, 0, g2); }
     const ly = S.lt ? kirchberg_top(S.lt, O.x - .2, b0 + .42, 3, .75) : .75;

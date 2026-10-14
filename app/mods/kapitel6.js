@@ -616,15 +616,19 @@ async function k6_boy(on) {
   const b = K6.boy; if (!b) return; b.g.visible = on; if (!on || b.P || b.loading || typeof figuren_embody !== 'function') return; b.loading = true;
   try { const P = await figuren_embody(b.g, 'luke_echt', { clip: 'idle', sit: 3.1 + .46 }); b.P = P; if (P) { P.obj.traverse(o => { if (o.isMesh) o.castShadow = true; }); if (P.mx) P.mx.stopAllAction(); } } catch (e) { console.warn('Kapitel6: Junge', e); } b.loading = false;
 }
-function k6_zuWarten() { return new Promise(res => { const t0 = performance.now(); const f = () => (typeof augenzu_zu !== 'function' || augenzu_zu() || performance.now() - t0 > 30000) ? res() : setTimeout(f, 80); f(); }); } /* Notausstieg nach 30 s: die Szene bleibt nie an geschlossenen Augen hängen */
-async function k6_sayZu(lines) { for (const l of lines) { await k6_zuWarten(); const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await k6_wait(d); } }
-function k6_tasteZu(n, ms) { return new Promise(res => { let done = false; const k = e => { const m = /^(Digit|Numpad)([1-9])$/.exec(e.code); if (!m || +m[2] > n) return; if (typeof augenzu_zu === 'function' && !augenzu_zu()) return; done = true; removeEventListener('keydown', k, true); res(+m[2] - 1); };
+function k6_zuWarten() { return new Promise(res => { const t0 = performance.now(); const f = () => (typeof augenzu_zu !== 'function' || augenzu_zu() || K6.zuSkip || performance.now() - t0 > 30000) ? res() : setTimeout(f, 80); f(); }); } /* Notausstieg nach 30 s: die Szene bleibt nie an geschlossenen Augen hängen */
+// Überspringen (Nutzerorder: alle Texte): X/Enter/Klick beenden die Zeile bzw. die ganze Folge, auch während „Augen zu“ gewartet wird (Hochsitz-Szene lief sonst bis 30 s je Zeile)
+window.addEventListener('keydown', e => { if (e.repeat || typeof K6 === 'undefined' || !K6.on || K6.beat !== 'oben') return; if (e.code === 'KeyX' || e.code === 'Enter' || e.code === 'NumpadEnter') { K6.zuSkip = true; K6.zuAlle = K6.zuAlle || e.code === 'KeyX'; setTimeout(() => { K6.zuSkip = false; }, 700); } }, true);
+function k6_waitS(ms) { return new Promise(res => { const t0 = performance.now(), iv = setInterval(() => { if (K6.zuSkip || performance.now() - t0 >= ms) { clearInterval(iv); res(); } }, 60); }); }
+async function k6_sayZu(lines) { K6.zuAlle = false; for (const l of lines) { if (K6.zuAlle) break; await k6_zuWarten(); const [t, ms, who] = l, d = Math.max(ms, readMs(trX(t))); subtitle(t, d + 250, who); await k6_waitS(d); if (K6.zuSkip && typeof textweiter === 'function') { /* Zeile sofort ausblenden */ try { const el = document.getElementById('subtitle'); if (el) el.style.opacity = 0; } catch (e) {} } } }
+function k6_tasteZu(n, ms) { return new Promise(res => { let done = false; const k = e => { if (e.code === 'KeyX' || e.code === 'Enter' || e.code === 'NumpadEnter') { done = true; removeEventListener('keydown', k, true); res(-1); return; } const m = /^(Digit|Numpad)([1-9])$/.exec(e.code); if (!m || +m[2] > n) return; if (typeof augenzu_zu === 'function' && !augenzu_zu()) return; done = true; removeEventListener('keydown', k, true); res(+m[2] - 1); };
   addEventListener('keydown', k, true); if (ms) setTimeout(() => { if (!done) { removeEventListener('keydown', k, true); res(-1); } }, ms); }); }
 // SB-12 vom echten Luke vorgelesen: stockend, „Vor-hang. Vorhang.“, „Wiese“ statt „Wîse“; die vierte Zeile je nach Antwort in Kapitel 3
 function k6_sb12Zeilen() { const P = typeof SAMMELN_SB !== 'undefined' ? SAMMELN_SB[11] : null, a = (typeof ch3 !== 'undefined' && (ch3.answer || ch3.choice)) || 'A';
   const L = P ? P.txt.map(t => t === '@4' ? (P.var && P.var[a]) || '' : t).filter(Boolean) : ['Luke. Ich schreib den Namen, weil ich ihn nicht sagen kann, ohne dass mir was wegbricht.'];
   return L.map(t => t.replace('Nicht hinterm Vorhang.', 'Nicht hinterm Vor-hang. … Vorhang.').replace('Wîse', 'Wiese')); }
 async function k6_hochsitz() {
+  const k6_wait = k6_waitS; // innerhalb der Szene überspringbar
   K6.epiBusy = true; k6_set('oben'); state.talking = true; const W = typeof whiskey_S !== 'undefined' ? whiskey_S : null;
   try {
     await k6_wait(800); k6_luke('Nicht hinsehen.', 2400); await k6_wait(1600);
