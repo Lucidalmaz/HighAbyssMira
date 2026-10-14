@@ -320,7 +320,7 @@ async function weiss_teil2() { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.phase
   await weiss_beat('step', null, 6000); weiss_glocke(); state.talking = true;
   const P = player.pos, dx = CX - P.x, dz = CZ - P.z, d = Math.hypot(dx, dz) || 1; jWalk(P.x + dx / d * 1.1, P.z + dz / d * 1.1, () => { justin.look = true; justin_knien(true); }); await wait(2000);
   await say([['„Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“', 5200, JS]]);
-  state.talking = false; S.phase = 'wahl'; showChoice(); }
+  state.talking = false; S.phase = 'wahl'; setC3('Was will sie? Antworte Justin.'); showChoice(); }
 
 // Blitze durch Lukes Augen: drei harte Schnitte à 0,3 s – Ostende der Straße (Kap. 1), die Lichtsäule, Justins Hand an der Kreuzung
 async function weiss_blitze(nur) { const S = weiss_S, jg = S.jSil || S.jGhost; if (!jg) return; S.blitzOn = true; const par = jg.parent, p0 = jg.position.clone(), r0 = jg.rotation.y, fd = $('fade'), pk = pillarMat.uniforms.opacity.value, fog = [scene.fog.color.getHex(), scene.fog.density], ceil = S.ceil.map(c => c.visible);
@@ -451,6 +451,7 @@ enterWhite = async function () {
 // Raum 1 betreten / Ablauf in Nimmerheim (ersetzt c3WhiteUpdate der Basis: nur die Zeilen sind neu)
 c3WhiteUpdate = (o => function (dt, t) {
   const P = player.pos;
+  if (Math.abs(P.z - Z3) >= 60) return; // nur in Nimmerheim selbst: im ersten Takt nach part='white' steht Luke noch auf der Straße (Blende läuft) – sonst feuern „Dein Zimmer.“ unter der Blende und r1Seen, das Ziel wird von „Geh Justin nach.“ überschrieben
   if (!ch3.r1Seen && P.x > X3 + 8.6) { ch3.r1Seen = true; setC3('Finde, was nicht in diese Nacht gehört. Die Frage steht an der Tür.'); state.talking = true;
     say([['„Dein Zimmer.“', 1800, JS], ['„Nein. Seines. Der Abend, bevor er ging.“', 3200, JS]]).then(() => { state.talking = false; }); }
   return o(dt, t); })(c3WhiteUpdate);
@@ -537,7 +538,7 @@ async function weiss_tafelWahl(w) { const S = weiss_S; if (S.phase !== 'spuren')
   if (WEISS_F3.fehl === 2 && typeof whiskey_setzen === 'function') { const b = WEISS_F3.spots.handschuh.position; try { whiskey_setzen(b.x, b.y - .05, b.z); } catch (e) {} }
   if (WEISS_F3.fehl >= 3) { const b = WEISS_F3.spots.handschuh.position; const dx = b.x - camera.position.x, dy = b.y - camera.position.y, dz = b.z - camera.position.z; player.yaw = Math.atan2(-dx, -dz); player.pitch = Math.atan2(dy, Math.hypot(dx, dz)); }
   if (WEISS_F3.stellen.size >= 3) setTimeout(() => { if (!WEISS_F3.nachhilfe) { WEISS_F3.nachhilfe = true; subtitle('Einer von beiden hat die Hand noch zu.', 3400, 'LUKE'); } }, 1500); }
-async function weiss_gestaendnisF3() { const S = weiss_S; S.phase = 'gestaendnis'; for (const b of Object.values(WEISS_F3.spots || {})) uninteract(b); state.talking = true; justin.look = false;
+async function weiss_gestaendnisF3() { const S = weiss_S; S.phase = 'gestaendnis'; setC3('Der Hohe Abgrund. Nimm Justins Hand.'); // Ziel blieb sonst bis zur Wahl bei „Sieh dir die Hände an“ for (const b of Object.values(WEISS_F3.spots || {})) uninteract(b); state.talking = true; justin.look = false;
   await say([['Du sagst es nicht. Du siehst Justin an. Er sieht auf seine linke Hand. Er zieht den Handschuh aus. Die Handfläche: eine halbrunde Brandnarbe. Dieselbe wie deine.', 6400]]);
   await say([['Du hältst deine Hand daneben. Zwei halbe Monde.', 3200]]);
   await say([['„… Ihre Finger sind zu.“', 2600, JS], ['„Ich hab’s nicht gewollt. Es hat gebrannt, und ich hab geschrien, und dann war die Hand auf. Einfach auf. Wie vom Topf.“', 5600, JS],
@@ -598,7 +599,7 @@ weiss_teil2 = async function () { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.ph
   await weiss_beat('step', null, 6000); state.talking = true;
   const P = player.pos, dx = CX - P.x, dz = CZ - P.z, d = Math.hypot(dx, dz) || 1; jWalk(P.x + dx / d * 1.1, P.z + dz / d * 1.1, () => { justin.look = true; justin_knien(true); }); await wait(2000);
   await say([['„Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“', 5200, JS]]);
-  state.talking = false; S.phase = 'wahl'; showChoice(); };
+  state.talking = false; S.phase = 'wahl'; setC3('Was will sie? Antworte Justin.'); showChoice(); };
 // „Noch eine Runde“: danach steht Lucy neben Luke und hält seine Hand (Hook um justin_runde, AP-12)
 if (typeof justin_runde === 'function') justin_runde = (o => async function (...a) { await o.apply(this, a); if (weiss_S.lucy) weiss_S.lucy.visible = false;
   await say([['Lucys Stuhl flackert. Dann steht sie neben dir, nass, und hält deine Hand. Richtig. Fünf Finger, abgekaute Nägel.', 5200], ['„Großer. Du atmest immer noch.“', 3000, 'LUCY']]); await wait(600); })(justin_runde);

@@ -8944,7 +8944,8 @@ async function gruen_dustBarrierBau() {
     setKid(on) { if (on === D.kid) return; D.kid = on; if (D.k === 0) pivB.rotation.set(0, 0, on ? .085 : 0); },
     setOpen(k) { D.k = k; const e = k * k * (3 - 2 * k); pivB.rotation.set(0, -1.15 * e, (D.kid ? .085 : 0) * (1 - e) + .05 * e); if (k >= 1 && !D.open) { D.open = true; col.minX = col.maxX = -9999; uninteract(hit); } } };
   interact(hit, () => D.open ? '' : (typeof wald_frei === 'function' && wald_frei()) ? 'Das Gitter aufbiegen (E halten)' : 'Absperrgitter',
-    () => { if (typeof wald_frei === 'function' && wald_frei()) return; Audio.play('metalHit2', { gain: .12, rate: .8 }); toast('Mit Draht an die Pfosten gebunden. Dahinter ist es still. Zu still.', 3800); });
+    () => { if (typeof k5 !== 'undefined' && k5.on && k5.beat === 'zaun' && typeof k5_gitter === 'function') return k5_gitter(); /* Kap. 5: dieselbe Fläche (Zielstrahl knapp unter der Kante der K5-Klickfläche) löst das Kapitelende aus, nicht den Wild-Hinweis */
+      if (typeof wald_frei === 'function' && wald_frei()) return; Audio.play('metalHit2', { gain: .12, rate: .8 }); toast('Mit Draht an die Pfosten gebunden. Dahinter ist es still. Zu still.', 3800); });
 }
 
 // =====================================================================  Fassung 3 (AP-15): Kapitel 1, Nebenaufgabe 18 „Wildschaden, 1992“ (Nordzaun, Z-03)
@@ -12471,6 +12472,7 @@ const LEBEN_BELL313_SUB = ['Die Glocke auf dem Kirchberg. Drei Schläge. Pause.'
 function leben_uhrKap() { return typeof kap === 'function' ? kap() : curChapter(); }
 function leben_uhrSync() { // Kapitelwechsel (auch nach dem Laden): Uhr auf den Kapitelstart
   const K = leben_S.clk, k = leben_uhrKap(); if (K.kap === k) return K;
+  if (typeof ZUST !== 'undefined' && ZUST.geladen && K.kap > k) return K; // Weiterspielen: zwischen Einlesen und Kapitelstart steht kap() noch auf 1 – die gespeicherte Uhr nicht auf den Kapitelstart zurücksetzen
   const U = LEBEN_UHR[k] || LEBEN_UHR[1]; K.kap = k; K.min = U.start; K.h = Math.floor(U.start / 60); K.pend = 0; K.c3 = false; return K;
 }
 function leben_uhrCount(h) { const U = LEBEN_UHR[leben_S.clk.kap], hh = h % 24; if (!U) return 0; return U.schlag ? (U.schlag[hh] || 0) : (hh % 12 || 12); }
@@ -13304,7 +13306,9 @@ function kirchberg_raum(def) {
   const R = { def, x0, x1, z0, z1, H, wm, fm, cm, boden, decke, g: new THREE.Group(), licht: [] }; R.g.name = 'kb_raum_' + def.id; scene.add(R.g);
   // Tür von innen (Scan-Tür, geschlossen) = Weg nach draußen
   if (def.tuer) { const [tx, tz, tr] = def.tuer; kirchberg_mod('door1', 'model.gltf', 2.08).then(d => { if (d) { d.position.set(tx, 0, tz); d.rotation.y = tr; R.g.add(d); } });
-    R.tuerHit = kirchberg_hit(1.2, 2.2, .5, tx, 1.1, tz, def.rausLabel || 'Hinausgehen', () => kirchberg_raus()); }
+    R.tuerHit = kirchberg_hit(1.2, 2.2, .5, tx, 1.1, tz, def.rausLabel || 'Hinausgehen', () => kirchberg_raus());
+    // die geschlossene Scan-Tür hatte keine Kollision, die Wandlücke war offen: man lief durch die Tür aus dem Raum hinaus ins Leere (Lauftest 14.10.: Kapelle, Schuppen, Nr. 4)
+    { const cb = box(1.1, H, .14, tx, H / 2, tz, hidden, { collide: true, cast: false }); cb.userData.noCol = true; const oi = occluders.indexOf(cb); if (oi >= 0) occluders.splice(oi, 1); } }
   kirchberg_S.raeume[def.id] = R; return R; }
 // R-6: Treppe mit Logik (auch für Keller Nr. 7, innen_ort.js). Lauf entlang z vom Fuß zA zum Kopf zB, n Stufen gleicher Steigung bis zum Podest auf y1:
 // Tritt- und Setzstufen, zwei Wangen, Geländer an der offenen Seite (offen: 'x0' | 'x1'), Podest (Tiefe podest, hinter zB). Ist die Decke im Weg (loch: [x0, x1, z0, z1]),
@@ -21918,7 +21922,7 @@ function anwesen_press() {
 applySave = (o => d => { o(d); const S = anwesen_S; S.key = story.items.includes('villaschluessel'); try { anwesen_sockets(); } catch (e) {} })(applySave);
 // Spielstand Kapitel 4: Tür offen, Halle betreten, gesehene Dinge. Weiterspielen in der Halle setzt dort fort; das Ende an der Treppe lässt sich erneut auslösen (nie Sackgasse)
 MOD_SAVE.push(['anwesen', () => ({ open: !!anwesen_S.open, inHall: !!anwesen_S.inHall, hallDone: !!anwesen_S.hallDone, seen: [...anwesen_S.seen], knocked: !!anwesen_S.knocked, nestPick: !!anwesen_S.nestPick, f3: Object.fromEntries(['mal', 'schloesser', 'kasten', 'laut', 'start'].map(k => [k, anwesen_F3[k] || 0])) }),
-  v => { const S = anwesen_S; S.open = !!v.open; S.pendingHall = !!(v.open && v.inHall); (v.seen || []).forEach(k => S.seen.add(k)); S.knocked = !!v.knocked; S.nestPick = !!v.nestPick; if (v.f3) for (const k of ['mal', 'schloesser', 'kasten', 'laut', 'start']) if (v.f3[k] !== undefined) anwesen_F3[k] = typeof anwesen_F3[k] === 'boolean' ? !!v.f3[k] : v.f3[k]; }]);
+  v => { const S = anwesen_S; S.open = !!v.open; S.hallDone = !!v.hallDone; /* wurde gespeichert, aber nie zurückgelesen: ab Kap. 5 galt die Halle nach dem Laden wieder als nicht beendet */ S.pendingHall = !!(v.open && v.inHall); (v.seen || []).forEach(k => S.seen.add(k)); S.knocked = !!v.knocked; S.nestPick = !!v.nestPick; if (v.f3) for (const k of ['mal', 'schloesser', 'kasten', 'laut', 'start']) if (v.f3[k] !== undefined) anwesen_F3[k] = typeof anwesen_F3[k] === 'boolean' ? !!v.f3[k] : v.f3[k]; }]);
 if (typeof CH_RESUME !== 'undefined') CH_RESUME.push((d, at) => { // nach dem Platzieren beim Weiterspielen
   const S = anwesen_S, H = ANW_HALL; if (d.chapter !== 4) { S.pendingHall = false; return; } // nur Kapitel 4 (ab Kapitel 5 nie zurück in die Halle)
   const inHall = at && Math.abs(at.x - H.x) < H.w && Math.abs(at.z - H.z) < H.d;
@@ -26927,7 +26931,7 @@ WORLD_TICK.push((dt, t) => {
   const S = beob_S; if (!S.ready) return;
   if (!S.item) { S.item = true; ITEMS.murmel = { name: 'Milchweiße Murmel', desc: 'Lag beim letzten Zettel des Beobachters. Sie ist warm. Im Dunkeln leuchtet sie ganz schwach – wie ein Auge, das zurücksieht.' }; } // ITEMS entsteht erst nach den Modulen
   const k = beob_ch();
-  if (k !== S.c.k) { S.c = beob_cNeu(k); S.stat.turns = 0; S.winNext = S.t + rand(240, 420); S.covers = null; if (S.peek) { beob_hide(); S.peek = null; } }
+  if (k !== S.c.k && !(typeof ZUST !== 'undefined' && ZUST.geladen && S.c.k > k)) { S.c = beob_cNeu(k); S.stat.turns = 0; S.winNext = S.t + rand(240, 420); S.covers = null; if (S.peek) { beob_hide(); S.peek = null; } }
   // Orts-Zettel: Stadt ab Kapitel 3, Wald ab Kapitel 6, „wrack“ erst nach der Fraßstelle (PK-A A29) – auch rückwärts (Kapitelwahl, Laden)
   const town = k >= 3, wald = k >= 6, spuren = wald && typeof hungrige_S !== 'undefined' && hungrige_S.done.has('spuren');
   for (const n of S.spots) { if (n.gone) continue; const want = town && (!BEOB_WALD[n.id] || (wald && (n.id !== 'wrack' || spuren)));
@@ -32207,7 +32211,7 @@ async function weiss_teil2() { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.phase
   await weiss_beat('step', null, 6000); weiss_glocke(); state.talking = true;
   const P = player.pos, dx = CX - P.x, dz = CZ - P.z, d = Math.hypot(dx, dz) || 1; jWalk(P.x + dx / d * 1.1, P.z + dz / d * 1.1, () => { justin.look = true; justin_knien(true); }); await wait(2000);
   await say([['„Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“', 5200, JS]]);
-  state.talking = false; S.phase = 'wahl'; showChoice(); }
+  state.talking = false; S.phase = 'wahl'; setC3('Was will sie? Antworte Justin.'); showChoice(); }
 
 // Blitze durch Lukes Augen: drei harte Schnitte à 0,3 s – Ostende der Straße (Kap. 1), die Lichtsäule, Justins Hand an der Kreuzung
 async function weiss_blitze(nur) { const S = weiss_S, jg = S.jSil || S.jGhost; if (!jg) return; S.blitzOn = true; const par = jg.parent, p0 = jg.position.clone(), r0 = jg.rotation.y, fd = $('fade'), pk = pillarMat.uniforms.opacity.value, fog = [scene.fog.color.getHex(), scene.fog.density], ceil = S.ceil.map(c => c.visible);
@@ -32338,6 +32342,7 @@ enterWhite = async function () {
 // Raum 1 betreten / Ablauf in Nimmerheim (ersetzt c3WhiteUpdate der Basis: nur die Zeilen sind neu)
 c3WhiteUpdate = (o => function (dt, t) {
   const P = player.pos;
+  if (Math.abs(P.z - Z3) >= 60) return; // nur in Nimmerheim selbst: im ersten Takt nach part='white' steht Luke noch auf der Straße (Blende läuft) – sonst feuern „Dein Zimmer.“ unter der Blende und r1Seen, das Ziel wird von „Geh Justin nach.“ überschrieben
   if (!ch3.r1Seen && P.x > X3 + 8.6) { ch3.r1Seen = true; setC3('Finde, was nicht in diese Nacht gehört. Die Frage steht an der Tür.'); state.talking = true;
     say([['„Dein Zimmer.“', 1800, JS], ['„Nein. Seines. Der Abend, bevor er ging.“', 3200, JS]]).then(() => { state.talking = false; }); }
   return o(dt, t); })(c3WhiteUpdate);
@@ -32424,7 +32429,7 @@ async function weiss_tafelWahl(w) { const S = weiss_S; if (S.phase !== 'spuren')
   if (WEISS_F3.fehl === 2 && typeof whiskey_setzen === 'function') { const b = WEISS_F3.spots.handschuh.position; try { whiskey_setzen(b.x, b.y - .05, b.z); } catch (e) {} }
   if (WEISS_F3.fehl >= 3) { const b = WEISS_F3.spots.handschuh.position; const dx = b.x - camera.position.x, dy = b.y - camera.position.y, dz = b.z - camera.position.z; player.yaw = Math.atan2(-dx, -dz); player.pitch = Math.atan2(dy, Math.hypot(dx, dz)); }
   if (WEISS_F3.stellen.size >= 3) setTimeout(() => { if (!WEISS_F3.nachhilfe) { WEISS_F3.nachhilfe = true; subtitle('Einer von beiden hat die Hand noch zu.', 3400, 'LUKE'); } }, 1500); }
-async function weiss_gestaendnisF3() { const S = weiss_S; S.phase = 'gestaendnis'; for (const b of Object.values(WEISS_F3.spots || {})) uninteract(b); state.talking = true; justin.look = false;
+async function weiss_gestaendnisF3() { const S = weiss_S; S.phase = 'gestaendnis'; setC3('Der Hohe Abgrund. Nimm Justins Hand.'); // Ziel blieb sonst bis zur Wahl bei „Sieh dir die Hände an“ for (const b of Object.values(WEISS_F3.spots || {})) uninteract(b); state.talking = true; justin.look = false;
   await say([['Du sagst es nicht. Du siehst Justin an. Er sieht auf seine linke Hand. Er zieht den Handschuh aus. Die Handfläche: eine halbrunde Brandnarbe. Dieselbe wie deine.', 6400]]);
   await say([['Du hältst deine Hand daneben. Zwei halbe Monde.', 3200]]);
   await say([['„… Ihre Finger sind zu.“', 2600, JS], ['„Ich hab’s nicht gewollt. Es hat gebrannt, und ich hab geschrien, und dann war die Hand auf. Einfach auf. Wie vom Topf.“', 5600, JS],
@@ -32485,7 +32490,7 @@ weiss_teil2 = async function () { const S = weiss_S, CX = X3 + 42, CZ = Z3; S.ph
   await weiss_beat('step', null, 6000); state.talking = true;
   const P = player.pos, dx = CX - P.x, dz = CZ - P.z, d = Math.hypot(dx, dz) || 1; jWalk(P.x + dx / d * 1.1, P.z + dz / d * 1.1, () => { justin.look = true; justin_knien(true); }); await wait(2000);
   await say([['„Du bist aus mir gemacht. Du träumst ihre Träume. Sag mir, Knabe: Was will sie?“', 5200, JS]]);
-  state.talking = false; S.phase = 'wahl'; showChoice(); };
+  state.talking = false; S.phase = 'wahl'; setC3('Was will sie? Antworte Justin.'); showChoice(); };
 // „Noch eine Runde“: danach steht Lucy neben Luke und hält seine Hand (Hook um justin_runde, AP-12)
 if (typeof justin_runde === 'function') justin_runde = (o => async function (...a) { await o.apply(this, a); if (weiss_S.lucy) weiss_S.lucy.visible = false;
   await say([['Lucys Stuhl flackert. Dann steht sie neben dir, nass, und hält deine Hand. Richtig. Fünf Finger, abgekaute Nägel.', 5200], ['„Großer. Du atmest immer noch.“', 3000, 'LUCY']]); await wait(600); })(justin_runde);
@@ -42412,7 +42417,7 @@ function k6_gitter(dt) {
   if (near && K6.ag18) $('sideInfo').textContent = K6.holdT > 0 ? '▮'.repeat(Math.ceil(K6.holdT / 1.6 * 8)).padEnd(8, '▯') : '';
 }
 // Das Dorf ist gesperrt (Abnahme): diesseits des Gitters nur der Platz davor – Luke geht nicht zurück, und er sagt, warum
-function k6_sperre() { if (!K6.on || k6_ab('epilog')) return; const P = player.pos; if (P.z > 98.6) return; let hit = false;
+function k6_sperre() { if (!K6.on || k6_ab('epilog') || (typeof ZUST !== 'undefined' && ZUST.geladen)) return; /* Weiterspielen: bis der Spielort gesetzt ist, steht Luke noch am Kapitelanfang diesseits des Gitters */ const P = player.pos; if (P.z > 98.6) return; let hit = false;
   if (P.z < 86.5) { P.z = 86.5; hit = true; } if (P.x < 22.5) { P.x = 22.5; hit = true; } if (P.x > 38.5) { P.x = 38.5; hit = true; }
   if (hit) { vel.set(0, 0, 0); if (!K6.told.has('sperre') || (K6.sperreT || 0) < performance.now()) { K6.told.add('sperre'); K6.sperreT = performance.now() + 20000; k6_luke('Nein. Lucy schläft. Ich geh nicht zurück, bevor ich ihn gefunden hab.', 3200); } } }
 // ---------------------------------------------------------------- UK 1 · „Wildschaden“: AG-18 Wolter, Auftrag 2

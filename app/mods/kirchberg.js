@@ -74,7 +74,9 @@ function kirchberg_raum(def) {
   const R = { def, x0, x1, z0, z1, H, wm, fm, cm, boden, decke, g: new THREE.Group(), licht: [] }; R.g.name = 'kb_raum_' + def.id; scene.add(R.g);
   // Tür von innen (Scan-Tür, geschlossen) = Weg nach draußen
   if (def.tuer) { const [tx, tz, tr] = def.tuer; kirchberg_mod('door1', 'model.gltf', 2.08).then(d => { if (d) { d.position.set(tx, 0, tz); d.rotation.y = tr; R.g.add(d); } });
-    R.tuerHit = kirchberg_hit(1.2, 2.2, .5, tx, 1.1, tz, def.rausLabel || 'Hinausgehen', () => kirchberg_raus()); }
+    R.tuerHit = kirchberg_hit(1.2, 2.2, .5, tx, 1.1, tz, def.rausLabel || 'Hinausgehen', () => kirchberg_raus());
+    // die geschlossene Scan-Tür hatte keine Kollision, die Wandlücke war offen: man lief durch die Tür aus dem Raum hinaus ins Leere (Lauftest 14.10.: Kapelle, Schuppen, Nr. 4)
+    { const cb = box(1.1, H, .14, tx, H / 2, tz, hidden, { collide: true, cast: false }); cb.userData.noCol = true; const oi = occluders.indexOf(cb); if (oi >= 0) occluders.splice(oi, 1); } }
   kirchberg_S.raeume[def.id] = R; return R; }
 // R-6: Treppe mit Logik (auch für Keller Nr. 7, innen_ort.js). Lauf entlang z vom Fuß zA zum Kopf zB, n Stufen gleicher Steigung bis zum Podest auf y1:
 // Tritt- und Setzstufen, zwei Wangen, Geländer an der offenen Seite (offen: 'x0' | 'x1'), Podest (Tiefe podest, hinter zB). Ist die Decke im Weg (loch: [x0, x1, z0, z1]),

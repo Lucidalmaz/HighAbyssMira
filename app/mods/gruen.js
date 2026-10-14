@@ -596,7 +596,8 @@ async function gruen_dustBarrierBau() {
     setKid(on) { if (on === D.kid) return; D.kid = on; if (D.k === 0) pivB.rotation.set(0, 0, on ? .085 : 0); },
     setOpen(k) { D.k = k; const e = k * k * (3 - 2 * k); pivB.rotation.set(0, -1.15 * e, (D.kid ? .085 : 0) * (1 - e) + .05 * e); if (k >= 1 && !D.open) { D.open = true; col.minX = col.maxX = -9999; uninteract(hit); } } };
   interact(hit, () => D.open ? '' : (typeof wald_frei === 'function' && wald_frei()) ? 'Das Gitter aufbiegen (E halten)' : 'Absperrgitter',
-    () => { if (typeof wald_frei === 'function' && wald_frei()) return; Audio.play('metalHit2', { gain: .12, rate: .8 }); toast('Mit Draht an die Pfosten gebunden. Dahinter ist es still. Zu still.', 3800); });
+    () => { if (typeof k5 !== 'undefined' && k5.on && k5.beat === 'zaun' && typeof k5_gitter === 'function') return k5_gitter(); /* Kap. 5: dieselbe Fläche (Zielstrahl knapp unter der Kante der K5-Klickfläche) löst das Kapitelende aus, nicht den Wild-Hinweis */
+      if (typeof wald_frei === 'function' && wald_frei()) return; Audio.play('metalHit2', { gain: .12, rate: .8 }); toast('Mit Draht an die Pfosten gebunden. Dahinter ist es still. Zu still.', 3800); });
 }
 
 // =====================================================================  Fassung 3 (AP-15): Kapitel 1, Nebenaufgabe 18 „Wildschaden, 1992“ (Nordzaun, Z-03)

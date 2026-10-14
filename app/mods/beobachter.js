@@ -807,7 +807,7 @@ WORLD_TICK.push((dt, t) => {
   const S = beob_S; if (!S.ready) return;
   if (!S.item) { S.item = true; ITEMS.murmel = { name: 'Milchweiße Murmel', desc: 'Lag beim letzten Zettel des Beobachters. Sie ist warm. Im Dunkeln leuchtet sie ganz schwach – wie ein Auge, das zurücksieht.' }; } // ITEMS entsteht erst nach den Modulen
   const k = beob_ch();
-  if (k !== S.c.k) { S.c = beob_cNeu(k); S.stat.turns = 0; S.winNext = S.t + rand(240, 420); S.covers = null; if (S.peek) { beob_hide(); S.peek = null; } }
+  if (k !== S.c.k && !(typeof ZUST !== 'undefined' && ZUST.geladen && S.c.k > k)) { S.c = beob_cNeu(k); S.stat.turns = 0; S.winNext = S.t + rand(240, 420); S.covers = null; if (S.peek) { beob_hide(); S.peek = null; } }
   // Orts-Zettel: Stadt ab Kapitel 3, Wald ab Kapitel 6, „wrack“ erst nach der Fraßstelle (PK-A A29) – auch rückwärts (Kapitelwahl, Laden)
   const town = k >= 3, wald = k >= 6, spuren = wald && typeof hungrige_S !== 'undefined' && hungrige_S.done.has('spuren');
   for (const n of S.spots) { if (n.gone) continue; const want = town && (!BEOB_WALD[n.id] || (wald && (n.id !== 'wrack' || spuren)));

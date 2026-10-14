@@ -306,7 +306,7 @@ function k6_gitter(dt) {
   if (near && K6.ag18) $('sideInfo').textContent = K6.holdT > 0 ? '▮'.repeat(Math.ceil(K6.holdT / 1.6 * 8)).padEnd(8, '▯') : '';
 }
 // Das Dorf ist gesperrt (Abnahme): diesseits des Gitters nur der Platz davor – Luke geht nicht zurück, und er sagt, warum
-function k6_sperre() { if (!K6.on || k6_ab('epilog')) return; const P = player.pos; if (P.z > 98.6) return; let hit = false;
+function k6_sperre() { if (!K6.on || k6_ab('epilog') || (typeof ZUST !== 'undefined' && ZUST.geladen)) return; /* Weiterspielen: bis der Spielort gesetzt ist, steht Luke noch am Kapitelanfang diesseits des Gitters */ const P = player.pos; if (P.z > 98.6) return; let hit = false;
   if (P.z < 86.5) { P.z = 86.5; hit = true; } if (P.x < 22.5) { P.x = 22.5; hit = true; } if (P.x > 38.5) { P.x = 38.5; hit = true; }
   if (hit) { vel.set(0, 0, 0); if (!K6.told.has('sperre') || (K6.sperreT || 0) < performance.now()) { K6.told.add('sperre'); K6.sperreT = performance.now() + 20000; k6_luke('Nein. Lucy schläft. Ich geh nicht zurück, bevor ich ihn gefunden hab.', 3200); } } }
 // ---------------------------------------------------------------- UK 1 · „Wildschaden“: AG-18 Wolter, Auftrag 2

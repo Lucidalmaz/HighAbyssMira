@@ -973,6 +973,7 @@ const LEBEN_BELL313_SUB = ['Die Glocke auf dem Kirchberg. Drei Schläge. Pause.'
 function leben_uhrKap() { return typeof kap === 'function' ? kap() : curChapter(); }
 function leben_uhrSync() { // Kapitelwechsel (auch nach dem Laden): Uhr auf den Kapitelstart
   const K = leben_S.clk, k = leben_uhrKap(); if (K.kap === k) return K;
+  if (typeof ZUST !== 'undefined' && ZUST.geladen && K.kap > k) return K; // Weiterspielen: zwischen Einlesen und Kapitelstart steht kap() noch auf 1 – die gespeicherte Uhr nicht auf den Kapitelstart zurücksetzen
   const U = LEBEN_UHR[k] || LEBEN_UHR[1]; K.kap = k; K.min = U.start; K.h = Math.floor(U.start / 60); K.pend = 0; K.c3 = false; return K;
 }
 function leben_uhrCount(h) { const U = LEBEN_UHR[leben_S.clk.kap], hh = h % 24; if (!U) return 0; return U.schlag ? (U.schlag[hh] || 0) : (hh % 12 || 12); }
