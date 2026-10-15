@@ -31,3 +31,15 @@ Ladezeit 66,1 s (Ref. 70,1; Einzel 66,1/64,4/66,7), Modulphase 42,3 s, Grafik-Ho
 
 ## Bereiche
 Build GRUEN, Teleport/Fehler GRUEN, Kollision GRUEN (K3 erklaert), Stimmen GRUEN, Text weiter GRUEN (K2/K3 offen), Schweben GRUEN, Aufpoppen GRUEN, Speichern/Laden GELB, Kopf/Anim GELB (K6-Kraehe), Nahaufnahmen GELB, Leistung GELB (Strasse p95 knapp, Gate bestanden).
+
+## Nachtrag 15.10. abends (Folgeauftrag: Strasse, Warnung, Rest)
+Rohdaten ausserhalb des Repos: `C:\Users\GIGABYTE\_f2\` (`res.log`, `o_*`). Keine Spielcode-Aenderung, daher kein neuer Gate-Mehrfachlauf (Code = a6a8169, Gate dort bestanden).
+
+| # | Punkt | Ergebnis | Beleg | Note |
+|---|---|---|---|---|
+| 1 | Strasse p95 | Keine Code-Regression. Gleiche Messung (Kreuzung, Strasse, 25-s-Fenster, frischer Prozess): HEAD a6a8169 66,8-78,7 ms (4 Laeufe), `?aniso=1` 72,7-84,8, `?nomerge` 78,7, `?nolightreg` 78,7, `?nowarm` 72,8, `?novram` 72,8, `?noktxfree` 72,7/72,8; aelterer Stand 5e2b50b 72,7/72,7; Stand 12.10. (fbeb073, Baseline-Zeitpunkt) 84,9 (schlechter). Die Referenz 54,4 ms ist unter heutigen Bedingungen auch mit altem Code nicht reproduzierbar (Bildzeiten in Vielfachen von 6,06 ms, Spitzenbloecke von ca. 2 s mit 60-85 ms, p50 30-36 ms, Strasse = 860 Zeichenaufrufe). Streuung des Messfensters, nicht Aenderung. Anisotropie, Zusammenfuehren, Lichtregister, Vorwaermen, KTX-Freigabe sind nicht die Ursache | `_f2/res.log` | GELB-erklaert (kein Fix; Referenz bleibt 54,4, Gate-Grenze 79,3 knapp) |
+| 2 | Warnung "image is incomplete" | Quelle: `ktxTrack`/`ktxSweep` (Basis, KTX-Freigabe): freigegebene KTX-Quellen melden `image.complete === false`, bis die Daten zurueck sind; betroffen Textur-Kopien (GLB-Klone, z. B. `spinne_winkel/winkel_lo_albedo`), die erst nach der Freigabe erstmals gezeichnet werden. Gewollt (Design-Kommentar in der Basis). Die Konsole bekommt die Meldung nicht: Testhaken zaehlten Aufrufe vor dem Filter (54-257 je Lauf); echte Konsolenzeilen "incomplete" in Basislaeufen: 0 (`o_base`, `o_nomerge`, `o_novram` result.json). Mit `?noktxfree`: 0 Aufrufe. Nicht durch stream.js-Fix oder vram.js verursacht (`?novram` gleich) | `_f2/res.log` | GRUEN (harmlos belegt) |
+| 3 | Speichern/Laden K2..K6, Text weiter K2/K3 | nicht durchgefuehrt (Zeit) | - | GELB offen |
+| 4 | Kraehen-Kopfsprung K6 | nicht untersucht (Zeit) | - | GELB offen |
+| 5 | Nahaufnahme Katze | Katze ANNI 2,4 m, Lampe/Debug-Licht an, Kopf zur Kamera, Gesicht/Schnurrhaare/Augen erkennbar | `fotos_final_1510/nah_katze_anni_1510.png` | GRUEN |
+| 5 | Nahaufnahme Whiskey | Schritt lief in Zeitlimit (Anflug), kein verwertbares Bild | - | GELB offen |
