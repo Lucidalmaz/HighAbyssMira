@@ -44672,6 +44672,10 @@ WORLD_TICK.push((dt, t) => { const S = bw_S; if (!S.ready) return; S.t -= dt;
   for (let i = 0; i < S.liste.length; i++) { const E = S.liste[i], on = !!E.D.aktiv(); if (E.g.visible !== on) E.g.visible = on; }
   if (S.t <= 0) { S.t = .3; const P = player.pos;
     if (!S.kapOk && bw_nah(P, KB_KAP.x, 82, 30)) { S.kapOk = true; try { bw_kapelleHit(); } catch (e) { console.warn('bewohnt: Kapellenfenster', e); } }
+    // 15.10. Vorwaermen: im Menue (vor "Neues Spiel") nach und nach alle Raeume bauen und deren Programme in der Warteschlange der Shader-Wache uebersetzen lassen, damit das erste Betreten
+    // im Spiel keinen Bau-/Programm-Ruckler (bis 415 ms) kostet. Ein Raum je ~2 s, hoert beim Spielstart auf (dann wie bisher beim Naeherkommen). Aus: ?nowarm
+    if (!S.halt && !S.bau && !state.started && !LITE && !/nowarm/.test(location.search) && typeof menu !== 'undefined' && menu.attract && (S.warmN = (S.warmN || 0) + 1) > 12) { S.warm = S.warm || new Set();
+      const D = BW_RAEUME.find(d => !S.gebaut.has(d.id) && !S.warm.has(d.id)); if (D) { S.warm.add(D.id); S.warmN = 6; bw_vorher(D.id, 0); } }
     if (!S.halt && !S.bau && state.started) for (const D of BW_RAEUME) { if (S.gebaut.has(D.id)) continue; let v = false; try { v = D.vorab(P); } catch (e) {} if (v) { bw_vorher(D.id, 0); break; } } }
   for (let i = 0; i < S.flammen.length; i++) { const f = S.flammen[i]; if (!f.g.visible) continue; const k = .85 + Math.sin(t * 9 + f.seed) * .08 + Math.sin(t * 23 + f.seed * 2) * .06; f.fl.scale.set(.04 * k, .075 * k, 1); } });
 // Fülllicht mit Quelle (visual_identity.md §2): Nr. 4 und Kapelle waren zu dunkel. Streulicht der brennenden Lampen/Kerzen und des Mondes durch die Fenster –
@@ -45969,7 +45973,7 @@ function hl_visuals(o) { // sichtbare Meshes zum Klickobjekt (gecacht in userDat
   else { // unsichtbare Klickfläche: die Modelle aus der Nahliste (hl_scan), deren Mitte darin liegt
     if (HL.resolveN <= 0) return null; HL.resolveN--; const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox();
     const B = HL.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld).expandByScalar(.12), lim = B.getSize(HL.v).length() * .75 + .25, N = HL.near;
-    for (let i = 0; i < N.length && V.length < 12; i++) { const m = N[i]; if (m === o || !m.parent) continue; HL.s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld); if (HL.s.radius < lim && B.containsPoint(HL.s.center)) V.push(m); } }
+    for (let i = 0; i < N.length && V.length < 12; i++) { const m = N[i]; if (m === o || !m.parent || !m.geometry) continue; /* 15.10.: Form ohne Huelle (Tausch/Streaming) liess den Takt ausfallen */ if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere(); HL.s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld); if (HL.s.radius < lim && B.containsPoint(HL.s.center)) V.push(m); } }
   if (V.length) return (u.hlV = V); u.hlVt = HL.t + 3; return null; } // noch nichts geladen: in 3 s wieder versuchen
 
 // Nahliste: die Szene wird über mehrere Bilder verteilt durchlaufen (je Bild höchstens 500 Knoten), gesammelt werden kleine sichtbare Modelle bis 14 m um Luke

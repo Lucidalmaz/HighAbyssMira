@@ -52,7 +52,7 @@ function hl_visuals(o) { // sichtbare Meshes zum Klickobjekt (gecacht in userDat
   else { // unsichtbare Klickfläche: die Modelle aus der Nahliste (hl_scan), deren Mitte darin liegt
     if (HL.resolveN <= 0) return null; HL.resolveN--; const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox();
     const B = HL.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld).expandByScalar(.12), lim = B.getSize(HL.v).length() * .75 + .25, N = HL.near;
-    for (let i = 0; i < N.length && V.length < 12; i++) { const m = N[i]; if (m === o || !m.parent) continue; HL.s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld); if (HL.s.radius < lim && B.containsPoint(HL.s.center)) V.push(m); } }
+    for (let i = 0; i < N.length && V.length < 12; i++) { const m = N[i]; if (m === o || !m.parent || !m.geometry) continue; /* 15.10.: Form ohne Huelle (Tausch/Streaming) liess den Takt ausfallen */ if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere(); HL.s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld); if (HL.s.radius < lim && B.containsPoint(HL.s.center)) V.push(m); } }
   if (V.length) return (u.hlV = V); u.hlVt = HL.t + 3; return null; } // noch nichts geladen: in 3 s wieder versuchen
 
 // Nahliste: die Szene wird über mehrere Bilder verteilt durchlaufen (je Bild höchstens 500 Knoten), gesammelt werden kleine sichtbare Modelle bis 14 m um Luke
