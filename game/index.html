@@ -19779,12 +19779,17 @@ function welt_regel(l, m, by) {
   for (const R of WELT_REGELN) { if (!R[0].test(l)) continue; const o = R[4] || {}; if (o.yMax != null && by > o.yMax) continue; if (o.yMin != null && by < o.yMin) continue; return R; }
   return null; }
 // kleine, dünne Platzhalter innerhalb der Klickfläche einsammeln (nur Grundkörper; echte Modelle bleiben)
+// 15.10.: Ein Szenendurchlauf je Tick und Scan (statt je Klickfläche: bis zu 6 x 20-40 ms am Stück = „Nr.-7-Eintritt“-Ruckler, Profil welt_scan/welt_alte 106-194 ms), interactables als Set
+function welt_cands() {
+  const S = WELT; if (S.cand && S.candT === S.t) return S.cand; const IA = new Set(interactables), out = [];
+  scene.traverse(o => { if (!o.isMesh || !o.geometry || o.isInstancedMesh || o.isSkinnedMesh || (o.material && o.material.visible === false)) return; if (o.layers.mask === 1 << 7) return; if (IA.has(o)) return;
+    if (!welt_chain(o)) return; o.updateWorldMatrix(true, false); const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); const B = S.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld);
+    const sz = B.getSize(S.v); if (Math.max(sz.x, sz.y, sz.z) > .9) return; const prim = WELT_PRIM.test(g.type) && (g.type === 'PlaneGeometry' || Math.min(sz.x, sz.y, sz.z) < .12 || Math.max(sz.x, sz.y, sz.z) < .6);
+    B.getCenter(S.v); out.push({ o, x: S.v.x, y: S.v.y, z: S.v.z, prim }); });
+  S.cand = out; S.candT = S.t; return out; }
 function welt_alte(m, bb) {
-  const out = [], X = WELT.b2.copy(bb).expandByScalar(.1); let echt = 0;
-  scene.traverse(o => { if (!o.isMesh || o === m || !o.geometry || o.isInstancedMesh || o.isSkinnedMesh || (o.material && o.material.visible === false)) return; if (o.layers.mask === 1 << 7) return; if (interactables.includes(o)) return;
-    if (!welt_chain(o)) return; o.updateWorldMatrix(true, false); const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); const B = WELT.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld);
-    const sz = B.getSize(WELT.v); if (Math.max(sz.x, sz.y, sz.z) > .9) return; B.getCenter(WELT.v); if (!X.containsPoint(WELT.v)) return;
-    if (WELT_PRIM.test(g.type) && (g.type === 'PlaneGeometry' || Math.min(sz.x, sz.y, sz.z) < .12 || Math.max(sz.x, sz.y, sz.z) < .6)) out.push(o); else echt++; });
+  const out = [], X = WELT.b2.copy(bb).expandByScalar(.1); let echt = 0, C = welt_cands(), v = WELT.v;
+  for (const c of C) { if (c.o === m) continue; v.set(c.x, c.y, c.z); if (!X.containsPoint(v)) continue; if (c.prim) out.push(c.o); else echt++; }
   return { out, echt }; }
 async function welt_bau(m, R, label) {
   const S = WELT, [, key, size, lage, opt = {}] = R; if (typeof inv3d_lade !== 'function') return null;
@@ -46988,9 +46993,12 @@ function schweben_pruefe(u, S, Wd) {
 }
 function schweben_verschiebe(root, dx, dy, dz) { root.updateWorldMatrix(true, false); const w0 = new THREE.Vector3().setFromMatrixPosition(root.matrixWorld), w1 = w0.clone().add(new THREE.Vector3(dx, dy, dz));
   if (root.parent) { const l0 = root.parent.worldToLocal(w0.clone()), l1 = root.parent.worldToLocal(w1.clone()); root.position.add(l1.sub(l0)); } else root.position.add(new THREE.Vector3(dx, dy, dz)); root.updateMatrixWorld(true); }
-function schweben_pass(rect, opt = {}) {
-  const res = { geprueft: 0, gesenkt: 0, versetzt: 0, gehoben: 0, zeilen: [] }; const S = schweben_flaechen(), Wd = schweben_waende(); SCHW.cache = schweben_cache();
-  for (const u of schweben_einheiten(rect)) { const r = schweben_pruefe(u, S, Wd); res.geprueft++; if (!r) continue; res.zeilen.push([r.key, r.k, r.gap, ...r.p, r.typ, r.abstand || 0]);
+// 15.10.: als Generator (yield = Zeitscheibe zu Ende): die Erstpruefung beim Betreten eines Innenraums lief als ein Stueck (Profil: 4 x ~110 ms am Nr.-7-Eintritt, Szenendurchlaeufe + Strahlen);
+// schweben_pass fuehrt unveraendert synchron aus (Pruefwerkzeuge), schweben_passAsync verteilt auf 6-ms-Scheiben.
+function* schweben_passGen(rect, opt = {}) {
+  const res = { geprueft: 0, gesenkt: 0, versetzt: 0, gehoben: 0, zeilen: [] }; const S = schweben_flaechen(); yield; const Wd = schweben_waende(); yield; SCHW.cache = schweben_cache(); yield;
+  let t0 = performance.now(); const EH = schweben_einheiten(rect); yield; t0 = performance.now();
+  for (const u of EH) { if (performance.now() - t0 > 6) { yield; t0 = performance.now(); } const r = schweben_pruefe(u, S, Wd); res.geprueft++; if (!r) continue; res.zeilen.push([r.key, r.k, r.gap, ...r.p, r.typ, r.abstand || 0]);
     if (opt.apply === false || r.k === 'gut' || r.k === 'haengt' || r.k === 'ungeklaert') continue;
     const innen = (typeof indoorRects !== 'undefined') && indoorRects.some(q => r.p[0] > q.x0 && r.p[0] < q.x1 && r.p[2] > q.zb && r.p[2] < q.zf);
     if (!innen && (r.k === 'neben' || (r.k === 'schwebt' && /^(Plane|Circle|Boden|Ring|Shape)/.test(r.typ)))) continue; // draußen: Bordstein/Sockel/Platten sind keine Meshes mit Kollision → keine Eingriffe ohne echte Auflage
@@ -47000,6 +47008,10 @@ function schweben_pass(rect, opt = {}) {
     SCHW.cache = schweben_cache(); }
   SCHW.cache = null; SCHW.stats.geprueft += res.geprueft; SCHW.stats.gesenkt += res.gesenkt + res.versetzt + res.gehoben; return res;
 }
+function schweben_pass(rect, opt = {}) { const g = schweben_passGen(rect, opt); let r; do { r = g.next(); } while (!r.done); return r.value; }
+function schweben_passAsync(rect, opt, done) { const Q = SCHW.q || (SCHW.q = []); Q.push([rect, opt, done]); if (SCHW.qBusy) return; SCHW.qBusy = true;
+  const next = () => { const it = Q.shift(); if (!it) { SCHW.qBusy = false; return; } const g = schweben_passGen(it[0], it[1]);
+    const step = () => { let r; try { r = g.next(); } catch (e) { console.warn('schweben', e); SCHW.cache = null; setTimeout(next, 0); return; } if (r.done) { try { if (it[2]) it[2](r.value); } catch (e) {} setTimeout(next, 0); } else setTimeout(step, 0); }; step(); }; next(); }
 // ---------------------------------------------------------------- Decals (Boden: Kreide-Pfeile, Blut, Spuren · Wand: Ritzschrift, Blut, Zettel)
 // decal_auf_flaeche(mesh, cands): Boden-Decal per Strahl auf Bodenhöhe + 0,6 cm; Wand-Decal senkrecht auf die sichtbare Oberfläche + 0,4 cm (nicht in der Wand, nicht davor
 // schwebend). Dazu Texturqualität: Anisotropie 8, Mipmaps, polygonOffset gegen Flimmern. Liefert { art, gap, zu } für die Audit-Tabelle.
@@ -47039,7 +47051,7 @@ function schweben_decals(rect, done) {
 WORLD_TICK.push((dt, t, indoor) => { SCHW.t += dt; if (SCHW.t < 1.5) return; SCHW.t = 0;
   try { const P = player.pos; const R = (typeof indoorRects !== 'undefined') ? indoorRects.find(r => P.x > r.x0 && P.x < r.x1 && P.z > r.zb && P.z < r.zf) : null; if (!R) return;
     const id = Math.round(R.x0) + ',' + Math.round(R.zb); if (SCHW.done.has(id)) return;
-    SCHW.done.add(id); setTimeout(() => { try { const rr = { x0: R.x0, x1: R.x1, z0: R.zb, z1: R.zf }; schweben_pass(rr, { apply: true }); schweben_decals(rr); } catch (e) { console.warn('schweben', e); } }, 2500); } catch (e) {} });
+    SCHW.done.add(id); setTimeout(() => { try { const rr = { x0: R.x0, x1: R.x1, z0: R.zb, z1: R.zf }; schweben_passAsync(rr, { apply: true }, () => { try { schweben_decals(rr); } catch (e) { console.warn('schweben', e); } }); } catch (e) { console.warn('schweben', e); } }, 2500); } catch (e) {} });
 setInterval(schweben_index, 4000); // Modell→Schlüssel-Zuordnung laufend nachführen (Modelle laden asynchron)
 window.__schweben = { decalKand: schweben_decalKand, istDecal: schweben_istDecal, index: schweben_index, decStats: () => SCHW.decStats, decals: schweben_decals, decal_auf_flaeche, pass: schweben_pass, auf_flaeche, einheiten: schweben_einheiten, log: SCHW.log, stats: SCHW.stats, done: SCHW.done,
   pruefen: rect => schweben_pass(rect, { apply: false }) };
@@ -50960,6 +50972,23 @@ function ktx_fast(p, si, loader) {
     const prom = p.getDependency('bufferView', def.bufferView).then(buf => new Promise((res, rej) => loader.parse(buf, res, rej))).then(t => {
       if (def.extras && typeof def.extras === 'object') Object.assign(t.userData, def.extras); t.userData.mimeType = def.mimeType || 'image/ktx2'; return t; });
     p.sourceCache[si] = prom; return prom; } catch (e) { return null; } }
+// Schutz (15.10.): Hochladen ohne CPU-Daten. Eine Quelle ist schon hochgeladen und freigegeben (ktxSweep), eine NEUE Textur mit gleicher Quelle, aber anderer Sampler-Kombination
+// (Wiederholung/Anisotropie) wird zum ersten Mal gezeichnet -> three.js ruft compressedTexSubImage2D mit data = null auf (TypeError, Textur bleibt schwarz, weil die Version als hochgeladen gilt).
+// Jetzt: Aufruf ohne Daten wird uebersprungen (kein Throw), die Quelle wiederhergestellt und angeheftet, danach Neu-Upload (needsUpdate).
+STR.fixQ = []; STR.nFix = 0; STR.fixTry = new Map();
+function str_fixNoData(gl) {
+  const h = gl.getParameter(gl.TEXTURE_BINDING_2D), R = renderer.properties; if (!h) return; let t = null;
+  for (const rec of STR.list) { for (const x of rec.texs) { const p = R.get(x); if (p && p.__webglTexture === h) { t = x; break; } } if (t) break; }
+  if (!t) scene.traverse(o => { if (t || !o.material) return; for (const m of Array.isArray(o.material) ? o.material : [o.material]) for (const k in m) { const x = m[k]; if (x && x.isCompressedTexture) { const p = R.get(x); if (p && p.__webglTexture === h) { t = x; return; } } } });
+  if (!t || STR.fixQ.includes(t)) return; const s = t.source; s.__kpin = true; STR.fixQ.push(t); STR.nFix++; if (!s.__kbusy && s.__kre) ktxRestore(s);
+}
+{ const P = WebGL2RenderingContext.prototype, o = P.compressedTexSubImage2D;
+  P.compressedTexSubImage2D = function (a0, a1, a2, a3, a4, a5, a6, a7, ...r) {
+    if (typeof a7 === 'number' || ArrayBuffer.isView(a7)) return o.call(this, a0, a1, a2, a3, a4, a5, a6, a7, ...r);
+    try { str_fixNoData(this); } catch (e) {} };
+  setInterval(() => { try { const q = STR.fixQ; for (let i = q.length - 1; i >= 0; i--) { const t = q[i], s = t.source; if (s.__kbusy) continue;
+      if (t.mipmaps.every(m => m && m.data)) { t.needsUpdate = true; s.__kpin = false; q.splice(i, 1); STR.fixTry.delete(t); }
+      else { const n = (STR.fixTry.get(t) || 0) + 1; STR.fixTry.set(t, n); if (n > 12 || !s.__kre) { s.__kpin = false; q.splice(i, 1); STR.fixTry.delete(t); } else ktxRestore(s); } } } catch (e) {} }, 100); }
 window.__stream = STR; window.__streamStats = stream_stats;
 // =====================================================================  ZUSAMMENFÜHREN (Modul „merge“, Leistung 15.10.2026)
 // Ein Fahrzeug (Sketchfab/Fab-Sedan) besteht aus 92–94 Einzelmeshes mit je eigenem Material = 70+ Zeichenaufrufe je Wagen (gemessen: ≈ 25 µs je statischem

@@ -88,9 +88,12 @@ function schweben_pruefe(u, S, Wd) {
 }
 function schweben_verschiebe(root, dx, dy, dz) { root.updateWorldMatrix(true, false); const w0 = new THREE.Vector3().setFromMatrixPosition(root.matrixWorld), w1 = w0.clone().add(new THREE.Vector3(dx, dy, dz));
   if (root.parent) { const l0 = root.parent.worldToLocal(w0.clone()), l1 = root.parent.worldToLocal(w1.clone()); root.position.add(l1.sub(l0)); } else root.position.add(new THREE.Vector3(dx, dy, dz)); root.updateMatrixWorld(true); }
-function schweben_pass(rect, opt = {}) {
-  const res = { geprueft: 0, gesenkt: 0, versetzt: 0, gehoben: 0, zeilen: [] }; const S = schweben_flaechen(), Wd = schweben_waende(); SCHW.cache = schweben_cache();
-  for (const u of schweben_einheiten(rect)) { const r = schweben_pruefe(u, S, Wd); res.geprueft++; if (!r) continue; res.zeilen.push([r.key, r.k, r.gap, ...r.p, r.typ, r.abstand || 0]);
+// 15.10.: als Generator (yield = Zeitscheibe zu Ende): die Erstpruefung beim Betreten eines Innenraums lief als ein Stueck (Profil: 4 x ~110 ms am Nr.-7-Eintritt, Szenendurchlaeufe + Strahlen);
+// schweben_pass fuehrt unveraendert synchron aus (Pruefwerkzeuge), schweben_passAsync verteilt auf 6-ms-Scheiben.
+function* schweben_passGen(rect, opt = {}) {
+  const res = { geprueft: 0, gesenkt: 0, versetzt: 0, gehoben: 0, zeilen: [] }; const S = schweben_flaechen(); yield; const Wd = schweben_waende(); yield; SCHW.cache = schweben_cache(); yield;
+  let t0 = performance.now(); const EH = schweben_einheiten(rect); yield; t0 = performance.now();
+  for (const u of EH) { if (performance.now() - t0 > 6) { yield; t0 = performance.now(); } const r = schweben_pruefe(u, S, Wd); res.geprueft++; if (!r) continue; res.zeilen.push([r.key, r.k, r.gap, ...r.p, r.typ, r.abstand || 0]);
     if (opt.apply === false || r.k === 'gut' || r.k === 'haengt' || r.k === 'ungeklaert') continue;
     const innen = (typeof indoorRects !== 'undefined') && indoorRects.some(q => r.p[0] > q.x0 && r.p[0] < q.x1 && r.p[2] > q.zb && r.p[2] < q.zf);
     if (!innen && (r.k === 'neben' || (r.k === 'schwebt' && /^(Plane|Circle|Boden|Ring|Shape)/.test(r.typ)))) continue; // draußen: Bordstein/Sockel/Platten sind keine Meshes mit Kollision → keine Eingriffe ohne echte Auflage
@@ -100,6 +103,10 @@ function schweben_pass(rect, opt = {}) {
     SCHW.cache = schweben_cache(); }
   SCHW.cache = null; SCHW.stats.geprueft += res.geprueft; SCHW.stats.gesenkt += res.gesenkt + res.versetzt + res.gehoben; return res;
 }
+function schweben_pass(rect, opt = {}) { const g = schweben_passGen(rect, opt); let r; do { r = g.next(); } while (!r.done); return r.value; }
+function schweben_passAsync(rect, opt, done) { const Q = SCHW.q || (SCHW.q = []); Q.push([rect, opt, done]); if (SCHW.qBusy) return; SCHW.qBusy = true;
+  const next = () => { const it = Q.shift(); if (!it) { SCHW.qBusy = false; return; } const g = schweben_passGen(it[0], it[1]);
+    const step = () => { let r; try { r = g.next(); } catch (e) { console.warn('schweben', e); SCHW.cache = null; setTimeout(next, 0); return; } if (r.done) { try { if (it[2]) it[2](r.value); } catch (e) {} setTimeout(next, 0); } else setTimeout(step, 0); }; step(); }; next(); }
 // ---------------------------------------------------------------- Decals (Boden: Kreide-Pfeile, Blut, Spuren · Wand: Ritzschrift, Blut, Zettel)
 // decal_auf_flaeche(mesh, cands): Boden-Decal per Strahl auf Bodenhöhe + 0,6 cm; Wand-Decal senkrecht auf die sichtbare Oberfläche + 0,4 cm (nicht in der Wand, nicht davor
 // schwebend). Dazu Texturqualität: Anisotropie 8, Mipmaps, polygonOffset gegen Flimmern. Liefert { art, gap, zu } für die Audit-Tabelle.
@@ -139,7 +146,7 @@ function schweben_decals(rect, done) {
 WORLD_TICK.push((dt, t, indoor) => { SCHW.t += dt; if (SCHW.t < 1.5) return; SCHW.t = 0;
   try { const P = player.pos; const R = (typeof indoorRects !== 'undefined') ? indoorRects.find(r => P.x > r.x0 && P.x < r.x1 && P.z > r.zb && P.z < r.zf) : null; if (!R) return;
     const id = Math.round(R.x0) + ',' + Math.round(R.zb); if (SCHW.done.has(id)) return;
-    SCHW.done.add(id); setTimeout(() => { try { const rr = { x0: R.x0, x1: R.x1, z0: R.zb, z1: R.zf }; schweben_pass(rr, { apply: true }); schweben_decals(rr); } catch (e) { console.warn('schweben', e); } }, 2500); } catch (e) {} });
+    SCHW.done.add(id); setTimeout(() => { try { const rr = { x0: R.x0, x1: R.x1, z0: R.zb, z1: R.zf }; schweben_passAsync(rr, { apply: true }, () => { try { schweben_decals(rr); } catch (e) { console.warn('schweben', e); } }); } catch (e) { console.warn('schweben', e); } }, 2500); } catch (e) {} });
 setInterval(schweben_index, 4000); // Modell→Schlüssel-Zuordnung laufend nachführen (Modelle laden asynchron)
 window.__schweben = { decalKand: schweben_decalKand, istDecal: schweben_istDecal, index: schweben_index, decStats: () => SCHW.decStats, decals: schweben_decals, decal_auf_flaeche, pass: schweben_pass, auf_flaeche, einheiten: schweben_einheiten, log: SCHW.log, stats: SCHW.stats, done: SCHW.done,
   pruefen: rect => schweben_pass(rect, { apply: false }) };

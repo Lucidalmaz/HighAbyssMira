@@ -52,12 +52,17 @@ function welt_regel(l, m, by) {
   for (const R of WELT_REGELN) { if (!R[0].test(l)) continue; const o = R[4] || {}; if (o.yMax != null && by > o.yMax) continue; if (o.yMin != null && by < o.yMin) continue; return R; }
   return null; }
 // kleine, dünne Platzhalter innerhalb der Klickfläche einsammeln (nur Grundkörper; echte Modelle bleiben)
+// 15.10.: Ein Szenendurchlauf je Tick und Scan (statt je Klickfläche: bis zu 6 x 20-40 ms am Stück = „Nr.-7-Eintritt“-Ruckler, Profil welt_scan/welt_alte 106-194 ms), interactables als Set
+function welt_cands() {
+  const S = WELT; if (S.cand && S.candT === S.t) return S.cand; const IA = new Set(interactables), out = [];
+  scene.traverse(o => { if (!o.isMesh || !o.geometry || o.isInstancedMesh || o.isSkinnedMesh || (o.material && o.material.visible === false)) return; if (o.layers.mask === 1 << 7) return; if (IA.has(o)) return;
+    if (!welt_chain(o)) return; o.updateWorldMatrix(true, false); const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); const B = S.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld);
+    const sz = B.getSize(S.v); if (Math.max(sz.x, sz.y, sz.z) > .9) return; const prim = WELT_PRIM.test(g.type) && (g.type === 'PlaneGeometry' || Math.min(sz.x, sz.y, sz.z) < .12 || Math.max(sz.x, sz.y, sz.z) < .6);
+    B.getCenter(S.v); out.push({ o, x: S.v.x, y: S.v.y, z: S.v.z, prim }); });
+  S.cand = out; S.candT = S.t; return out; }
 function welt_alte(m, bb) {
-  const out = [], X = WELT.b2.copy(bb).expandByScalar(.1); let echt = 0;
-  scene.traverse(o => { if (!o.isMesh || o === m || !o.geometry || o.isInstancedMesh || o.isSkinnedMesh || (o.material && o.material.visible === false)) return; if (o.layers.mask === 1 << 7) return; if (interactables.includes(o)) return;
-    if (!welt_chain(o)) return; o.updateWorldMatrix(true, false); const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox(); const B = WELT.b.copy(g.boundingBox).applyMatrix4(o.matrixWorld);
-    const sz = B.getSize(WELT.v); if (Math.max(sz.x, sz.y, sz.z) > .9) return; B.getCenter(WELT.v); if (!X.containsPoint(WELT.v)) return;
-    if (WELT_PRIM.test(g.type) && (g.type === 'PlaneGeometry' || Math.min(sz.x, sz.y, sz.z) < .12 || Math.max(sz.x, sz.y, sz.z) < .6)) out.push(o); else echt++; });
+  const out = [], X = WELT.b2.copy(bb).expandByScalar(.1); let echt = 0, C = welt_cands(), v = WELT.v;
+  for (const c of C) { if (c.o === m) continue; v.set(c.x, c.y, c.z); if (!X.containsPoint(v)) continue; if (c.prim) out.push(c.o); else echt++; }
   return { out, echt }; }
 async function welt_bau(m, R, label) {
   const S = WELT, [, key, size, lage, opt = {}] = R; if (typeof inv3d_lade !== 'function') return null;
