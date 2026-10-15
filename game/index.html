@@ -30984,6 +30984,50 @@ function stimmen_dauer(t, who) { try { if (!st_an()) return 0; const ids = st_fi
 function stimmen_pegel() { return ST.env; }
 function stimmen_sprecher() { return ST.cur.length ? ST.stimme : ''; }
 
+// ---------------------------------------------------------------- Umgebungseinbettung (Seele-Auftrag 15.10.): Stimmen sitzen im Raum statt obenauf
+// Nur Stimmen der Welt ('welt'): Raum-EQ (Mulm raus, Präsenz) je Umgebung · eigener kurzer Raum (prozedurale Impulsantwort, EIN ConvolverNode, Wet 8–25 %) für
+// Stimmen ohne Ort · Pegel gegen das Bett (Atmosphäre + Musik gemessen) statt fester Lautstärke · minimale Zeilen-Streuung. Entfernung, Verdeckung und Raumhall der
+// Ortsstimmen liefert unverändert raumklang.js (Audio.at). Funk/Telefon/Band/gefressene Stimmen/Rabenmund bleiben wie bisher. Abschalten: ?nostimmenfx oder settings.stimmenFx=false.
+const st_fxAn = () => { try { return !/[?&]nostimmenfx/i.test(location.search) && settings.stimmenFx !== false; } catch (e) { return true; } };
+// Nachhallzeit s · Abklingexponent · Tiefpass Hz · Vorverzögerung s · Wet · Raum-EQ [Mulm 250 Hz dB, Präsenz 3,2 kHz dB] · frühe Reflexionen [Zeit s, Pegel]
+const ST_RAUM = {
+  klein:     [.34, 4.4, 5200, .003, .09, [-2.5, 1.2], [[.006, .5], [.011, .4], [.017, .3]]],
+  gross:     [.80, 3.4, 5600, .010, .14, [-2.0, 1.0], [[.012, .45], [.023, .4], [.037, .3], [.051, .25]]],
+  gekachelt: [.65, 2.6, 9000, .005, .20, [-1.5, 0.6], [[.004, .6], [.009, .5], [.015, .45], [.024, .35]]],
+  keller:    [1.20, 3.0, 4800, .008, .22, [-1.0, -.5], [[.011, .5], [.019, .45], [.029, .4], [.043, .3]]],
+  kirche:    [2.10, 2.8, 4200, .020, .25, [-1.5, 0.5], [[.020, .4], [.041, .35], [.067, .3]]],
+  aussen:    [.55, 4.8, 3200, .030, .08, [-1.5, 0.8], [[.045, .30], [.110, .22], [.190, .15]]] };
+function st_raumTyp() { try { const A = Audio, r = A.room;
+  if (A.lsp === 'u' || r === 'concrete') return 'keller'; if (r === 'hall') return 'kirche'; if (r === 'out' || A.lsp === 'o' || A.lsp === undefined) return 'aussen';
+  const R = typeof indoorRects !== 'undefined' ? indoorRects[A.lsp] : null; if (R) { const fl = (R.x1 - R.x0) * (R.zf - R.zb); if (fl > 75) return 'gross'; if (fl < 14) return 'gekachelt'; }
+  return 'klein'; } catch (e) { return 'klein'; } }
+function st_ir(c, typ) { ST.irs = ST.irs || {}; if (ST.irs[typ]) return ST.irs[typ]; const [sec, dec, cut, pre, , , er] = ST_RAUM[typ], sr = c.sampleRate, n = Math.floor(sr * sec), p0 = Math.floor(sr * pre), a = Math.exp(-2 * Math.PI * cut / sr), b = c.createBuffer(2, n, sr);
+  for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); let lp = 0;
+    for (let i = p0; i < n; i++) { lp = lp * a + (Math.random() * 2 - 1) * (1 - a); d[i] = lp * Math.pow(1 - (i - p0) / (n - p0), dec) * 2.2 * Math.min(1, (i - p0) / (sr * .012)); }
+    for (const [t, g] of er) { const i = Math.floor(sr * t * (1 + (ch ? .07 : -.05))); if (i < n) d[i] += (Math.random() < .5 ? -1 : 1) * g * .6; } }
+  return ST.irs[typ] = b; }
+// Bus für Stimmen ohne Ort: trocken + Raumanteil über EINEN Faltungsknoten (Impulsantwort wird beim Raumwechsel in der Sprechpause getauscht)
+function st_fxBus(c) { if (ST.fx) return ST.fx; const A = Audio, inn = c.createGain(), dry = c.createGain(), send = c.createGain(), conv = c.createConvolver(), wet = c.createGain();
+  inn.connect(dry); dry.connect(A.master); inn.connect(send); send.connect(conv); conv.connect(wet); wet.connect(A.master); wet.gain.value = 1; send.gain.value = 0;
+  // Pegelfühler: Bett (Atmosphäre) und Musik, nur lesend
+  const mk = n => { const an = c.createAnalyser(); an.fftSize = 1024; n.connect(an); return an; };
+  const bed = A.bedTrim ? mk(A.bedTrim) : null, mus = A.mus && A.mus.talk ? mk(A.mus.talk) : null;
+  return ST.fx = { inn, dry, send, conv, typ: '', bed, mus, tmp: new Float32Array(1024) }; }
+function st_fxRaum(c) { const F = st_fxBus(c), typ = st_raumTyp(), t = c.currentTime; if (typ !== F.typ) { const w = ST_RAUM[typ][4];
+    if (!F.typ || !ST.cur.length) { F.conv.buffer = st_ir(c, typ); F.typ = typ; } else return F;      // laufende Stimme: erst nach der Pause tauschen
+    F.send.gain.setTargetAtTime(w, t, .15); F.wet = w; }
+  return F; }
+const st_rmsDb = (an, buf) => { if (!an) return -90; an.getFloatTimeDomainData(buf); let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i]; return 10 * Math.log10(s / buf.length + 1e-12); };
+function st_pegel(b) { if (!b) return -19; if (b._lev !== undefined) return b._lev; const d = b.getChannelData(0), N = Math.floor(b.sampleRate * .05), E = [];
+  for (let i = 0; i + N <= d.length; i += N) { let s = 0; for (let k = i; k < i + N; k++) s += d[k] * d[k]; E.push(s / N); } E.sort((x, y) => y - x);
+  const top = E.slice(0, Math.max(1, Math.floor(E.length * .5))); return b._lev = 10 * Math.log10(top.reduce((s, v) => s + v, 0) / top.length + 1e-12); }
+// Zielabstand Sprache über dem Bett ≈ +11 dB (Aufnahmen: −16 LUFS); Korrektur in engen Grenzen, damit weder Regen die Stimme schluckt noch sie in der Stille obenauf liegt
+function st_gegenBett(c, b) { try { const F = ST.fx; if (!F || !F.bed) return 1; const bd = Math.max(st_rmsDb(F.bed, F.tmp), st_rmsDb(F.mus, F.tmp) - 3), vd = st_pegel(b);
+    const g = Math.max(-3.5, Math.min(3, bd + 11 - vd)); return Math.pow(10, g / 20); } catch (e) { return 1; } }
+function st_eq(c, typ) { const [, , , , , [mulm, praes]] = ST_RAUM[typ], hp = c.createBiquadFilter(), m = c.createBiquadFilter(), p = c.createBiquadFilter(), lp = c.createBiquadFilter();
+  hp.type = 'highpass'; hp.frequency.value = 85; hp.Q.value = .6; m.type = 'peaking'; m.frequency.value = 260; m.Q.value = .9; m.gain.value = mulm; p.type = 'peaking'; p.frequency.value = 3200; p.Q.value = .8; p.gain.value = praes;
+  lp.type = 'lowpass'; lp.frequency.value = 9500; lp.Q.value = .5; hp.connect(m); m.connect(p); p.connect(lp); return [hp, lp]; }
+
 // ---------------------------------------------------------------- Abspielen
 function st_ziel(c, art, pos, gain) { const A = Audio, g = c.createGain(); g.gain.value = gain;
   if (art === 'funk') { const hp = c.createBiquadFilter(), lp = c.createBiquadFilter(), pk = c.createBiquadFilter(), ws = c.createWaveShaper();
@@ -30995,8 +31039,10 @@ function st_ziel(c, art, pos, gain) { const A = Audio, g = c.createGain(); g.gai
   if (art === 'trocken') { const p = c.createPanner(); p.panningModel = 'HRTF'; p.distanceModel = 'inverse'; p.refDistance = 3; p.rolloffFactor = 1;
     const q = pos || [camera.position.x, camera.position.y, camera.position.z - .5]; if (p.positionX) { p.positionX.value = q[0]; p.positionY.value = q[1]; p.positionZ.value = q[2]; } else p.setPosition(q[0], q[1], q[2]);
     g.connect(p); p.connect(A.master); return g; }
-  if (pos) { const p = A.at(pos[0], pos[1], pos[2], 2.4); g.connect(p); return g; }
-  g.connect(A.world); return g; }
+  if (!st_fxAn()) { if (pos) { const p = A.at(pos[0], pos[1], pos[2], 2.4); g.connect(p); return g; } g.connect(A.world); return g; }
+  const F = st_fxRaum(c), [eqIn, eqOut] = st_eq(c, F.typ || st_raumTyp()); g.connect(eqIn);
+  if (pos) { const p = A.at(pos[0], pos[1], pos[2], 2.4); eqOut.connect(p); return g; }       // Ort: Entfernung/Verdeckung/Raumhall wie bisher (raumklang.js)
+  eqOut.connect(F.inn); return g; }                                                                  // ohne Ort: nah, eigener Raum
 function st_art(who, stimme, key) {
   if (key && /^whiskey_/.test(key) || /^WHISKEY/.test(who || '')) return 'rabe';
   if (ST_FUNK.test(who || '') || stimme === 'funk_blechmann' || stimme === 'lautsprecher' || stimme === 'radio' || stimme === 'kuehn' || stimme === 'jonas') return 'funk';
@@ -31022,8 +31068,10 @@ async function st_spiele(ids, who, pos, key) { const A = Audio, c = A.ctx; if (!
   if (rest > 0 && rest < 1.4) t0 += rest + .12; else st_stop();
   if (!ST.ana) { ST.ana = c.createAnalyser(); ST.ana.fftSize = 512; ST.tmp = new Float32Array(ST.ana.fftSize); }
   const vol = st_vol() * (ST.man.z[ids[0]][4] || 1) * (art === 'funk' ? .8 : art === 'trocken' ? 1.1 : art === 'rabe' ? 1 : stimme === 'luke' && !wo ? .85 : 1); // die eigene Stimme etwas zurück; trockene gefressene Stimmen lagen gemessen 5 dB unter den Weltstimmen → angehoben; der Rabenmund-Bandpass nimmt je Zeile 5–15 dB: Ausgleich steht im Manifest (z[4], spiel/gains.json)
+  let fxG = 1; if (art === 'welt' && st_fxAn()) { try { st_fxRaum(c); fxG = st_gegenBett(c, bufs.find(Boolean)) * Math.pow(10, (Math.random() * 1.2 - .6) / 20); } catch (e) {} }   // Pegel gegen das Bett, ±0,6 dB je Zeile
+  ST.fxG = fxG;
   bufs.forEach((b, i) => { if (!b) return; const src = c.createBufferSource(); src.buffer = b; if (art === 'rabe') src.playbackRate.value = 1.12;
-    const g = st_ziel(c, art, wo, vol * (ids.length > 1 ? [1, .8, .7][i] || .6 : 1)); src.connect(g); src.connect(ST.ana); const ts = t0 + i * [0, .05, .11][Math.min(i, 2)];
+    const g = st_ziel(c, art, wo, vol * fxG * (ids.length > 1 ? [1, .8, .7][i] || .6 : 1)); src.connect(g); src.connect(ST.ana); const ts = t0 + i * [0, .05, .11][Math.min(i, 2)];
     src.start(ts); const h = { src, g, ende: ts + b.duration / src.playbackRate.value, id: ids[i], b, t0: ts, rate: src.playbackRate.value }; src.onended = () => { if (ST.halt) return; const k = ST.cur.indexOf(h); if (k >= 0) ST.cur.splice(k, 1); }; ST.cur.push(h); });
   // Luna: leise Spieluhr darunter (gleiche Zinken wie im Amt)
   if (stimme === 'luna' && art !== 'funk' && typeof lucy3_tines === 'function') try { const bg = c.createGain(); bg.gain.value = .32 * st_vol(); bg.connect(wo ? A.at(wo[0], wo[1], wo[2], 2.4) : A.world); lucy3_tines(bufs[0].duration + .4, bg, .5); if (ST.cur[0]) ST.cur[0].box = bg; } catch (e) {}
@@ -31090,10 +31138,11 @@ WORLD_MODS.push(['Stimmen', async () => {
   if (typeof tod_zurueck === 'function') try { tod_zurueck = (o => function () { try { st_stop(.15); } catch (e) {} return o.apply(this, arguments); })(tod_zurueck); } catch (e) {}
   // LWO-Gespräche warten wie say() auf das Ende der Stimme
   if (typeof lwo_ms === 'function') lwo_ms = (o => (text, ms) => { const d = o(text, ms), v = stimmen_dauer(text, ''); return v ? Math.max(d, v * 1000 + 300) : d; })(lwo_ms);
+  try { if (st_fxAn() && typeof MUSIC !== 'undefined' && MUSIC.talk < .5) MUSIC.talk = .5; } catch (e) {}   // Musik unter Sprache −6 dB statt −10 (Bett: bedBus −4 dB in klang.js bleibt)
   st_ladeManifest();
   window.__stimmen = { S: ST, finde: st_finde, spiele: (t, who, pos) => st_spiele(st_finde(t, who), who || '', pos || null), dauer: stimmen_dauer, init: () => Audio.init(),
     sub: (t, ms, who) => subtitle(t, ms, who), kino: (t, who, ms) => typeof kino_sag === 'function' && kino_sag(t, who, ms),
-    zustand: () => ({ man: ST.man ? Object.keys(ST.man.z).length : 0, cur: ST.cur.map(h => h.id), art: ST.art, env: +ST.env.toFixed(3), ctx: Audio.ctx && Audio.ctx.state, fehl: ST.fehl, an: st_an() }) };
+    zustand: () => ({ fx: st_fxAn() ? (ST.fx ? ST.fx.typ + ' wet ' + (ST.fx.wet || 0) : 'bereit') : 'aus', fxG: +(ST.fxG || 1).toFixed(2), man: ST.man ? Object.keys(ST.man.z).length : 0, cur: ST.cur.map(h => h.id), art: ST.art, env: +ST.env.toFixed(3), ctx: Audio.ctx && Audio.ctx.state, fehl: ST.fehl, an: st_an() }) };
 }]);
 WORLD_TICK.push(() => { // Hüllkurve für Mundbewegung (nur solange gesprochen wird)
   if (!ST.cur.length) { if (ST.env) { ST.env = 0; if (typeof figuren_mund === 'function') try { figuren_mund(ST.stimme, 0); } catch (e) {} } return; }
@@ -47496,9 +47545,9 @@ WORLD_TICK.push(dt => { try { if (IAP_G.act.length) iap_geraetTick(dt); } catch 
 (function () { let plate = null, tried = 0; const keyPos = { 1: [-1, -1.5], 2: [0, -1.5], 3: [1, -1.5], 4: [-1, -.5], 5: [0, -.5], 6: [1, -.5], 7: [-1, .5], 8: [0, .5], 9: [1, .5], 0: [0, 1.5] };
   const find = () => { let root = null; scene.traverse(o => { if (!root && o.userData && o.userData.msKey === 'bed_keypad/model.fbx') root = o; }); if (!root) return null; const L = iap_geraetTeile(root); const big = []; root.traverse(m => { if (m.isMesh && m.geometry) { const cs = iap_komponenten(m); for (const c of cs) { const s = c.bb.getSize(new THREE.Vector3()); if (s.x > .09 && s.y > .1 && Math.min(s.x, s.y, s.z) < .03 && c.tris.length > 100 && s.y < .2) big.push({ m, c }); } } });
     if (!big.length) return null; big.sort((a, b) => a.c.tris.length - b.c.tris.length); const t = { m: big[0].m, c: big[0].c, axis: 'z', ctr: big[0].c.bb.getCenter(new THREE.Vector3()) }; iap_geraetBau(t); return t; };
-  let alt = null; const wrapped = function (d) { try { if (!plate && tried++ < 3) plate = find(); if (plate) { const k = keyPos[d] || [0, 0]; plate.k = 0; plate.mode = 'wipp'; plate.kx = k[0]; plate.ky = k[1]; if (!IAP_G.act.includes(plate)) IAP_G.act.push(plate); } } catch (e) {} return alt.apply(this, arguments); };
+  let alt = null, base = null, inW = false; const wrapped = function (d) { try { if (!plate && tried++ < 3) plate = find(); if (plate) { const k = keyPos[d] || [0, 0]; plate.k = 0; plate.mode = 'wipp'; plate.kx = k[0]; plate.ky = k[1]; if (!IAP_G.act.includes(plate)) IAP_G.act.push(plate); } } catch (e) {} if (inW) return base.apply(this, arguments); inW = true; try { return alt.apply(this, arguments); } finally { inW = false; } }; // Wiedereintritt (bedienung.js hat uns als „orig“ gemerkt) → ursprüngliche Fassung, sonst Endlosschleife
   // andere Module setzen kpPress später neu (bedienung.js, kapitel1.js): alle 1,5 s die aktuelle Fassung einhängen
-  setInterval(() => { try { if (typeof kpPress === 'function' && kpPress !== wrapped) { alt = kpPress; kpPress = wrapped; } } catch (e) {} }, 1500);
+  setInterval(() => { try { if (typeof kpPress === 'function' && kpPress !== wrapped) { alt = kpPress; if (!base) base = alt; kpPress = wrapped; } } catch (e) {} }, 1500);
 })();
 
 IAP.G = IAP_G;

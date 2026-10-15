@@ -239,9 +239,9 @@ WORLD_TICK.push(dt => { try { if (IAP_G.act.length) iap_geraetTick(dt); } catch 
 (function () { let plate = null, tried = 0; const keyPos = { 1: [-1, -1.5], 2: [0, -1.5], 3: [1, -1.5], 4: [-1, -.5], 5: [0, -.5], 6: [1, -.5], 7: [-1, .5], 8: [0, .5], 9: [1, .5], 0: [0, 1.5] };
   const find = () => { let root = null; scene.traverse(o => { if (!root && o.userData && o.userData.msKey === 'bed_keypad/model.fbx') root = o; }); if (!root) return null; const L = iap_geraetTeile(root); const big = []; root.traverse(m => { if (m.isMesh && m.geometry) { const cs = iap_komponenten(m); for (const c of cs) { const s = c.bb.getSize(new THREE.Vector3()); if (s.x > .09 && s.y > .1 && Math.min(s.x, s.y, s.z) < .03 && c.tris.length > 100 && s.y < .2) big.push({ m, c }); } } });
     if (!big.length) return null; big.sort((a, b) => a.c.tris.length - b.c.tris.length); const t = { m: big[0].m, c: big[0].c, axis: 'z', ctr: big[0].c.bb.getCenter(new THREE.Vector3()) }; iap_geraetBau(t); return t; };
-  let alt = null; const wrapped = function (d) { try { if (!plate && tried++ < 3) plate = find(); if (plate) { const k = keyPos[d] || [0, 0]; plate.k = 0; plate.mode = 'wipp'; plate.kx = k[0]; plate.ky = k[1]; if (!IAP_G.act.includes(plate)) IAP_G.act.push(plate); } } catch (e) {} return alt.apply(this, arguments); };
+  let alt = null, base = null, inW = false; const wrapped = function (d) { try { if (!plate && tried++ < 3) plate = find(); if (plate) { const k = keyPos[d] || [0, 0]; plate.k = 0; plate.mode = 'wipp'; plate.kx = k[0]; plate.ky = k[1]; if (!IAP_G.act.includes(plate)) IAP_G.act.push(plate); } } catch (e) {} if (inW) return base.apply(this, arguments); inW = true; try { return alt.apply(this, arguments); } finally { inW = false; } }; // Wiedereintritt (bedienung.js hat uns als „orig“ gemerkt) → ursprüngliche Fassung, sonst Endlosschleife
   // andere Module setzen kpPress später neu (bedienung.js, kapitel1.js): alle 1,5 s die aktuelle Fassung einhängen
-  setInterval(() => { try { if (typeof kpPress === 'function' && kpPress !== wrapped) { alt = kpPress; kpPress = wrapped; } } catch (e) {} }, 1500);
+  setInterval(() => { try { if (typeof kpPress === 'function' && kpPress !== wrapped) { alt = kpPress; if (!base) base = alt; kpPress = wrapped; } } catch (e) {} }, 1500);
 })();
 
 IAP.G = IAP_G;
