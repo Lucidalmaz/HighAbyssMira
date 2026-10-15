@@ -44,3 +44,22 @@ per Skript versetzt werden) – ehrlich: **kein belastbarer Nachher-Bildbeleg au
 1. Fledermaus im Spiel nochmals bildlich (6,5 m, Massstab 1,5) + Pegel der Rufe pruefen, Perf-Rauchlauf.
 2. Kuh, Ratte, Schwein, Fliegen, Motten, Vogelspinne verbessern (Reihenfolge nach Sichtbarkeit: Ratte > Fliegen/Motten > Kuh > Spinne).
 3. Tier-Fotos im Spiel: Tiere nicht per Skript versetzen, sondern per `Nahe gehen` an echten Standorten (S.spots) fotografieren.
+
+## 4. Pruefung im Spiel (15.10.2026, Kurswechsel: nur pruefen, nichts neu bauen) – ehrlicher Stand
+Ein gebuendelter Lauf (`_run_locked`, Kapitel 1, Nacht, Spieler zum Tier versetzt, je 3 Bilder in 2 s; Skripte `C:\Users\GIGABYTE\HAM_Tiere\mk_belege.py`, Bilder `HAM_Tiere\belege\out1`).
+**Ergebnis: keine belastbaren Tierbilder.** In den 3 Bildern je Tier ist das Tier nicht sichtbar (Dunkelheit/Taschenlampenkegel an der Stelle, Soft-Sichtbarkeit `auftritt.js`,
+Erzaehl-Overlays/Untertitel); Fliege, Motte, Katze, Hirsch, Wolf hatten keinen aktiven Standort (Getter null bzw. [0,0,0]); Bruno/Kuh: Skriptfehler (`THREE` im Eval-Bereich nicht definiert).
+Daher **keine Note vergeben** – die Schaetzwerte aus Abschnitt 2 bleiben Schaetzungen.
+
+| Tier | Note vorher (Schaetzung) | Note nachher (Bild) | praegnant | Bildpfad |
+|---|---|---|---|---|
+| Fledermaus | 5 (Altmodell) | 2 (Vorschau, `sheet_flap_*`); Spiel bei Massstab 1,5: Bild fehlt (`out1/bat_*.png` zeigt es nicht) | ja | `tier_audit_bilder/sheet_flap_vorn.png` |
+| alle uebrigen (Ratte, Kraehe, Fuchs, Schwein, Katze, Whiskey, Hirsch, Wolf, Kuh, Fliege, Motte, Spinnen, Bruno, Goldfisch) | s. Abschnitt 2 | **nicht belegt** | – | – |
+
+### Naechster Lauf (offen, ca. 20 min Instanzzeit)
+1. Tiere an ihren echten Standorten fotografieren statt Versetzen: `S.spots`/`S.rats[i].g`, Katzen via `__katzen.spawn/place`, Fliegen `S.swarms`, Wendigo `__wd.zeige`; Taschenlampe auf das Tier (`__leben.flash(true)` + Blick), Untertitel/Fibel vorher schliessen; `THREE` ueber `__k6.ev('THREE')` holen.
+2. Danach erst Note je Tier; Korrekturen nur bei Note >= 3 und klein.
+
+### Zurueckgenommene Vorschlaege (nichts davon im Repo, abgelegt in `C:\Users\GIGABYTE\HAM_Tiere\vorschlag`)
+Waehrend des Auftrags entstanden vor dem Kurswechsel: Blender-Kuh (`kuh_bau.py`, 5 698 Dreiecke, Holstein, gleiche DEF-Knochennamen), Motten als Mesh (`motte_bau.py`, 192 Dreiecke) mit InstancedMesh-Einbau,
+Fliege auf 3,6 k Dreiecke dezimiert, echte Ratten-/Fliegenklaenge (freesound CC0: 143125, 217767, 288941, 574107; 352057). Alles wieder aus dem Repo entfernt; Einbau nur mit Freigabe.
