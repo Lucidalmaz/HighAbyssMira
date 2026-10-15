@@ -623,7 +623,7 @@ function leben_batTick(dt, t, live) {
   const S = leben_S, P = player.pos, show = S.zone === 'town' && !ch3.lampsOff;
   for (const b of S.bats) { b.ph += dt * b.sp; const d = Math.hypot(b.g.position.x - P.x, b.g.position.z - P.z), v = show && d < 58; if (b.g.visible !== v) b.g.visible = v; if (!v && Math.hypot(b.cx - P.x, b.cz - P.z) > 45) continue;
     if (v && d < 40) b.mx.update(dt);
-    const x = b.cx + Math.cos(b.ph) * b.r + Math.sin(b.ph * 2.9) * 1.2, y = b.h + Math.sin(b.ph * 2.3) * 1.3, z = b.cz + Math.sin(b.ph) * b.r * .7 + Math.cos(b.ph * 3.3) * .8;
+    let x = b.cx + Math.cos(b.ph) * b.r + Math.sin(b.ph * 2.9) * 1.2, y = b.h + Math.sin(b.ph * 2.3) * 1.3, z = b.cz + Math.sin(b.ph) * b.r * .7 + Math.cos(b.ph * 3.3) * .8;
     { const dx = x - P.x, dz = z - P.z, dd = Math.hypot(dx, dz); if (dd < 9) { const f = dd > .01 ? 9 / dd : 0; x = dd > .01 ? P.x + dx * f : P.x + 9; z = dd > .01 ? P.z + dz * f : P.z; } if (y < P.y + 5) y = P.y + 5; } // 15.10.: nie naeher als 9 m, nie unter 5 m ueber dem Kopf
     const px = b.g.position.x, pz = b.g.position.z; b.g.position.set(x, y, z); b.g.rotation.y = Math.atan2(x - px, z - pz); }
   for (let i = S.eaten.length - 1; i >= 0; i--) { const e = S.eaten[i]; e.t -= dt; if (e.t < 0) { e.d.h = e.h; S.eaten.splice(i, 1); } } // neue Motten finden das Licht
