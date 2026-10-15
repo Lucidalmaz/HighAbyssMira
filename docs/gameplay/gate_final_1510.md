@@ -55,3 +55,16 @@ Rohdaten ausserhalb des Repos: `C:\Users\GIGABYTE\_f3\` (`run.log`, `o_cyc<k>`, 
 | 4 | Nahaufnahme Whiskey | Anflug lief durch (Modus fly, 1,83 m), aber das Bild zeigt die Fibel-Karte "Raender" ueber der Szene, Whiskey nicht im Bild; kein verwertbares Foto, nicht ins Repo uebernommen | `_f3/o_whisk/w2.png` | GELB offen |
 
 Instanz gestoppt, Sperre frei, keine Electron-Reste. Commit enthaelt `zimmer7.js` und diesen Nachtrag.
+
+## Nachtrag 15.10. spaet 2 (Folgeauftrag a-d)
+Rohdaten: `C:\Users\GIGABYTE\_f3\` (`run3.log`, `run4.log`, `o_c_*`, `o_d_*`, `o_whisk3`).
+
+| # | Punkt | Ergebnis | Note |
+|---|---|---|---|
+| a | zimmer7-Fix im Spiel | K2 frischer Prozess: Schluessel am Haken genommen (archiveSolved false), Save, Neuladen, Weiterspielen: `z7_S.took` true, `ch2.fuseKey` true, Haken-Modell aus (`keyOn` unsichtbar), Item `fuse` genau 1x | GRUEN |
+| b1 | K4 Schublade (iap) | Ursache: Klickflaeche der Schublade (kiffen-Fundort Grinder) steht nach dem Laden nicht in `interactables` (Fund schon genommen) -> `IAP.pend` wurde nie abgearbeitet (vorher `pend=[Schreibtischschublade|-1400.5|0.7|1424.4]` nach 25 s). Fix `interaktion.js`: Pending-Wiederherstellung sucht zusaetzlich alle 6 s ueber die Szene nach `userData.kf`-Klickflaechen. Nach Fix: `open=[Schreibtischschublade...]`, `pend=[]` nach dem Laden | GRUEN |
+| b2 | Tuer-Flags K2/K5 | `doors` = [offen, verschlossen]; `applySave` stellt nur `offen` wieder her (Schloss kommt aus der Kapitel-Logik, Fuehrungstuer ausgenommen). K2: Tuer 0 (22,-12, Kapitel-1-Tuer) im frischen Prozess verschlossen, im Hook-Lauf aus Kap. 1 offen = Testprozess-Unterschied; Tuer 2 (632,-2598, Amt/Zimmer 7) nach Laden entsperrt statt gesperrt (Spieler steht schon drinnen, nichts blockiert). K5: eine offene Tuer nach Laden zu. Kein Fortschritts- oder Sperrfehler, nicht geaendert | GRUEN (erklaert) |
+| c | Nahaufnahme Whiskey | 1,7 m vor der Kamera, Fibel zu (overlay null), Modus perch: Silhouette, Gefieder und Kopf erkennbar, Gesicht/Auge im Nachtlicht dunkel (kein Debuglicht in diesem Lauf, Strassenlampen dahinter) -> `fotos_final_1510/nah_whiskey_1510.png` | GELB (lesbar als Rabe, Details dunkel) |
+| d | Kraehen-Kopfsprung | Clip geprueft (GLB `animal_crow`/`rabe_kraehe`, `ANIM_Crow_IdleLookAround`): Kopfspur 106 Keys, groesster Schritt 9 Grad/Key (0,033 s), Naht 0 Grad -> **nicht** der Clip. Whiskey-Kopfueberlagerung `whiskey_headApply`: Geschwindigkeit begrenzt (max ca. 9 Grad/Bild, Bereich +-0,95 rad) -> nicht die Ursache. `leben_play` startet gleiche Clips nicht neu (`a === V.cur`). Ursache der 113-171-Grad-Spruenge bei 1 von 35 Rigs (stehend, Sichtbar, Tiefe 3 Gruppen) nicht ermittelt; nicht gefixt (kein klarer Verursacher, nicht prominent) | GELB offen |
+
+Build: `node --check` interaktion.js/zimmer7.js, `build.js`, `assemble --release` laufen. Instanz gestoppt.
