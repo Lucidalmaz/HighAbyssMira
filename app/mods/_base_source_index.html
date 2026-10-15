@@ -5700,7 +5700,7 @@ function rigFarShow() { for (const r of RIGS.hid) r.visible = true; RIGS.hid.len
 //    Bilder, in denen Mond- oder Laternenschatten neu entstehen, zeichnen weiter alles; die Taschenlampe leuchtet nur ins Blickfeld.
 //    Gruppen mit Lichtern, Kameras, Instanzen, Figuren oder Dingen ohne Sichtprüfung werden nicht als Ganzes ausgeblendet, sondern ihre Teile einzeln betrachtet.
 const SHADOW_FREI = { on: false }; // leistung.js Abschnitt 17 schaltet ein
-const VCULL = { list: [], n: -1, t: 0, i: 0, fr: new THREE.Frustum(), m: new THREE.Matrix4(), v: new THREE.Vector3(), M: 4, box: new THREE.Box3(), sp: new THREE.Sphere() };
+const VCULL = { sliced: true, gen: null, RF: 8, fx: 0, fy: 0, fz: 1, cx: 1e9, cy: 0, cz: 0, Q: 3, ph: 0, hl: [], list: [], n: -1, t: 0, i: 0, fr: new THREE.Frustum(), m: new THREE.Matrix4(), v: new THREE.Vector3(), M: 4, box: new THREE.Box3(), sp: new THREE.Sphere() };
 function vcullBounds(E) { const o = E.o; VCULL.box.setFromObject(o); if (VCULL.box.isEmpty()) { E.r = -1; return; } VCULL.box.getBoundingSphere(VCULL.sp);
   o.updateWorldMatrix(true, false); E.c.copy(VCULL.sp.center).applyMatrix4(VCULL.m.copy(o.matrixWorld).invert()); E.r = VCULL.sp.radius / Math.max(1e-6, o.matrixWorld.getMaxScaleOnAxis()); }
 function vcullBuild() {
@@ -5710,17 +5710,39 @@ function vcullBuild() {
     if (!bad(o)) { box.setFromObject(o); if (box.isEmpty()) return; if (box.getBoundingSphere(sp).radius <= 40) { const E = { o, c: new THREE.Vector3(), r: 0 }; vcullBounds(E); list.push(E); return; } }
     if (d < 3) for (const c of o.children) consider(c, d + 1); };
   scene.updateMatrixWorld(true); for (const c of scene.children) consider(c, 0);
-  VCULL.list = list; VCULL.n = scene.children.length;
+  VCULL.list = list; VCULL.hl = []; VCULL.n = scene.children.length;
+}
+// 15.10.: Neuaufbau in Zeitscheiben (≈ 3 ms je Bild) statt am Stück (gemessen beim Gehen: vcullHide 76–118 ms + scene.updateMatrixWorld(true) 36–58 ms in einem Bild, ein paar Mal je Minute,
+//    sobald irgendein Modul ein Kind an die Szene hängt). Gleiche Auswahl wie vcullBuild; die alte Liste bleibt bis zum Tausch in Gebrauch.
+function* vcullBuildGen() {
+  const list = [], box = new THREE.Box3(), sp = new THREE.Sphere(), n0 = scene.children.length; let t0 = performance.now();
+  const bad = o => { let b = false; o.traverse(x => { if (x.isLight || x.isCamera || x.isSkinnedMesh || x.isInstancedMesh || x.isBatchedMesh || x.frustumCulled === false && (x.isMesh || x.isPoints || x.isLine || x.isSprite)) b = true; }); return b; };
+  function* consider(o, d) { if (o.isLight || o.isCamera || o === sky) return;
+    if (!bad(o)) { box.setFromObject(o); if (box.isEmpty()) return; if (box.getBoundingSphere(sp).radius <= 40) { const E = { o, c: new THREE.Vector3(), r: 0 }; vcullBounds(E); list.push(E); return; } }
+    if (d < 3) for (const c of o.children.slice()) { if (c.parent !== o) continue; yield* consider(c, d + 1); if (performance.now() - t0 > 3) { yield 0; t0 = performance.now(); } } }
+  for (const c of scene.children.slice()) { if (c.parent !== scene) continue; c.updateMatrixWorld(true); yield* consider(c, 0); if (performance.now() - t0 > 3) { yield 0; t0 = performance.now(); } }
+  VCULL.list = list; VCULL.hl = []; VCULL.n = n0;
 }
 function vcullHide() {
   const shUpd = moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate; if (shUpd && !SHADOW_FREI.on) return; // Schattenbild entsteht neu → alles mitnehmen (mit SHADOW_FREI: Hauptbild bleibt ausgelesen, leistung.js blendet die Teile nur für den Schattendurchlauf ein; Figuren bleiben dann sichtbar, ihre Knochen müssen aktuell sein)
-  if (VCULL.n !== scene.children.length && performance.now() > VCULL.t) { VCULL.t = performance.now() + 5000; vcullBuild(); } // neu geladene Kapitel
+  if (VCULL.gen) { try { if (VCULL.gen.next().done) VCULL.gen = null; } catch (e) { VCULL.gen = null; console.warn('Leistung: vcull-Aufbau', e); } }
+  else if (VCULL.n !== scene.children.length && performance.now() > VCULL.t) { VCULL.t = performance.now() + 5000; if (VCULL.n < 0 || !VCULL.sliced) vcullBuild(); else { VCULL.gen = vcullBuildGen(); } } // neu geladene Kapitel (erster Aufbau am Stück, danach in Zeitscheiben)
   const L = VCULL.list; if (!L.length) return;
-  for (let k = 0; k < 8; k++) { const E = L[VCULL.i++ % L.length]; if (E.o.visible) vcullBounds(E); } // Hüllen laufend auffrischen (Türen, verschobene Teile)
+  for (let k = 0; k < VCULL.RF; k++) { const E = L[VCULL.i++ % L.length]; if (E.o.visible) vcullBounds(E); } // Hüllen laufend auffrischen (Türen, verschobene Teile)
   camera.updateMatrixWorld(); const fr = VCULL.fr; fr.setFromProjectionMatrix(VCULL.m.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse)); const P = fr.planes, v = VCULL.v;
   const out = (r) => { for (let j = 0; j < 6; j++) if (P[j].distanceToPoint(v) < -r) return true; return false; };
-  for (const E of L) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
-    v.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); if (out(E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + VCULL.M)) { o.visible = false; RIGS.hid.push(o); } }
+  // 15.10.: Entscheidung je Gruppe nur jedes VCULL.Q-te Bild neu (reihum), die Merkliste der verborgenen wird jedes Bild angewandt. Verborgen wird mit 5 m mehr Sicherheitsrand (Entscheidung ist ≤ Q-1 Bilder alt:
+  //    schnelles Drehen ändert das Blickfeld um ≈ 5° je Bild), Wiederzeigen mit dem alten Rand. Nebel schluckt jenseits ≈ 70 m ohnehin alles.
+  const hl = VCULL.hl, hid = RIGS.hid, Q = VCULL.Q > 1 ? VCULL.Q : 1;
+  const far = (E, o, M) => { const e = o.matrixWorld.elements; v.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); return out(E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + M); };
+  if (Q > 1) {
+    for (let j = hl.length - 1; j >= 0; j--) { const E = hl[j]; if (!E.vh) { hl[j] = hl[hl.length - 1]; hl.pop(); continue; } const o = E.o; if (o.visible && o.parent) { o.visible = false; hid.push(o); } }
+    const M2 = VCULL.M + 5, ce = camera.matrixWorld.elements, fdot = ce[8] * VCULL.fx + ce[9] * VCULL.fy + ce[10] * VCULL.fz, mv = Math.abs(ce[12] - VCULL.cx) + Math.abs(ce[13] - VCULL.cy) + Math.abs(ce[14] - VCULL.cz);
+    const step = fdot < .99985 || mv > .4 ? 1 : Q; // Kamera dreht > 1° oder springt > 0,4 m je Bild: alles neu prüfen (kein Aufpoppen beim schnellen Drehen), sonst reihum
+    VCULL.fx = ce[8]; VCULL.fy = ce[9]; VCULL.fz = ce[10]; VCULL.cx = ce[12]; VCULL.cy = ce[13]; VCULL.cz = ce[14];
+    for (let i = (VCULL.ph++) % step, N = L.length; i < N; i += step) { const E = L[i], o = E.o; if (E.r < 0 || !o.parent) { E.vh = false; continue; }
+      if (E.vh) { if (!far(E, o, VCULL.M)) E.vh = false; } else if (o.visible && far(E, o, M2)) { E.vh = true; hl.push(E); o.visible = false; hid.push(o); } }
+  } else for (const E of L) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; if (far(E, o, VCULL.M)) { o.visible = false; hid.push(o); } }
   if (!shUpd) for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const e = r.matrixWorld.elements; v.set(e[12], e[13], e[14]); if (out(g.size + 2 + VCULL.M)) { r.visible = false; RIGS.hid.push(r); } }
 }
 // 8) Winzige Einzelteile nur fürs Zeichnen auslassen (wie 6/7: direkt nach dem Bild ist alles wieder da – Logik, Strahltests, Kollision merken nichts).
@@ -5728,7 +5750,7 @@ function vcullHide() {
 //    Unterhalb der Augenhöhe (Hintergrund ist dort Boden/Nebel, nie Himmel) zählt zusätzlich der Nebel: Radius × Nebel-Durchlass < DCULL.T, aber nur bis DCULL.MAX Pixel.
 //    Nur normal beleuchtete, nicht leuchtende Materialien mit Nebel; keine Figuren, Instanzen, eigenen Shader, Glas/Additiv. Bilder mit neuem Schattenbild zeichnen alles.
 //    Gemessen vorher: auf der Straße 40–60 % aller Zeichenaufrufe für Teile unter einem Pixel oder im Nebel.
-const DCULL = { list: [], n: -1, t: 0, i: 0, T: 1, MAX: 3, sz: new THREE.Vector2(), obr: THREE.Object3D.prototype.onBeforeRender, off: false, Q: 4, ph: 0, act: [], cx: 1e9, cy: 0, cz: 0, K: 0, fd: -1 };
+const DCULL = { list: [], n: -1, t: 0, i: 0, T: 1, MAX: 3, sz: new THREE.Vector2(), obr: THREE.Object3D.prototype.onBeforeRender, off: false, sliced: true, gen: null, Q: 4, ph: 0, act: [], cx: 1e9, cy: 0, cz: 0, K: 0, fd: -1 };
 function dcullMat(m) { return m && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial) && m.fog !== false && m.blending === THREE.NormalBlending && !m.transparent && !m.emissiveMap && m.toneMapped !== false && !(m.emissiveIntensity > 0 && m.emissive && m.emissive.r + m.emissive.g + m.emissive.b > 0); }
 function dcullBuild() {
   const L = [];
@@ -5737,9 +5759,19 @@ function dcullBuild() {
     L.push({ o, e: o.matrixWorld.elements, x: s.center.x, y: s.center.y, z: s.center.z, r: s.radius, R: R0 }); });
   DCULL.list = L; DCULL.n = scene.children.length;
 }
+function* dcullBuildGen() { // 15.10.: wie dcullBuild, in Zeitscheiben (scene.traverse über ~46 000 Knoten = 30–36 ms in einem Bild)
+  const L = [], n0 = scene.children.length, S = scene.children.slice(); let t0 = performance.now(), k = 0;
+  while (S.length) { const o = S.pop(); for (let i = o.children.length - 1; i >= 0; i--) S.push(o.children[i]);
+    if (o.isMesh && !o.isInstancedMesh && !o.isSkinnedMesh && !o.isBatchedMesh && o.frustumCulled !== false && !o.userData.noCull && o.onBeforeRender === DCULL.obr && o.geometry && o.geometry.attributes.position) {
+      const g = o.geometry; if (!g.boundingSphere) g.computeBoundingSphere(); const s = g.boundingSphere;
+      if (s && s.radius > 0) { const R0 = s.radius * o.matrixWorld.getMaxScaleOnAxis(); if (!((DCULL.wr === false ? s.radius : R0) > 25)) L.push({ o, e: o.matrixWorld.elements, x: s.center.x, y: s.center.y, z: s.center.z, r: s.radius, R: R0 }); } }
+    if ((++k & 255) === 0 && performance.now() - t0 > 3) { yield 0; t0 = performance.now(); } }
+  DCULL.list = L; DCULL.act = []; DCULL.n = n0;
+}
 function dcullHide() {
   if (DCULL.off || ((moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) && !SHADOW_FREI.on)) return; // Schattenbild entsteht neu → alles mitnehmen (siehe vcullHide)
-  if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; dcullBuild(); DCULL.act = []; } // neu geladene Kapitel
+  if (DCULL.gen) { try { if (DCULL.gen.next().done) DCULL.gen = null; } catch (e) { DCULL.gen = null; console.warn('Leistung: dcull-Aufbau', e); } }
+  else if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; if (DCULL.n < 0 || !DCULL.sliced) { dcullBuild(); DCULL.act = []; } else DCULL.gen = dcullBuildGen(); } // neu geladene Kapitel (erster Aufbau am Stück, danach in Zeitscheiben)
   const L = DCULL.list, N = L.length; if (!N) return;
   for (let k = Math.min(N, 200); k > 0; k--) { const E = L[DCULL.i++ % N]; E.R = E.r * E.o.matrixWorld.getMaxScaleOnAxis(); } // Größe laufend auffrischen
   renderer.getDrawingBufferSize(DCULL.sz); const K = DCULL.sz.y * .5 * camera.zoom / Math.tan(THREE.MathUtils.DEG2RAD * camera.fov * .5), T = DCULL.T, MX = DCULL.MAX * T;

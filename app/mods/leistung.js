@@ -6,7 +6,7 @@
 //    noch versteckt sind, und übersetzt sie parallel (KHR_parallel_shader_compile); (b) taucht trotzdem etwas Unübersetztes im Bild auf, wird nur dieses
 //    Teil ausgelassen, bis sein Programm fertig ist (wenige Bilder), statt das ganze Spiel anzuhalten. Nur für die Spielszene; Nachbearbeitung/Schatten unberührt.
 const LST_NEU = !window.__lstAus; // Vergleichsmessung: window.__lstAus = true vor dem Laden schaltet 2–7, 9 und 10 ab
-const LST = { rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, sweite: LST_NEU, echo: LST_NEU, q: [], qm: new Set(), busy: 0, maxBusy: 3, nb: 2, per: 3, cdefer: LST_NEU && !/nocompdefer/.test(location.search), flushing: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
+const LST = { sondeK: 40, sondeY: 4, sondeFr: true, rigNext: new Set(), rigOk: false, nebelK: 2.41, on: true, mixer: LST_NEU, nebel: LST_NEU, sonde: LST_NEU, licht: LST_NEU, lichtOk: false, strahl: LST_NEU, sweite: LST_NEU, echo: LST_NEU, q: [], qm: new Set(), busy: 0, maxBusy: 3, nb: 2, per: 3, cdefer: LST_NEU && !/nocompdefer/.test(location.search), flushing: false, busyT: 0, stack: [], scanT: 0, init: false, skip: 0, comp: 0, compMs: 0, last: '',
   root: null, R: renderer.properties };
 // Varianten-Merkmal eines gezeichneten Teils (die Merkmale, für die three.js ein eigenes Programm braucht)
 function lst_sig(o, g) { const ma = g.morphAttributes, mc = ma.position || ma.normal || ma.color;
@@ -31,6 +31,22 @@ function lst_seed() { scene.traverse(o => { if (!(o.isMesh || o.isPoints || o.is
     const r = rbd.call(this, cam, sc, geo, mat, obj, grp);
     if (!LST.lichtOk && LST.init && mat && mat.isMeshStandardMaterial) { try { lst_lichtPatch(LST.R.get(mat).currentProgram); } catch (e) { LST.lichtOk = true; console.warn('Leistung: Licht', e); } }
     return r; }; }
+// 15.10.: LICHTER FÜR renderer.compile OHNE DURCHLAUF DER GANZEN SZENE. three.js sammelt in compile()/compileAsync() die Lichter mit targetScene.traverseVisible (alle ~17 000 sichtbaren Knoten,
+//    8–12 ms je Aufruf; gemessen beim Gehen: jedes Bild mit Warteschlange der Shader-Wache = ein voller Durchlauf, zusammen ≈ 2 % der Zeit, in Schüben 10 ms je Bild). Die Lichter sind wenige:
+//    Register über Object3D.add (neue Lichter/Gruppen mit Lichtern), Sichtbarkeitskette wird bei jedem Aufruf geprüft (wie traverseVisible).
+const LSTL = { list: [], set: new Set(), on: LST_NEU && !/nolightreg/.test(location.search), ok: false };
+function lst_lightReg(o) { if (o.isLight) { if (!LSTL.set.has(o)) { LSTL.set.add(o); LSTL.list.push(o); } } }
+function lst_lightInit() {
+  scene.traverse(lst_lightReg); const add0 = THREE.Object3D.prototype.add;
+  THREE.Object3D.prototype.add = function (...a) { const r = add0.apply(this, a);
+    for (let i = 0; i < a.length; i++) { const o = a[i]; if (o && o.isObject3D) { if (o.isLight) lst_lightReg(o); else if (o.children.length) o.traverse(lst_lightReg); } }
+    return r; };
+  LSTL.ok = true; }
+function lst_lightsOnly(cb) { const L = LSTL.list;
+  for (let i = 0; i < L.length; i++) { const l = L[i]; if (!l.visible) continue; let ok = false; for (let p = l.parent; p; p = p.parent) { if (p.visible === false) break; if (p === scene) { ok = true; break; } } if (ok) cb(l); } }
+function lst_withLights(fn) { // fn läuft mit schlankem scene.traverseVisible (nur im synchronen Teil von compile)
+  if (!LSTL.on || !LSTL.ok) return fn(); const had = Object.prototype.hasOwnProperty.call(scene, 'traverseVisible'), tv = scene.traverseVisible; scene.traverseVisible = lst_lightsOnly;
+  try { return fn(); } finally { if (had) scene.traverseVisible = tv; else delete scene.traverseVisible; } }
 // Vorgemerktes parallel übersetzen (außerhalb des Bildes – compile() setzt den Render-Zustand zurück)
 function lst_flush() {
   if (LST.busy >= LST.maxBusy) { if (performance.now() - LST.busyT > 30000) LST.busy = 0; return; } // Sicherung: nie dauerhaft unsichtbar
@@ -46,7 +62,7 @@ function lst_flush() {
   // Für den Nachbearbeitungs-Puffer übersetzen (wie der Gesamtdurchgang der Basis): für den Bildschirm wäre es eine andere Programm-Variante (Farbraum/Tonwert)
   const rt0 = renderer.getRenderTarget(); renderer.setRenderTarget(composer.renderTarget1);
   LST.flushing = true;
-  try { _compileAsync0(root, camera, scene).then(done, e => { console.warn('Leistung: Vorübersetzen', e); done(); }); } catch (e) { console.warn('Leistung: Vorübersetzen', e); done(); } finally { LST.flushing = false; renderer.setRenderTarget(rt0); }
+  try { lst_withLights(() => _compileAsync0(root, camera, scene)).then(done, e => { console.warn('Leistung: Vorübersetzen', e); done(); }); } catch (e) { console.warn('Leistung: Vorübersetzen', e); done(); } finally { LST.flushing = false; renderer.setRenderTarget(rt0); }
   const per = (performance.now() - t0) / objs.length; LST.per = LST.per * .6 + per * .4; LST.nb = Math.max(1, Math.min(12, Math.floor(6 / Math.max(.4, LST.per)))); // Anlegezeit je Teil → nächste Portion
 }
 // 19) DIREKTES renderer.compile(gruppe, kamera, szene) NACH DEM LADEN NICHT BLOCKIEREN (09.10.). bewohnt.js übersetzt beim Bauen der Wohnungs-Deko (bw_bauen, beim Näherkommen) alle Programme
@@ -59,7 +75,7 @@ function lst_queueTree(root) { let n = 0;
   return n; }
 function lst_compileDefer() {
   const cp = renderer.compile, ca = renderer.compileAsync; let inCA = 0;
-  renderer.compileAsync = function (s, c, t) { inCA++; try { return ca.call(this, s, c, t); } finally { inCA--; } };
+  renderer.compileAsync = function (s, c, t) { inCA++; try { return t === scene ? lst_withLights(() => ca.call(this, s, c, t)) : ca.call(this, s, c, t); } finally { inCA--; } };
   renderer.compile = function (s, c, t) {
     if (LST.cdefer && LST.on && !LST.flushing && !inCA && t === scene && s && s !== scene && s.traverse) { try { lst_queueTree(s); LST.deferN = (LST.deferN | 0) + 1; return new Set(); } catch (e) { console.warn('Leistung: Übersetzen verschoben', e); } }
     return cp.call(this, s, c, t); };
@@ -199,12 +215,25 @@ function lst_sonde() {
   const f0 = fassaden_probeFace, hid = [];
   fassaden_probeFace = function (i) {
     const P = fassaden_S.probe; if (!LST.sonde || !P) return f0(i);
+    if ((i === 2 || i === 3) && LST.sondeY > 1 && P.n > 0 && P.n % LST.sondeY !== 0) return; // 15.10.: Himmel/Boden-Seite nur bei jeder 4. Aufnahme (Nacht-Himmel/Straße ändern sich kaum; Fenster spiegeln waagerecht): 2 von 6 Bildern weniger
     hid.length = 0;
     const au = scene.matrixWorldAutoUpdate; scene.matrixWorldAutoUpdate = false; // Matrizen stehen vom letzten Bild (Sonde 1 Bild alt: unsichtbar)
-    try { const p = P.cam.position, px = p.x, py = p.y, pz = p.z, R = scene.fog && scene.fog.isFogExp2 && scene.fog.density > 0 ? Math.min(1.7 / scene.fog.density, 80) : 80, K = 64; // 128 px, 90°; Sondenweite: Nebel lässt < 6 % durch (50 m bei 0,034), im Glas × Fresnel ≈ unsichtbar
-      for (const E of DCULL.list) { const o = E.o; if (!o.visible) continue; const e = E.e, x = E.x, y = E.y, z = E.z;
-        const d = Math.hypot(e[0] * x + e[4] * y + e[8] * z + e[12] - px, e[1] * x + e[5] * y + e[9] * z + e[13] - py, e[2] * x + e[6] * y + e[10] * z + e[14] - pz) - E.R;
-        if (d > R || (d > .5 && E.R * K < d)) { o.visible = false; hid.push(o); } }
+    try {
+      // 15.10.: GRUPPEN AUSSERHALB DES SEITEN-BLICKFELDS (90°) gar nicht erst durchlaufen. Die Hauptschleife blendet vor dem Bild alles außerhalb ihres Blickfelds aus (vcullHide), die
+      //    Sonde lief dagegen durch ALLE ~17 000 sichtbaren Knoten (projectObject ≈ 8–10 ms je Würfelseite; 20–134 ms je Seite gemessen beim Gehen, alle ~18 m sechs Bilder lang).
+      //    Gleiche Hüllen wie vcullHide (VCULL.list, mit 4 m Sicherheitsrand): was die Seite nicht sieht, wäre ohnehin vom Blickfeldtest verworfen worden → Bild unverändert.
+      if (LST.sondeFr && typeof VCULL !== 'undefined' && VCULL.list.length) { const fc = P.cam.children[i]; if (fc && fc.projectionMatrix) {
+        const fr = LST.sfr || (LST.sfr = new THREE.Frustum()), pm = LST.spm || (LST.spm = new THREE.Matrix4()), sp = LST.ssp || (LST.ssp = new THREE.Sphere()); fc.updateMatrixWorld(true);
+        fr.setFromProjectionMatrix(pm.multiplyMatrices(fc.projectionMatrix, fc.matrixWorldInverse));
+        for (const E of VCULL.list) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
+          sp.center.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld);
+          sp.radius = E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + VCULL.M;
+          if (!fr.intersectsSphere(sp)) { o.visible = false; hid.push(o); } } } }
+      const p = P.cam.position, px = p.x, py = p.y, pz = p.z, R = scene.fog && scene.fog.isFogExp2 && scene.fog.density > 0 ? Math.min(1.7 / scene.fog.density, 80) : 80, K = LST.sondeK; // 128 px, 90°; Sondenweite: Nebel lässt < 6 % durch (50 m bei 0,034), im Glas × Fresnel ≈ unsichtbar
+      // 15.10.: ohne Math.hypot/Wurzel (je Seite 8 000 Teile; self-Zeit der Seite 2 ms): d = Abstand − R > Weite  ⇔  Abstand² > (Weite + R)²; R·K < d ⇔ Abstand² > (R·(K+1))²; d > ,5 ⇔ Abstand² > (R + ,5)²
+      for (const E of DCULL.list) { const o = E.o; if (!o.visible) continue; const e = E.e, x = E.x, y = E.y, z = E.z, r = E.R;
+        const hx = e[0] * x + e[4] * y + e[8] * z + e[12] - px, hy = e[1] * x + e[5] * y + e[9] * z + e[13] - py, hz = e[2] * x + e[6] * y + e[10] * z + e[14] - pz, dd = hx * hx + hy * hy + hz * hz, a = R + r, b = r + .5, c = r * (K + 1);
+        if (dd > a * a || (dd > b * b && dd > c * c)) { o.visible = false; hid.push(o); } }
       for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const m = r.matrixWorld.elements; if (Math.hypot(m[12] - px, m[14] - pz) > g.R) { r.visible = false; hid.push(r); } }
       return f0(i);
     } finally { scene.matrixWorldAutoUpdate = au; for (let k = 0; k < hid.length; k++) hid[k].visible = true; hid.length = 0; } };
@@ -380,17 +409,18 @@ function lst_schattenFrei() {
 }
 
 // 15.10. Phasenzeiten je Bild (nur Entwicklung): Aktualisierung, Skelett-Ausblenden, Blickfeld-/Kleinteil-Auslese, Zeichnen – Millisekunden-Summen, Teiler = LPF.n (Bilder). Messung von Hebeln ohne Bildzeit-Rauschen.
-const LPF = { upd: 0, rig: 0, vc: 0, dc: 0, rnd: 0, n: 0, umw: 0, chk: 0, mrg: 0, shw: 0, neb: 0 };
+const LPF = { upd: 0, rig: 0, vc: 0, dc: 0, rnd: 0, n: 0, umw: 0, chk: 0, mrg: 0, shw: 0, neb: 0, fl: 0, scan: 0 };
 function lp_wrap() {
   if (typeof DEV === 'undefined' || !DEV) return; const w = (k, f) => function () { const t = performance.now(); try { return f.apply(this, arguments); } finally { LPF[k] += performance.now() - t; } };
   update = w('upd', update); rigFarHide = w('rig', rigFarHide); vcullHide = w('vc', vcullHide); dcullHide = w('dc', dcullHide);
   const r0 = composer.render; composer.render = function () { const t = performance.now(); try { return r0.apply(this, arguments); } finally { LPF.rnd += performance.now() - t; LPF.n++; } };
   scene.updateMatrixWorld = w('umw', scene.updateMatrixWorld); mwf_check = w('chk', mwf_check); neb_hide = w('neb', neb_hide);
   if (typeof mrg_pre === 'function') mrg_pre = w('mrg', mrg_pre);
+  lst_flush = w('fl', lst_flush); lst_scan = w('scan', lst_scan);
   { const s1 = renderer.shadowMap.render; renderer.shadowMap.render = w('shw', s1); }
 }
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, LK, MWF, LP: LPF, get SHF() { return SHADOW_FREI; }, get BVH() { return BVH_EARLY; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, LP: LPF, LSTL, get SHF() { return SHADOW_FREI; }, get BVH() { return BVH_EARLY; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -403,7 +433,7 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_compileDefer(); } catch (e) { LST.cdefer = false; console.warn('Leistung: Übersetzen verschieben', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } try { lp_wrap(); } catch (e) { console.warn('Leistung: Zeitmessung', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_compileDefer(); } catch (e) { LST.cdefer = false; console.warn('Leistung: Übersetzen verschieben', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } try { lp_wrap(); } catch (e) { console.warn('Leistung: Zeitmessung', e); } try { lst_lightInit(); } catch (e) { LSTL.on = false; console.warn('Leistung: Lichtregister', e); } return; }
   MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();
