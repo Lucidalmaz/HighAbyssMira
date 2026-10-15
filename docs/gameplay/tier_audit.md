@@ -45,21 +45,18 @@ per Skript versetzt werden) – ehrlich: **kein belastbarer Nachher-Bildbeleg au
 2. Kuh, Ratte, Schwein, Fliegen, Motten, Vogelspinne verbessern (Reihenfolge nach Sichtbarkeit: Ratte > Fliegen/Motten > Kuh > Spinne).
 3. Tier-Fotos im Spiel: Tiere nicht per Skript versetzen, sondern per `Nahe gehen` an echten Standorten (S.spots) fotografieren.
 
-## 4. Pruefung im Spiel (15.10.2026, Kurswechsel: nur pruefen, nichts neu bauen) – ehrlicher Stand
-Ein gebuendelter Lauf (`_run_locked`, Kapitel 1, Nacht, Spieler zum Tier versetzt, je 3 Bilder in 2 s; Skripte `C:\Users\GIGABYTE\HAM_Tiere\mk_belege.py`, Bilder `HAM_Tiere\belege\out1`).
-**Ergebnis: keine belastbaren Tierbilder.** In den 3 Bildern je Tier ist das Tier nicht sichtbar (Dunkelheit/Taschenlampenkegel an der Stelle, Soft-Sichtbarkeit `auftritt.js`,
-Erzaehl-Overlays/Untertitel); Fliege, Motte, Katze, Hirsch, Wolf hatten keinen aktiven Standort (Getter null bzw. [0,0,0]); Bruno/Kuh: Skriptfehler (`THREE` im Eval-Bereich nicht definiert).
-Daher **keine Note vergeben** – die Schaetzwerte aus Abschnitt 2 bleiben Schaetzungen.
+## 4. Pruefung im Spiel (15.10.2026) – Bildnoten, ehrlicher Stand
+Laeufe: `HAM_Tiere/belege/out2` (Ausgangsstand, 3 Bilder je Tier) und `out3` (nach Einbau). Skript `HAM_Tiere/mk2.py` (HUD aus, Debug-Licht, Spieler 3-6 m vor das Tier, Tiere per Modul-Hook an die Szene).
+Einschraenkung: nur Nacht, Kapitel 1; Tag nicht vorhanden/geprueft. Die Kamera-Versetzung wurde teils durch Kollision/Raeume veraendert, deshalb sind viele Bilder keine Tierbilder.
 
-| Tier | Note vorher (Schaetzung) | Note nachher (Bild) | praegnant | Bildpfad |
+| Tier | Note vorher | Note nachher | praegnant | Bild / Anmerkung |
 |---|---|---|---|---|
-| Fledermaus | 5 (Altmodell) | 2 (Vorschau, `sheet_flap_*`); Spiel bei Massstab 1,5: Bild fehlt (`out1/bat_*.png` zeigt es nicht) | ja | `tier_audit_bilder/sheet_flap_vorn.png` |
-| alle uebrigen (Ratte, Kraehe, Fuchs, Schwein, Katze, Whiskey, Hirsch, Wolf, Kuh, Fliege, Motte, Spinnen, Bruno, Goldfisch) | s. Abschnitt 2 | **nicht belegt** | – | – |
+| Fuchs | Schaetzung 2 | 2 (klein, ca. 10 m, Fell/Silhouette ok, Bewegung nicht beurteilbar) | ja | `out2/fox_1.png`, `fox_3.png` |
+| Reh/Hirsch (Standbild, ca. 15 m) | Schaetzung 2 | 2 (Silhouette und Fell glaubhaft; Nahbild fehlt) | ja | `out2/hirsch_1.png`, `out3/hirsch_1.png` |
+| Ratte, Kraehe, Schwein, Whiskey, Katze, Wolf, Fledermaus (Massstab 1,5), Bruno, Spinnen, Wendigo-Formen, Goldfisch | Schaetzung (s. Abschn. 2) | **nicht belegt** (Tier im Bild verdeckt/zu dunkel/ausserhalb, Goldfisch-Getter `OW` fehlt) | – | `out2/*_1..3.png` |
+| Kuh | Schaetzung 4 | Eigenbau eingebaut; im Spiel nicht im Bild (Szene ohne Kuh im Sichtfeld) – nur Blender-Vorschau besser (Holstein, Euter, Ohren) | ja (Kino) | `HAM_Tiere/vk_a.png` |
+| Fliege | Schaetzung 3 | gleiches Aussehen bei 3,6 k statt 28 k Dreiecken (Blender-Vorschau), im Spiel keine Fliege im Bild | mittel | `HAM_Tiere/vf_a.png` |
+| Motte | Schaetzung 4 | Mesh-Fassung NICHT eingebaut: im Spiel-Bild (`out3/motte_1.png`) keine Motte erkennbar, Sprites (`out2/motte_1.png`) bleiben | gering | – |
+| Rattenrufe / Fliegenbrummen | synthetisch/Kratzen | echte CC0-Aufnahmen eingebaut, laden ohne Fehler; Pegel im Spiel NICHT gemessen (Zielpegel -32/-34 LUFS leise) | – | `app/tools/klang_bau7.py` |
 
-### Naechster Lauf (offen, ca. 20 min Instanzzeit)
-1. Tiere an ihren echten Standorten fotografieren statt Versetzen: `S.spots`/`S.rats[i].g`, Katzen via `__katzen.spawn/place`, Fliegen `S.swarms`, Wendigo `__wd.zeige`; Taschenlampe auf das Tier (`__leben.flash(true)` + Blick), Untertitel/Fibel vorher schliessen; `THREE` ueber `__k6.ev('THREE')` holen.
-2. Danach erst Note je Tier; Korrekturen nur bei Note >= 3 und klein.
-
-### Zurueckgenommene Vorschlaege (nichts davon im Repo, abgelegt in `C:\Users\GIGABYTE\HAM_Tiere\vorschlag`)
-Waehrend des Auftrags entstanden vor dem Kurswechsel: Blender-Kuh (`kuh_bau.py`, 5 698 Dreiecke, Holstein, gleiche DEF-Knochennamen), Motten als Mesh (`motte_bau.py`, 192 Dreiecke) mit InstancedMesh-Einbau,
-Fliege auf 3,6 k Dreiecke dezimiert, echte Ratten-/Fliegenklaenge (freesound CC0: 143125, 217767, 288941, 574107; 352057). Alles wieder aus dem Repo entfernt; Einbau nur mit Freigabe.
+Offen: Nahbilder mit sichtbaren Tieren (Ratte, Kraehe, Schwein, Katze, Wolf, Bruno, Spinnen, Wendigo), Fledermaus Massstab 1,5, Kuh im Kino, Motte (Mesh in `HAM_Tiere/vorschlag/motte.glb`, nicht eingebaut), Pegelmessung, Perf-Rauchlauf.
