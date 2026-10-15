@@ -9,7 +9,7 @@
 // Wiederherstellen (ktxRestore der Basis) schreibt in dieselben Mip-Objekte – die Zählung stimmt, weil nur das Feld mipmaps der Textur gekürzt wird, nicht s.__kmips.
 // Aus: ?novram    Zahlen: window.__vram
 const VRAM_U = new WeakMap(); // UV-Spanne je Form (gemeinsam mit stream.js; keine Eigenschaft an der three.js-Form)
-const VRAM = { off: /[?&]novram/.test(location.search), dedupN: 0, dedupMB: 0, dedupMs: 0, passes: 0, cut: 0, ntex: 0, savedMB: 0, hist: {}, T: /[?&]vram=lean/.test(location.search) ? 700 : 1500, ms: 0 };
+const VRAM = { off: /[?&]novram/.test(location.search), dedupN: 0, dedupMB: 0, dedupMs: 0, passes: 0, cut: 0, ntex: 0, savedMB: 0, hist: {}, anN: 0, aniso: (() => { const m = /[?&]aniso=(\d+)/.exec(location.search); const w = m ? +m[1] : 8; try { return Math.min(w, renderer.capabilities.getMaxAnisotropy() || 1); } catch (e) { return 1; } })(), T: /[?&]vram=lean/.test(location.search) ? 700 : 1500, ms: 0 };
 
 // ---- Geometrie-Dedup: gemessen 5 715 Geometrien mit exakt gleichem Inhalt (≈ 1,0 GB; davon InstancedMesh-Gruppen gleicher Pflanzen/Steine/Kleinteile mit je eigenem geometry.clone() ≈ 0,8 GB JS-Heap;
 // die Grafikkarte hält sie nur, wenn sie schon gezeichnet wurden). Gleicher Inhalt (alle Attribute, Index, Gruppen, Zeichenbereich) → eine gemeinsame Geometrie. Ausgenommen: Skelett-Formen, Morph-Ziele,
@@ -52,6 +52,7 @@ function vram_diet() {
       if (uv && uv.array && uv.count) { let a = 1e9, b = -1e9, c = 1e9, d = -1e9; const A = uv.array, st = uv.itemSize || 2, step = Math.max(1, Math.floor(uv.count / 20000));
         for (let i = 0; i < uv.count; i += step) { const x = A[i * st], y = A[i * st + 1]; if (x < a) a = x; if (x > b) b = x; if (y < c) c = y; if (y > d) d = y; }
         e.u = Math.max(.05, Math.min(64, Math.max(b - a, d - c))); } } catch (er) {} VRAM_U.set(g, e.u); GE.set(g, e); return e; };
+  const AN = VRAM.aniso;
   scene.updateMatrixWorld(true);
   scene.traverse(o => {
     if (!o.isMesh || !o.geometry || !o.material || o.isBatchedMesh) return; const haut = !!o.isSkinnedMesh;
@@ -59,7 +60,8 @@ function vram_diet() {
     if (o.isInstancedMesh && o.instanceMatrix && o.instanceMatrix.array) { const A = o.instanceMatrix.array; let m = 0; for (let i = 0; i < o.count; i++) { const k = i * 16; m = Math.max(m, Math.hypot(A[k], A[k + 1], A[k + 2]), Math.hypot(A[k + 4], A[k + 5], A[k + 6]), Math.hypot(A[k + 8], A[k + 9], A[k + 10])); } smax *= m || 1; }
     const L = Math.max(.02, Math.max(sz.x, sz.y, sz.z) * smax);
     for (const m of [].concat(o.material)) { if (!m) continue;
-      for (const k in m) { const t = m[k]; if (!(t && t.isTexture && t.isCompressedTexture && t.mipmaps && t.mipmaps.length > 1)) continue;
+      for (const k in m) { const t = m[k]; if (AN > 1 && t && t.isTexture && t.anisotropy < AN && !t.isCanvasTexture && !t.isRenderTargetTexture) { t.anisotropy = AN; VRAM.anN++; } // Optik 15.10.: Modell-Texturen (GLB) kamen mit Anisotropie 1 -> schräge Böden/Wände verschmiert
+        if (!(t && t.isTexture && t.isCompressedTexture && t.mipmaps && t.mipmaps.length > 1)) continue;
         const s = t.source; if (!s) continue; let e = SRC.get(s); if (!e) { e = { minD: 1e9, frei: false, tex: new Set(), w: t.mipmaps[0].width || 0 }; SRC.set(s, e); } e.tex.add(t);
         const rep = t.repeat ? Math.max(Math.abs(t.repeat.x), Math.abs(t.repeat.y), 1e-3) : 1; const dd = e.w * ge.u * rep / L; e.minD = Math.min(e.minD, haut ? dd / 2 : dd); }
       if (m.isShaderMaterial) for (const k in m.uniforms || {}) { const t = m.uniforms[k] && m.uniforms[k].value; if (t && t.isTexture && t.source) { const e = SRC.get(t.source) || { minD: 1e9, tex: new Set(), w: 0 }; e.frei = true; SRC.set(t.source, e); } } } });
