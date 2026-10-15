@@ -93,7 +93,9 @@ CH2_BEGIN.push(() => {
   z7_lampSet(true);
   setTimeout(() => { try {
     const v = z7_S.pending; z7_S.pending = null;
-    if (!ch2.archiveSolved) return z7_syncAushang(); // Kapitelanfang: alles wie neu
+    if (!ch2.archiveSolved) { // Kapitelanfang: alles wie neu – nur der schon genommene Schlüssel bleibt genommen (sonst wieder am Haken, Item aber schon im Inventar)
+      if (v && v.sk) { z7_S.took = true; ch2.fuseKey = true; if (z7_S.keyOn) z7_S.keyOn.visible = false; if (z7_S.keyOff) z7_S.keyOff.visible = true; }
+      return z7_syncAushang(); }
     ch2.z7Key = true; if (!story.items.includes('zimmer7')) story.items.push('zimmer7');
     z7_S.relief = z7_S.reliefDone = true; // die Erleichterung ist schon passiert
     const took = v ? !!v.sk || ch2.power : ch2.power;
