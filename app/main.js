@@ -148,6 +148,12 @@ app.whenReady().then(() => {
               await new Promise(r => setTimeout(r, st.profile)); const { profile } = await d.sendCommand('Profiler.stop');
               fs.writeFileSync(path.join(out, st.name + '.cpuprofile'), JSON.stringify(profile)); d.detach();
             }
+            if (st.heapprof) { // Allokations-Stichproben (V8 Sampling Heap Profiler) über st.heapprof ms: Erzeuger kurzlebiger Objekte finden
+              const d = win.webContents.debugger; try { d.attach('1.3'); } catch (e) {}
+              await d.sendCommand('HeapProfiler.enable'); await d.sendCommand('HeapProfiler.startSampling', { samplingInterval: 8192, includeObjectsCollectedByMajorGC: true, includeObjectsCollectedByMinorGC: true });
+              await new Promise(r => setTimeout(r, st.heapprof)); const { profile } = await d.sendCommand('HeapProfiler.stopSampling');
+              fs.writeFileSync(path.join(out, st.name + '.heapprofile'), JSON.stringify(profile)); d.detach();
+            }
             await new Promise(r => setTimeout(r, st.wait || 1200));
             if (st.shot !== false) fs.writeFileSync(path.join(out, st.name + '.png'), (await win.webContents.capturePage()).toPNG());
             fs.writeFileSync(path.join(out, 'steps.json'), JSON.stringify(res, null, 1)); // Zwischenstand: bricht ein Lauf ab (Zeitlimit), bleiben die Ergebnisse bis hier
