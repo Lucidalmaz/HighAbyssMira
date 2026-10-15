@@ -18,3 +18,22 @@ Gate: BESTANDEN (alle Werte innerhalb der Toleranz; Kreuzung p95 54,6 ms, 797 Au
 
 ## Nicht umgesetzt (ehrlich)
 Render-Zeit-Ersatz statischer Meshes, Autos zusammenfuehren, dcull/vcull rundenweise, Mixer/Knochen drosseln, Allokationen, Ladeprofil/Vorwaermen, neues Fledermausmodell mit echten Rufen und Tier-Audit: nicht begonnen. Gruende: Umfang; Downloads freier Assets/Sounds brauchen Freigabe des Nutzers.
+
+## Nachtrag: Zusammenfuehren (merge.js, dfd8e2f)
+Render-Zeit-Ersatz: je Modellwurzel (Gruppe mit 25-400 Meshes ohne Figuren/Instanzen/Lichter) werden statische opake Teile gleicher Material-Signatur zu einem Mesh
+(Kind der Wurzel) zusammengefuehrt; Originale bleiben unveraendert und werden nur zwischen rigFarHide/rigFarShow ausgeblendet, wenn die Gueltigkeitspruefung je Gruppe
+besteht (Teile sichtbar, gleiches Elternteil, gleiche Lage zur Wurzel, gleiche Materialwerte/Karten, gleiche castShadow-Marke). Spiegel-Teile (negative Determinante) mit gedrehter Reihenfolge.
+Aus: `?nomerge`. Testzugriff `window.__mrg`.
+| Messung | ohne | mit |
+|---|---|---|
+| Render-CPU/Bild, Strasse, A/B 6 Wechsel x 80 Bilder | 19,4 ms | 18,9 ms (-2,6 %) |
+| Zeichenaufrufe Strasse | 882 | 858 |
+| Bildvergleich an/aus (Strasse, Wagen mit offener Tuer) | Unterschied = Rauschen (Mittel 22,9 vs. 23,7 ohne Aenderung) | |
+| Gate 3 Laeufe | BESTANDEN: Ladezeit 61,9/61,6/62,7 s, Kreuzung p95 54,6/54,4/42,5 ms, Neukompilierungen 44 | |
+Grund fuer den kleinen Gewinn: Fahrzeuge haben ca. 25 verschiedene Material-Signaturen auf 94 Teile, davon nur ca. 23 Teile in Gruppen >= 2 (Einzelteile, Glas, Leuchten
+bleiben einzeln); mehr geht nur mit Texturatlas/Vertexfarben (Eingriff in Assets).
+
+## Offene Liste (nicht umgesetzt)
+dcull/vcull rundenweise (ca. 3 ms Gesamtkosten, Gewinn vermutlich 1 ms), Mixer-/Knochen-Drosselung fuer Figuren ausserhalb des Blickfelds (5761 sichtbare Knochen),
+scene.updateMatrixWorld (ca. 3 ms), Allokationen (45-55 MB/s: Morph-Update, collide(), mwf_upd, neb_hide), Shader-Vorwaermen/44 Neukompilierungen,
+Strassen-Spitzenframe (139 ms), neue Fledermaus (Modell/Animation/Rufe; freie Quellen verlangen Konto/Login -> Blender-Eigenbau noetig), Tier-Audit (docs/gameplay/tier_audit.md).
