@@ -237,7 +237,7 @@ Mira summt die fünf Töne (T-4, Kapitel 6) mit ihrer eigenen Stimme: `spiel\sum
 Die Pipeline setzt `ok = false` (Stimmtreue-Schwelle für Sprache); `baue_spiel.py` trägt die Aufnahme deshalb **nicht** ein, das Spiel nimmt den bisherigen Synth-Summ-Weg (`hungrige_summen`, kein
 Fehler, keine Lücke). Die Schwelle ist für gehauchtes Summen ohne Wörter nicht sinnvoll (Sprecher-Einbettungen sind für Summen nicht trainiert), die Melodie stimmt – ob es **klingt**, kann nur der Nutzer
 entscheiden. Einschalten nach dem Anhören: in `HAM_Stimmen\spiel\extras.json` bei `mira_summen` `"ok": true` setzen, `python spiel\einsetzen.py`, Hook `mira_summen` ist in `stimmen.js` schon verdrahtet
-(`k`-Schlüssel, Lautstärke `z[4]` = 0,4). Aus: `"ok": false` (jetziger Stand).
+(`k`-Schlüssel, Lautstärke `z[4]` = 0,4). Stand 15.10.: eingeschaltet (`"ok": true`, Nutzerentscheidung); aus: `"ok": false`.
 
 ## 9. Befehle
 ```
