@@ -4690,9 +4690,9 @@ async function loadFabAssets() {
   const holder = (o, x, y, z, ry = 0) => { const g = new THREE.Group(); g.add(o); g.position.set(x, y, z); g.rotation.y = ry; scene.add(g); return g; };
   const [rat, bench, boulder, manhole, shrubs, bat, fly, cob, lampM, swingM] = await Promise.all([
     GL.loadAsync('assets/rat/rat.glb'), GL.loadAsync('assets/bench/model.gltf'), GL.loadAsync('assets/boulder/model.gltf'), GL.loadAsync('assets/manhole/model.gltf'), GL.loadAsync('assets/deadshrubs/model.gltf'),
-    FL.loadAsync('assets/bat/model.fbx'), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx')]);
+    Promise.resolve(null), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx')]);
   // 15.10. Nutzer: Fledermaeuse sind "leuchtend blaue Dinger": die FBX enthaelt das Maya-Kontrollrig als Linien (ROOT_ctrl, Hip_ctrl … LineBasicMaterial 0x3300ff, ca. 31 je Tier = 374 Zeichenaufrufe-Kandidaten). Linien sind nie Teil des Modells → unsichtbar (Knoten bleiben: sie sind die Hierarchie/Animationsziele).
-  for (const r of [bat, fly, cob, lampM, swingM]) { const L = []; r.traverse(m => { if (m.isLine || m.isLineSegments) L.push(m); }); for (const m of L) m.visible = false; }
+  for (const r of [fly, cob, lampM, swingM]) { const L = []; r.traverse(m => { if (m.isLine || m.isLineSegments) L.push(m); }); for (const m of L) m.visible = false; }
 
   // --- Laternen: echte Straßenlaterne statt Rohr und Kasten (Licht, Lichtkegel und Birne bleiben)
   const lampMat = new THREE.MeshStandardMaterial({ map: T('lamp/color.jpg'), normalMap: T('lamp/normal.jpg', false), roughness: .55, metalness: .7 });
@@ -4737,13 +4737,7 @@ async function loadFabAssets() {
     const acts = { idle: mx.clipAction(ratClips('idle_A2')), sniff: mx.clipAction(ratClips('idle_A3')), walk: mx.clipAction(ratClips('walk_A2')), run: mx.clipAction(ratClips('run_A1')) };
     acts.idle.play(); FAB.rats.push({ g, mx, acts, cur: acts.idle, home: new THREE.Vector3(x, 0, z), tx: x, tz: z, mode: 'idle', t: rand(2, 6), sp: 0 });
   }
-  // --- Fledermäuse über der Straße
-  const batMat = new THREE.MeshStandardMaterial({ map: T('bat/color.jpg'), roughness: .8, side: THREE.DoubleSide });
-  bat.traverse(m => { if (m.isMesh) m.material = /eye/i.test(m.name) ? new THREE.MeshStandardMaterial({ map: T('bat/eye.jpg'), roughness: .2 }) : batMat; });
-  for (let i = 0; i < 4; i++) {
-    const o = skClone(bat); fitMax(o, .42); shade(o); const g = holder(o, 0, 8, 0); const mx = new THREE.AnimationMixer(o); const a = mx.clipAction(bat.animations[0]); a.timeScale = rand(2.6, 3.4); a.play(); mx.update(rand(0, 2));
-    FAB.bats.push({ g, mx, cx: rand(-45, 45), cz: rand(-8, 8), r: rand(7, 15), h: rand(6, 11), sp: rand(.5, .9) * (i % 2 ? 1 : -1), ph: rand(0, 6), swoop: 0 }); try { auftritt_reg(g, { name: 'Fledermaus', r: .6 }); } catch (e) {}
-  }
+  // --- Fledermäuse: seit 15.10. eigenes Modell (assets/ms/fledermaus, Großes Mausohr, Blender-Eigenbau) – Aufbau/Flug/Rufe in leben.js (leben_batSetup); FAB.bats bleibt leer
   FAB.batT = rand(40, 80);
   // --- Fliegen: in Wendts Küche, am Brandhaus, im Amt beim Tank
   const flyMat = new THREE.MeshStandardMaterial({ map: T('fly/color.jpg'), normalMap: T('fly/normal.jpg', false), roughness: .35, metalness: .2 });

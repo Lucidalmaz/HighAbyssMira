@@ -57,7 +57,9 @@ function leben_squeak(x, y, z, n = 3, v = .05) { // Ratte: kein Sinus-Pfeifen me
   if (!Audio.ctx || !Audio.started) return;
   for (let i = 0; i < n; i++) Audio.play(Audio.pick('scrape1', 'scrape2', 'scrape3', 'scrape4'), { gain: v * rand(.5, .8), rate: rand(2.2, 2.8), hp: 1400, dur: .2, delay: i * rand(.08, .2), x, y, z, ref: 1.5 });
 }
-function leben_click() {} // Fledermaus: im November kaum da, die Klicks lagen an der Hörgrenze – ersatzlos still
+function leben_click(x, y, z) { // Fledermaus: Jagd-Buzz kurz vor dem Fang (echte Aufnahme, Detektor-Klang), höchstens alle 3 s; 15.10. statt Stille
+  if (!Audio.ctx || !Audio.started || typeof kl_pick !== 'function') return; const t = performance.now(); if (t - (leben_click.t || 0) < 3000) return; const n = kl_pick('fx_fleder_jagd_', 2); if (!n) return;
+  leben_click.t = t; Audio.play(n, { gain: .5, vary: .05, x, y, z, ref: 3, typ: 'normal' }); }
 function leben_hiss(x, y, z) { // Katze im Dunkeln: Fauchen
   if (!Audio.ctx || !Audio.started) return; if (Audio.katze && Audio.katze('fauch', x, y, z)) return; // echte Aufnahme (klang.js) const ctx = Audio.ctx, d = Audio.at(x, y, z, 2.5), n = Audio.noise(false), bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = rand(3000, 4200); bp.Q.value = .9;
   n.connect(bp); Audio.env(bp, .22, .035, .55, 0, d); n.stop(ctx.currentTime + 1.2);
@@ -129,7 +131,7 @@ async function leben_loadModels() {
   const S = leben_S; S.M = {};
   const load = async (k, key, alt, ganz) => { try { let sc; try { sc = await msModel(key, 'model.glb'); } catch (e) { if (!alt) throw e; console.warn('leben: ' + key + ' fehlt – ' + alt, e); sc = await msModel(alt, 'model.glb'); } if (!ganz) leben_shrink(sc, 1024); S.M[k] = { src: sc, clips: sc.animations || [] }; } catch (e) { console.warn('leben: Modell ' + key, e); } };
   // 08.10.: Krähen = eigene Rabenkrähe (rabe_kraehe, 4–8 k Dreiecke, gleiches Skelett/Clips wie animal_crow); „rabe“ = Whiskeys Modell (für die zwei Raben am Bau, nicht verkleinert – Textur teilt er mit Whiskey)
-  await Promise.all([load('crow', 'rabe_kraehe', 'animal_crow'), load('rabe', 'rabe_whiskey', null, true), load('fox', 'animal_fox'), load('deer', 'animal_deerdoe'), load('wolf', 'animal_wolf'), load('pig', 'animal_pig')]);
+  await Promise.all([load('bat', 'fledermaus', null, true), load('crow', 'rabe_kraehe', 'animal_crow'), load('rabe', 'rabe_whiskey', null, true), load('fox', 'animal_fox'), load('deer', 'animal_deerdoe'), load('wolf', 'animal_wolf'), load('pig', 'animal_pig')]);
 }
 // Modelle der anderen Module finden (Mülltonnen, Müllsäcke, tote Bäume) – nur, wenn sie wirklich geladen wurden
 async function leben_findModels() {
@@ -609,26 +611,39 @@ function leben_pigTick(Pg, dt, live) {
 }
 
 // =====================================================================  FLEDERMÄUSE (Kapelle, Tankstelle, Schrott, Scheune, Gärten) + Jagd auf Motten
-function leben_batSetup() {
-  const S = leben_S, B0 = FAB.bats[0]; if (!B0) return;
-  for (const b of FAB.bats) if (b.g.children[0]) b.g.children[0].rotation.y = -PI / 2; // 10.10.: Modell blickt entlang +X, die Flugbahn läuft entlang +Z (Fledermaeuse flogen seitwaerts); die Klone unten uebernehmen die Drehung
-  const o0 = B0.g.children[0], clip = (o0.animations && o0.animations[0]) || (B0.mx._actions && B0.mx._actions[0] && B0.mx._actions[0].getClip()); if (!clip) return;
-  [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5]].forEach(([cx, cz, r, h], i) => {
-    const o = S.skc(o0); o.traverse(m => { if (m.isMesh) m.castShadow = false; }); leben_variiere(o, { hell: [.75, 1.1] });
+function leben_batSetup() { // 15.10.: Großes Mausohr (Blender-Eigenbau, assets/ms/fledermaus: 1 Haut, 36 Knochen, Clips Flap/Glide); 12 Tiere, je 1 Zeichenaufruf (vorher 31 Teile je Tier)
+  const S = leben_S, M = S.M && S.M.bat; if (!M || !M.src) return;
+  const cF = M.clips.find(c => c.name === 'Flap'), cG = M.clips.find(c => c.name === 'Glide'); if (!cF) return;
+  const SP = [[-52, 80, 9, 10], [-40, 70, 7, 7.5], [30, 72, 8, 7], [112, 18, 9, 7.5], [118, -18, 10, 6.5], [-130, -28, 8, 8.5], [-118, -20, 6, 6.5], [-115, 25, 9, 6.5],
+    [-34, 2, 11, 9], [12, -5, 13, 8], [38, 4, 10, 10], [-8, 6, 15, 11]];
+  SP.forEach(([cx, cz, r, h], i) => {
+    const o = S.skc(M.src); o.scale.setScalar(1.5 * rand(.92, 1.08)); o.traverse(m => { if (m.isMesh) { m.castShadow = false; m.receiveShadow = false; m.frustumCulled = false; } }); leben_variiere(o, { gr: 0, hell: [.8, 1.15], warm: .06 });
     const g = new THREE.Group(); g.add(o); g.visible = false; g.userData.noCol = true; S.root.add(g); leben_reg(g, 'Fledermaus', .6);
-    const mx = new THREE.AnimationMixer(o), a = mx.clipAction(clip); a.timeScale = rand(2.6, 3.4); a.play(); mx.update(rand(0, 2));
-    S.bats.push({ g, mx, cx, cz, r, h, sp: rand(.5, .85) * (i % 2 ? 1 : -1), ph: rand(0, 6.28) }); });
+    const mx = new THREE.AnimationMixer(o), aF = mx.clipAction(cF), aG = cG ? mx.clipAction(cG) : null; aF.timeScale = rand(.95, 1.12); aF.play(); if (aG) { aG.setEffectiveWeight(0); aG.play(); } mx.update(rand(0, .25));
+    S.bats.push({ g, o, mx, aF, aG, cx, cz, r, h, k: rand(0, 6.28), sp: rand(.5, .8) * (i % 2 ? 1 : -1), ph: rand(0, 6.28), glide: false, fT: rand(.8, 2), sT: rand(3, 9), hd: 0, roll: 0, pitch: 0, last: null, wT: rand(1, 4) }); });
 }
 function leben_batTick(dt, t, live) {
   const S = leben_S, P = player.pos, show = S.zone === 'town' && !ch3.lampsOff;
-  for (const b of S.bats) { b.ph += dt * b.sp; const d = Math.hypot(b.g.position.x - P.x, b.g.position.z - P.z), v = show && d < 58; if (b.g.visible !== v) b.g.visible = v; if (!v && Math.hypot(b.cx - P.x, b.cz - P.z) > 45) continue;
-    if (v && d < 40) b.mx.update(dt);
-    let x = b.cx + Math.cos(b.ph) * b.r + Math.sin(b.ph * 2.9) * 1.2, y = b.h + Math.sin(b.ph * 2.3) * 1.3, z = b.cz + Math.sin(b.ph) * b.r * .7 + Math.cos(b.ph * 3.3) * .8;
-    { const dx = x - P.x, dz = z - P.z, dd = Math.hypot(dx, dz); if (dd < 9) { const f = dd > .01 ? 9 / dd : 0; x = dd > .01 ? P.x + dx * f : P.x + 9; z = dd > .01 ? P.z + dz * f : P.z; } if (y < P.y + 5) y = P.y + 5; } // 15.10.: nie naeher als 9 m, nie unter 5 m ueber dem Kopf
-    const px = b.g.position.x, pz = b.g.position.z; b.g.position.set(x, y, z); b.g.rotation.y = Math.atan2(x - px, z - pz); }
-  for (let i = S.eaten.length - 1; i >= 0; i--) { const e = S.eaten[i]; e.t -= dt; if (e.t < 0) { e.d.h = e.h; S.eaten.splice(i, 1); } } // neue Motten finden das Licht
+  const smooth = x => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+  for (const b of S.bats) { b.ph += dt * b.sp * (1 + .15 * Math.sin(t * .6 + b.k)); const d = Math.hypot(b.g.position.x - P.x, b.g.position.z - P.z), v = show && d < 58; if (b.g.visible !== v) { b.g.visible = v; if (v) b.last = null; } if (!v && Math.hypot(b.cx - P.x, b.cz - P.z) > 45) continue;
+    if (v && d < 45) { b.mx.update(dt); b.fT -= dt;
+      if (b.fT <= 0 && b.aG) { b.glide = !b.glide; b.fT = b.glide ? rand(.35, 1.0) : rand(1.0, 2.6); const to = b.glide ? b.aG : b.aF, from = b.glide ? b.aF : b.aG; to.reset().play(); to.crossFadeFrom(from, .18, false); } }
+    let x = b.cx + Math.cos(b.ph) * b.r * (1 + .12 * Math.sin(b.ph * 1.7 + b.k)) + Math.sin(b.ph * 2.9) * 1.2, y = b.h + Math.sin(b.ph * 2.3 + b.k) * 1.3, z = b.cz + Math.sin(b.ph) * b.r * .7 + Math.cos(b.ph * 3.3) * .8;
+    { const dx = x - P.x, dz = z - P.z, dd = Math.hypot(dx, dz); if (dd < 11) { const nd = dd + (6.5 - dd) * smooth((11 - dd) / 4.5), f = dd > .01 ? nd / dd : 0; x = dd > .01 ? P.x + dx * f : P.x + 6.5; z = dd > .01 ? P.z + dz * f : P.z; } // 15.10.: nie naeher als 6,5 m (weicher Uebergang statt Sprung), nie unter 4,5 m ueber dem Kopf (3D >= 8 m)
+      if (y < P.y + 4.5) y = P.y + 4.5; }
+    b.g.position.set(x, y, z);
+    if (v && live) { b.sT -= dt; if (b.sT < 0) { b.sT = rand(5, 13); if (d < 38 && typeof kl_pick === 'function' && Audio.ctx && Audio.started) { const n = kl_pick('fx_fleder_', 6); if (n) Audio.play(n, { gain: rand(.4, .6), vary: .06, x, y, z, ref: 3, typ: 'normal' }); } }
+      b.wT -= dt; if (b.wT < 0) { b.wT = rand(1.4, 3.2); if (d < 18 && !b.glide && typeof kl_pick === 'function' && Audio.ctx && Audio.started) { const n = kl_pick('fx_fleder_fluegel_', 2); if (n) Audio.play(n, { gain: .5, vary: .1, x, y, z, ref: 2, typ: 'leise' }); } } } }
+  for (const e of S.eaten) { e.t -= dt; if (e.t < 0) e.d.h = e.h; } S.eaten = S.eaten.filter(e => e.t >= 0); // neue Motten finden das Licht
   if (S.hunt) leben_huntTick(dt, t);
   else { S.T.hunt -= dt; if (S.T.hunt < 0) { S.T.hunt = rand(9, 22); if (show && state.started) leben_huntStart(); } }
+  // Ausrichtung aus der tatsaechlichen Bewegung (auch waehrend der Jagd): Kopf voraus, Kurvenneigung, Steigen/Sinken
+  for (const b of S.bats) { if (!b.g.visible) continue; const gp = b.g.position;
+    if (b.last) { const dx = gp.x - b.last.x, dz = gp.z - b.last.z, dy = gp.y - b.last.y, sp = Math.hypot(dx, dz) / Math.max(dt, 1e-3);
+      if (sp > .3) { const want = Math.atan2(dx, dz), old = b.hd; b.hd = leben_ang(b.hd, want, Math.min(1, dt * 7)); let tr = b.hd - old; tr = Math.atan2(Math.sin(tr), Math.cos(tr)) / Math.max(dt, 1e-3);
+        b.roll += ((Math.max(-.75, Math.min(.75, -tr * .32))) - b.roll) * Math.min(1, dt * 5); b.pitch += ((Math.max(-.5, Math.min(.5, -Math.atan2(dy / Math.max(dt, 1e-3), Math.max(sp, 1)) * .8))) - b.pitch) * Math.min(1, dt * 4); } }
+    else b.hd = b.g.rotation.y; b.last = b.last || { x: 0, y: 0, z: 0 }; b.last.x = gp.x; b.last.y = gp.y; b.last.z = gp.z;
+    b.g.rotation.y = b.hd; b.o.rotation.z = b.roll; b.o.rotation.x = b.pitch; }
 }
 function leben_huntStart() {
   const S = leben_S, P = player.pos; let best = null, bd = 1e9;
@@ -651,10 +666,10 @@ function leben_huntTick(dt, t) {
   let hy = 5 + Math.sin(k * 4.3) * .5 - .25; if (H.dive && k > H.dur - 1.7 && k < H.dur - .4) hy -= 3.3 * Math.sin((k - (H.dur - 1.7)) / 1.3 * PI);
   const hx = L.wx + Math.cos(a) * r, hz = L.wz + Math.sin(a * 1.35) * r * .8, w = Math.min(1, k / 1.3, (H.dur - k) / 1.3), e = w * w * (3 - 2 * w), gp = b.g.position;
   gp.set(gp.x + (hx - gp.x) * e, gp.y + (hy - gp.y) * e, gp.z + (hz - gp.z) * e);
-  { const dx = gp.x - P.x, dz = gp.z - P.z, dd = Math.hypot(dx, dz); if (dd < 9 && dd > .01) { gp.x = P.x + dx * 9 / dd; gp.z = P.z + dz * 9 / dd; } if (gp.y < P.y + 5) gp.y = P.y + 5; } // 15.10.: Jagd an der Lampe bleibt >= 9 m und >= 5 m ueber dem Spieler
-  if (Math.abs(gp.x - H.px) + Math.abs(gp.z - H.pz) > 1e-3) b.g.rotation.y = Math.atan2(gp.x - H.px, gp.z - H.pz); H.px = gp.x; H.pz = gp.z;
+  { const dx = gp.x - P.x, dz = gp.z - P.z, dd = Math.hypot(dx, dz); if (dd < 6.5 && dd > .01) { gp.x = P.x + dx * 6.5 / dd; gp.z = P.z + dz * 6.5 / dd; } if (gp.y < P.y + 4.5) gp.y = P.y + 4.5; } // 15.10.: Jagd an der Lampe bleibt >= 6,5 m und >= 4,5 m ueber dem Spieler
+  H.px = gp.x; H.pz = gp.z;
   H.clickT -= dt; if (H.clickT < 0 && e > .5) { H.clickT = rand(.35, .8); if (Math.hypot(L.wx - P.x, L.wz - P.z) < 22) leben_click(gp.x, gp.y, gp.z); }
-  if (!H.flap && Math.hypot(gp.x - P.x, gp.z - P.z) < 5) { H.flap = true; Audio.flap(gp.x, gp.y, gp.z); }
+  
   if (H.dive && gp.y < 2.2 && !H.scared) { H.scared = true; leben_scare(gp.x, gp.z, 6); } // Tiefflug über dem Pflaster: die Ratten stieben auseinander
 }
 

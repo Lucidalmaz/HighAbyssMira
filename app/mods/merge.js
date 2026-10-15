@@ -6,7 +6,7 @@
 // rigFarShow der Hauptschleife) werden die Originale ausgeblendet und das zusammengeführte Mesh eingeblendet – und nur, wenn die Gültigkeitsprüfung besteht
 // (alle Teile sichtbar, gleiches Elternteil, gleiche Lage relativ zur Wurzel, gleiche Material-Werte, gleiche Schattenmarken). Sonst zeichnen die Originale wie vorher.
 // Ausgeschlossen: Teile mit Namen Tür/Haube/Klappe/Rad/Lenk/Griff/Spiegel, Glas/Leuchten/emissiv/transparent, Skinning, Instanzen, eigene onBeforeRender-Haken,
-// negative Determinante, Kleinteile der Schatten-Diät (SMALL_T/SMALL_M). Aus: ?nomerge. Testzugriff window.__mrg.
+// negative Determinante, Kleinteile der Schatten-Diät (SMALL_T/SMALL_M). Aus: ?nomerge. Testzugriff: Objekt mrg im Testzugriff-Block.
 const MRG = { on: !/nomerge/.test(location.search), half: true, fr: 0, units: [], seen: new WeakSet(), q: [], scanT: 0, scanI: 0, t: 0, n: 0, hid: [], stat: { units: 0, members: 0, merged: 0, invalid: 0, active: 0 } };
 const MRG_SKIP = /door|hood|bonnet|trunk|boot|tailgate|lid\b|flap|wheel|tire|tyre|steer|handle|mirror|drawer|glass|window|light|lamp|lens|screen|wiper/i;
 const MRG_V = new THREE.Vector3(), MRG_M = new THREE.Matrix4(), MRG_N = new THREE.Matrix3(), MRG_INV = new THREE.Matrix4();

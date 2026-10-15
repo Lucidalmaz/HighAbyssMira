@@ -352,3 +352,7 @@ Oberflächen (Texturen b/n/orm, 1k) von https://polyhaven.com, CC0; Ablage `game
 
 ## Oberfläche (14.10.2026)
 assets/ui/blech.jpg und beton.jpg sind verkleinerte Ausschnitte der schon lizenzierten Oberflächen-Scans rust_sheet und wall_damaged (siehe docs/technical/lizenzen_release.md).
+
+## Fledermaus (15.10.2026)
+- Modell: Eigenbau in Blender (`app/tools/blender/fledermaus_bau.py`), keine Fremdmodelle.
+- Rufe (`fx_fleder_*`, `app/tools/klang_bau6.py`), Wikimedia Commons: „Hoary bat chirp recording.wav“ und „Bat feeding buzz.wav“ – Kaldari – CC0 · „Bats echolocation (CC by)“ – Yannick Dauby – CC BY 2.5 (Ausschnitte, gefiltert, Pegel angepasst). Fluegelschlag `fx_fleder_fluegel_*`: abgeleitet aus `fx_flug_*` (siehe oben).
