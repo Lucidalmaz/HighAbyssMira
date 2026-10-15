@@ -624,6 +624,7 @@ function leben_batTick(dt, t, live) {
   for (const b of S.bats) { b.ph += dt * b.sp; const d = Math.hypot(b.g.position.x - P.x, b.g.position.z - P.z), v = show && d < 58; if (b.g.visible !== v) b.g.visible = v; if (!v && Math.hypot(b.cx - P.x, b.cz - P.z) > 45) continue;
     if (v && d < 40) b.mx.update(dt);
     const x = b.cx + Math.cos(b.ph) * b.r + Math.sin(b.ph * 2.9) * 1.2, y = b.h + Math.sin(b.ph * 2.3) * 1.3, z = b.cz + Math.sin(b.ph) * b.r * .7 + Math.cos(b.ph * 3.3) * .8;
+    { const dx = x - P.x, dz = z - P.z, dd = Math.hypot(dx, dz); if (dd < 9) { const f = dd > .01 ? 9 / dd : 0; x = dd > .01 ? P.x + dx * f : P.x + 9; z = dd > .01 ? P.z + dz * f : P.z; } if (y < P.y + 5) y = P.y + 5; } // 15.10.: nie naeher als 9 m, nie unter 5 m ueber dem Kopf
     const px = b.g.position.x, pz = b.g.position.z; b.g.position.set(x, y, z); b.g.rotation.y = Math.atan2(x - px, z - pz); }
   for (let i = S.eaten.length - 1; i >= 0; i--) { const e = S.eaten[i]; e.t -= dt; if (e.t < 0) { e.d.h = e.h; S.eaten.splice(i, 1); } } // neue Motten finden das Licht
   if (S.hunt) leben_huntTick(dt, t);
@@ -650,6 +651,7 @@ function leben_huntTick(dt, t) {
   let hy = 5 + Math.sin(k * 4.3) * .5 - .25; if (H.dive && k > H.dur - 1.7 && k < H.dur - .4) hy -= 3.3 * Math.sin((k - (H.dur - 1.7)) / 1.3 * PI);
   const hx = L.wx + Math.cos(a) * r, hz = L.wz + Math.sin(a * 1.35) * r * .8, w = Math.min(1, k / 1.3, (H.dur - k) / 1.3), e = w * w * (3 - 2 * w), gp = b.g.position;
   gp.set(gp.x + (hx - gp.x) * e, gp.y + (hy - gp.y) * e, gp.z + (hz - gp.z) * e);
+  { const dx = gp.x - P.x, dz = gp.z - P.z, dd = Math.hypot(dx, dz); if (dd < 9 && dd > .01) { gp.x = P.x + dx * 9 / dd; gp.z = P.z + dz * 9 / dd; } if (gp.y < P.y + 5) gp.y = P.y + 5; } // 15.10.: Jagd an der Lampe bleibt >= 9 m und >= 5 m ueber dem Spieler
   if (Math.abs(gp.x - H.px) + Math.abs(gp.z - H.pz) > 1e-3) b.g.rotation.y = Math.atan2(gp.x - H.px, gp.z - H.pz); H.px = gp.x; H.pz = gp.z;
   H.clickT -= dt; if (H.clickT < 0 && e > .5) { H.clickT = rand(.35, .8); if (Math.hypot(L.wx - P.x, L.wz - P.z) < 22) leben_click(gp.x, gp.y, gp.z); }
   if (!H.flap && Math.hypot(gp.x - P.x, gp.z - P.z) < 5) { H.flap = true; Audio.flap(gp.x, gp.y, gp.z); }

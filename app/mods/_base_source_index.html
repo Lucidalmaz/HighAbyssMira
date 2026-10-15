@@ -4691,6 +4691,8 @@ async function loadFabAssets() {
   const [rat, bench, boulder, manhole, shrubs, bat, fly, cob, lampM, swingM] = await Promise.all([
     GL.loadAsync('assets/rat/rat.glb'), GL.loadAsync('assets/bench/model.gltf'), GL.loadAsync('assets/boulder/model.gltf'), GL.loadAsync('assets/manhole/model.gltf'), GL.loadAsync('assets/deadshrubs/model.gltf'),
     FL.loadAsync('assets/bat/model.fbx'), FL.loadAsync('assets/fly/model.fbx'), FL.loadAsync('assets/cobwebs/model.fbx'), FL.loadAsync('assets/lamp/model.fbx'), FL.loadAsync('assets/swings/model.fbx')]);
+  // 15.10. Nutzer: Fledermaeuse sind "leuchtend blaue Dinger": die FBX enthaelt das Maya-Kontrollrig als Linien (ROOT_ctrl, Hip_ctrl … LineBasicMaterial 0x3300ff, ca. 31 je Tier = 374 Zeichenaufrufe-Kandidaten). Linien sind nie Teil des Modells → unsichtbar (Knoten bleiben: sie sind die Hierarchie/Animationsziele).
+  for (const r of [bat, fly, cob, lampM, swingM]) { const L = []; r.traverse(m => { if (m.isLine || m.isLineSegments) L.push(m); }); for (const m of L) m.visible = false; }
 
   // --- Laternen: echte Straßenlaterne statt Rohr und Kasten (Licht, Lichtkegel und Birne bleiben)
   const lampMat = new THREE.MeshStandardMaterial({ map: T('lamp/color.jpg'), normalMap: T('lamp/normal.jpg', false), roughness: .55, metalness: .7 });
@@ -4866,10 +4868,10 @@ function fabUpdate(dt, t) {
     b.g.visible = outdoor && !ch3.lampsOff; if (!b.g.visible) continue;
     b.mx.update(dt); b.ph += dt * b.sp;
     let x = b.cx + Math.cos(b.ph) * b.r, y = b.h + Math.sin(b.ph * 2.3) * 1.2, z = b.cz + Math.sin(b.ph) * b.r * .6;
-    if (b.swoop > 0) { b.swoop -= dt; const k = 1 - Math.abs(b.swoop - 1.2) / 1.2; x += (P.x - x) * k; y += (1.75 - y) * k; z += (P.z - z) * k; }
+    { const dx = x - P.x, dz = z - P.z, dd = Math.hypot(dx, dz), MIN = 9; if (dd < MIN) { const f = dd > .01 ? MIN / dd : 0; x = dd > .01 ? P.x + dx * f : P.x + MIN; z = dd > .01 ? P.z + dz * f : P.z; } if (y < P.y + 5) y = P.y + 5; } // 15.10. Nutzer: Fledermaeuse flogen auf den Spieler zu (Sturzflug) – jetzt kreisen sie immer, nie naeher als 9 m, nie unter 5 m ueber dem Kopf
     const px = b.g.position.x, pz = b.g.position.z; b.g.position.set(x, y, z); b.g.rotation.y = Math.atan2(x - px, z - pz);
   }
-  if (outdoor && !state.talking && !ui.overlay && state.started) { FAB.batT -= dt; if (FAB.batT < 0) { FAB.batT = rand(55, 110); let b = null, bd = 28; for (const q of FAB.bats) { const d = Math.hypot(q.g.position.x - P.x, q.g.position.z - P.z); if (d < bd && q.g.visible) { bd = d; b = q; } } if (b) { b.swoop = 2.4; setTimeout(() => Audio.flap(P.x, 1.8, P.z), 900); } else FAB.batT = 6; } } // 08.10.: nur eine Fledermaus in Reichweite stürzt herab (vorher aus bis 60 m Entfernung = Sprung quer durchs Bild)
+  // Sturzflug auf den Spieler (swoop) entfernt (15.10.): Fledermaeuse kreisen nur noch
   for (const f of FAB.flies) { const far = Math.abs(f.c.x - P.x) > 30 || Math.abs(f.c.z - P.z) > 30; f.o.visible = !far; if (far) continue; f.ph += dt * f.sp; f.o.position.set(f.c.x + Math.cos(f.ph) * f.r + Math.sin(f.ph * 3.1) * .05, f.c.y + Math.sin(f.ph * 1.7) * .12, f.c.z + Math.sin(f.ph * 1.3) * f.r); f.o.rotation.y = -f.ph; }
   for (const S of FAB.spiders) {
     if (Math.hypot(P.x - S.g.position.x, P.z - S.g.position.z) > 25) continue;
@@ -5481,7 +5483,7 @@ async function msBake(key, file) { const s = await msModel(key, file); s.updateM
 // FBX mit losen Texturen. spec: { Materialname | '*': { b, n, r, m, ao, a, color, rough, metal, ds, emissive } } – Pfade relativ zu assets/ms/<key>/
 async function msFBX(key, file = 'model.fbx', spec = {}) {
   if (!MSL.fbx) { const { FBXLoader } = await import('three/addons/loaders/FBXLoader.js'); const mgr = new THREE.LoadingManager(); mgr.setURLModifier(u => /\.(png|jpe?g|tga|bmp|tiff?|psd|dds)$/i.test(u) && !u.startsWith('data:') ? MS_DATA_PNG : u); MSL.fbx = new FBXLoader(mgr); }
-  const k = 'fbx:' + key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.fbx.loadAsync('assets/ms/' + key + '/' + file)); const src = await MSL.cache.get(k); src.userData.msKey = key + '/' + file; if (!src.__nrm) { src.__nrm = 1; src.traverse(m => { if (m.isMesh && m.geometry && !m.geometry.attributes.normal) m.geometry.computeVertexNormals(); }); } // 09.10.: FBX ohne Normalen (w_jacke) wurde schwarz gezeichnet
+  const k = 'fbx:' + key + '/' + file; if (!MSL.cache.has(k)) MSL.cache.set(k, MSL.fbx.loadAsync('assets/ms/' + key + '/' + file)); const src = await MSL.cache.get(k); src.userData.msKey = key + '/' + file; if (!src.__nrm) { src.__nrm = 1; { const L = []; src.traverse(m => { if (m.isLine || m.isLineSegments) L.push(m); }); for (const m of L) m.visible = false; } src.traverse(m => { if (m.isMesh && m.geometry && !m.geometry.attributes.normal) m.geometry.computeVertexNormals(); }); } // 09.10.: FBX ohne Normalen (w_jacke) wurde schwarz gezeichnet
   const o = src.clone(true); o.animations = src.animations; const mk = new Map(), dir = key + '/';
   o.traverse(m => { if (!m.isMesh) return; const mats = [].concat(m.material).map(mt => { const s = spec[mt.name] || spec['*']; if (!s) return mt; const id = (mt.name || '*') + JSON.stringify(s); if (mk.has(id)) return mk.get(id);
       const nm = new THREE.MeshStandardMaterial({ name: mt.name, color: s.color ?? 0xffffff, roughness: s.rough ?? 1, metalness: s.metal ?? (s.m ? 1 : 0), side: s.ds ? THREE.DoubleSide : THREE.FrontSide,
