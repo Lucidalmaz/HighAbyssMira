@@ -182,7 +182,8 @@ function neb_hide() {
   // Entscheidung laufend in Portionen (alle Kandidaten in ~10 Bildern), nach einem Sprung der Sichtweite/Kamera sofort für alle
   const nM = jump ? NEB.mesh.length : Math.ceil(NEB.mesh.length / 10);
   for (let k = 0; k < nM && NEB.mesh.length; k++) { const N = NEB.mesh[NEB.j++ % NEB.mesh.length], D = N.D, e = D.e, x = D.x, y = D.y, z = D.z;
-    N.far = Math.hypot(e[0] * x + e[4] * y + e[8] * z + e[12] - cx, e[1] * x + e[5] * y + e[9] * z + e[13] - cy, e[2] * x + e[6] * y + e[10] * z + e[14] - cz) - D.R > R + 2; }
+    const hx = e[0] * x + e[4] * y + e[8] * z + e[12] - cx, hy = e[1] * x + e[5] * y + e[9] * z + e[13] - cy, hz = e[2] * x + e[6] * y + e[10] * z + e[14] - cz; // 15.10.: kein Math.hypot (Argumentliste je Aufruf)
+    N.far = Math.sqrt(hx * hx + hy * hy + hz * hz) - D.R > R + 2; }
   // Ausblenden in jedem Bild (die Entscheidung gilt, bis die Portion wieder dran ist – 2 m Sicherheitsrand für die Bewegung in dieser Zeit)
   let n = 0; const hid = RIGS.hid;
   for (let k = 0; k < NEB.mesh.length; k++) { const N = NEB.mesh[k]; if (N.far && N.o.visible) { N.o.visible = false; hid.push(N.o); n++; } }
@@ -222,7 +223,7 @@ function lst_lichtPatch(prog) {
   if (LST.lichtOk || !prog) return; const U = prog.getUniforms(); if (!U || !U.seq) return; const done = LST.lichtP || (LST.lichtP = new Set());
   if ((LST.lichtN = (LST.lichtN | 0) + 1) > 200) { LST.lichtOk = true; return; } // nicht ewig suchen
   for (const u of U.seq) { if (!LICHT_IDS.has(u.id)) continue; const P = Object.getPrototypeOf(u); if (!P || done.has(P) || P.__lstLicht || typeof P.setValue !== 'function') continue; done.add(P); P.__lstLicht = true;
-    const s0 = P.setValue; P.setValue = function (gl, v, tex) { if (LST.licht && LICHT_IDS.has(this.id)) { if (this.__rc === LST_RC && this.__lv === v) return; this.__rc = LST_RC; this.__lv = v; } return s0.call(this, gl, v, tex); }; }
+    const s0 = P.setValue; P.setValue = function (gl, v, tex) { let L = this.__L; if (L === undefined) L = this.__L = LICHT_IDS.has(this.id); /* 15.10.: Set-Suche je Aufruf (alle Array-/Struktur-Uniforms laufen durch diesen Rahmen) → Merker am Uniform */ if (L && LST.licht) { if (this.__rc === LST_RC && this.__lv === v) return; this.__rc = LST_RC; this.__lv = v; } return s0.call(this, gl, v, tex); }; }
   if (done.size >= 2) LST.lichtOk = true; // Struktur- und Feld-Uniform gefunden
 }
 // 7) TASCHENLAMPEN-RÜCKSTREUUNG: der Strahl (14 m) prüfte in jedem Bild alle Verdecker der Welt. Jetzt nur die in der Nähe (Liste alle 2 m / 0,5 s neu,
@@ -350,7 +351,7 @@ function lst_freeze() {
   const s0 = scene.updateMatrixWorld;
   scene.updateMatrixWorld = function (force) {
     if (force || !MWF.on || MWF.pause) return s0.call(this, force); // pause: Vergleichsmessung (Basis rechnet wie vorher; gemeinsamer Vergleichsspeicher hält alles stimmig)
-    MWF.now = performance.now();
+    MWF.now = performance.now() | 0; // ganze Millisekunden: Smi → die Zeitmarken __lm/__mwNo (je Knoten und Bild beschrieben) erzeugen keine HeapNumber mehr (33 MB Müll in 13 s)
     if (MWF.chk !== MWF.tick) { MWF.chk = MWF.tick; MWF.tries = 150; try { mwf_check(); } catch (e) { MWF.on = false; for (const u of MWF.units) u.o.__frz = false; console.warn('Leistung: Einfrieren', e); return s0.call(this, force); } }
     if (mwf_moved(this)) { this.matrixWorld.copy(this.matrix); this.matrixWorldNeedsUpdate = false; force = true; }
     else if (this.matrixWorldNeedsUpdate) { this.matrixWorldNeedsUpdate = false; if (mwf_wm(this)) force = true; } // Basis: der Merker allein (jedes Bild von updateWorldMatrix(true…) der Szene gesetzt) rechnete ALLES nach
@@ -378,8 +379,18 @@ function lst_schattenFrei() {
   };
 }
 
+// 15.10. Phasenzeiten je Bild (nur Entwicklung): Aktualisierung, Skelett-Ausblenden, Blickfeld-/Kleinteil-Auslese, Zeichnen – Millisekunden-Summen, Teiler = LPF.n (Bilder). Messung von Hebeln ohne Bildzeit-Rauschen.
+const LPF = { upd: 0, rig: 0, vc: 0, dc: 0, rnd: 0, n: 0, umw: 0, chk: 0, mrg: 0, shw: 0, neb: 0 };
+function lp_wrap() {
+  if (typeof DEV === 'undefined' || !DEV) return; const w = (k, f) => function () { const t = performance.now(); try { return f.apply(this, arguments); } finally { LPF[k] += performance.now() - t; } };
+  update = w('upd', update); rigFarHide = w('rig', rigFarHide); vcullHide = w('vc', vcullHide); dcullHide = w('dc', dcullHide);
+  const r0 = composer.render; composer.render = function () { const t = performance.now(); try { return r0.apply(this, arguments); } finally { LPF.rnd += performance.now() - t; LPF.n++; } };
+  scene.updateMatrixWorld = w('umw', scene.updateMatrixWorld); mwf_check = w('chk', mwf_check); neb_hide = w('neb', neb_hide);
+  if (typeof mrg_pre === 'function') mrg_pre = w('mrg', mrg_pre);
+  { const s1 = renderer.shadowMap.render; renderer.shadowMap.render = w('shw', s1); }
+}
 WORLD_MODS.push(['Leistung', async () => {
-  window.__leistung = { S: LST, NEB, ECP, LK, MWF, get SHF() { return SHADOW_FREI; }, get BVH() { return BVH_EARLY; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
+  window.__leistung = { S: LST, NEB, ECP, LK, MWF, LP: LPF, get SHF() { return SHADOW_FREI; }, get BVH() { return BVH_EARLY; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff
     zweigeTop(k = 25) { const out = []; scene.children.forEach((c, i) => { if (!c.visible) return; let n = 0, m = 0; const walk = o => { n++; if (o.isMesh) m++; if (!o.visible) return; for (const x of o.children) walk(x); }; walk(c);
       let nm = c.name; if (!nm) { const s = []; c.traverse(o => { if (s.length < 3 && o !== c && (o.name || (o.material && o.material.name))) s.push(o.name || o.material.name); }); nm = '?' + s.join('/'); } out.push([nm + '#' + i, n, m]); });
       return out.sort((a, b) => b[1] - a[1]).slice(0, k).map(x => x.join(':')).join(' '); },
@@ -392,7 +403,7 @@ WORLD_MODS.push(['Leistung', async () => {
 }]);
 WORLD_TICK.push(dt => {
   if (!ui.ready) return;
-  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_compileDefer(); } catch (e) { LST.cdefer = false; console.warn('Leistung: Übersetzen verschieben', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } return; }
+  if (!LST.init) { LST.init = true; try { lst_seed(); } catch (e) { console.warn('Leistung: Bestand', e); LST.on = false; } try { lst_mixer(); } catch (e) { console.warn('Leistung: Animation', e); } try { lst_schatten(); } catch (e) { console.warn('Leistung: Schatten', e); } try { lst_compileDefer(); } catch (e) { LST.cdefer = false; console.warn('Leistung: Übersetzen verschieben', e); } SHADOW_FREI.on = LST_NEU && !/noshfrei/.test(location.search); if (SHADOW_FREI.on) try { lst_schattenFrei(); } catch (e) { SHADOW_FREI.on = false; console.warn('Leistung: Schattenbild-Bilder', e); } try { lst_nebel(); } catch (e) { console.warn('Leistung: Nebel', e); } try { lst_sonde(); } catch (e) { console.warn('Leistung: Sonde', e); } try { lst_licht(); } catch (e) { console.warn('Leistung: Licht', e); } try { lst_strahl(); } catch (e) { console.warn('Leistung: Strahl', e); } try { lst_freeze(); } catch (e) { MWF.on = false; console.warn('Leistung: Einfrieren', e); } try { lp_wrap(); } catch (e) { console.warn('Leistung: Zeitmessung', e); } return; }
   MWF.tick++;
   if (!LST.on) return;
   lst_scan(); lst_flush();

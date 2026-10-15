@@ -5734,7 +5734,7 @@ function vcullHide() {
 //    Unterhalb der Augenhöhe (Hintergrund ist dort Boden/Nebel, nie Himmel) zählt zusätzlich der Nebel: Radius × Nebel-Durchlass < DCULL.T, aber nur bis DCULL.MAX Pixel.
 //    Nur normal beleuchtete, nicht leuchtende Materialien mit Nebel; keine Figuren, Instanzen, eigenen Shader, Glas/Additiv. Bilder mit neuem Schattenbild zeichnen alles.
 //    Gemessen vorher: auf der Straße 40–60 % aller Zeichenaufrufe für Teile unter einem Pixel oder im Nebel.
-const DCULL = { list: [], n: -1, t: 0, i: 0, T: 1, MAX: 3, sz: new THREE.Vector2(), obr: THREE.Object3D.prototype.onBeforeRender, off: false };
+const DCULL = { list: [], n: -1, t: 0, i: 0, T: 1, MAX: 3, sz: new THREE.Vector2(), obr: THREE.Object3D.prototype.onBeforeRender, off: false, Q: 4, ph: 0, act: [], cx: 1e9, cy: 0, cz: 0, K: 0, fd: -1 };
 function dcullMat(m) { return m && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial) && m.fog !== false && m.blending === THREE.NormalBlending && !m.transparent && !m.emissiveMap && m.toneMapped !== false && !(m.emissiveIntensity > 0 && m.emissive && m.emissive.r + m.emissive.g + m.emissive.b > 0); }
 function dcullBuild() {
   const L = [];
@@ -5745,16 +5745,20 @@ function dcullBuild() {
 }
 function dcullHide() {
   if (DCULL.off || ((moon.shadow.needsUpdate || keyLight.shadow.needsUpdate || lampPool[0].shadow.needsUpdate || lampPool[1].shadow.needsUpdate) && !SHADOW_FREI.on)) return; // Schattenbild entsteht neu → alles mitnehmen (siehe vcullHide)
-  if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; dcullBuild(); } // neu geladene Kapitel
+  if (DCULL.n !== scene.children.length && performance.now() > DCULL.t) { DCULL.t = performance.now() + 5000; dcullBuild(); DCULL.act = []; } // neu geladene Kapitel
   const L = DCULL.list, N = L.length; if (!N) return;
   for (let k = Math.min(N, 200); k > 0; k--) { const E = L[DCULL.i++ % N]; E.R = E.r * E.o.matrixWorld.getMaxScaleOnAxis(); } // Größe laufend auffrischen
   renderer.getDrawingBufferSize(DCULL.sz); const K = DCULL.sz.y * .5 * camera.zoom / Math.tan(THREE.MathUtils.DEG2RAD * camera.fov * .5), T = DCULL.T, MX = DCULL.MAX * T;
   const fd = scene.fog && scene.fog.isFogExp2 ? scene.fog.density : 0, c = camera.matrixWorld.elements, cx = c[12], cy = c[13], cz = c[14], fx = -c[8], fy = -c[9], fz = -c[10], hid = RIGS.hid;
-  for (let i = 0; i < N; i++) { const E = L[i], e = E.e, x = E.x, y = E.y, z = E.z;
+  // 15.10.: Entscheidung je Teil nur noch jedes DCULL.Q-te Bild neu (Teile unter einem Pixel ändern ihr Urteil nur langsam; Kamerasprung/Nebel-/Größenänderung: alle sofort), Ausblenden aus der Merkliste jedes Bild
+  const jump = DCULL.Q <= 1 || Math.abs(cx - DCULL.cx) + Math.abs(cy - DCULL.cy) + Math.abs(cz - DCULL.cz) > .6 || fd !== DCULL.fd || K !== DCULL.K; DCULL.cx = cx; DCULL.cy = cy; DCULL.cz = cz; DCULL.fd = fd; DCULL.K = K;
+  const Q = jump ? 1 : DCULL.Q, act = DCULL.act;
+  for (let i = (DCULL.ph++) % Q; i < N; i += Q) { const E = L[i], e = E.e, x = E.x, y = E.y, z = E.z; let h = false;
     const wy = e[1] * x + e[5] * y + e[9] * z + e[13], d = (e[0] * x + e[4] * y + e[8] * z + e[12] - cx) * fx + (wy - cy) * fy + (e[2] * x + e[6] * y + e[10] * z + e[14] - cz) * fz - E.R; // Tiefe der Vorderkante
-    if (d <= .5) continue; let px = E.R * K / d; if (px >= T) { if (fd <= 0 || px >= MX || wy + E.R >= cy) continue; const f = fd * d; px *= Math.exp(-f * f); if (px >= T) continue; }
-    const o = E.o; if (!o.visible) continue; const m = o.material; if (Array.isArray(m)) { let ok = true; for (let j = 0; j < m.length; j++) if (!dcullMat(m[j])) { ok = false; break; } if (!ok) continue; } else if (!dcullMat(m)) continue;
-    o.visible = false; hid.push(o); }
+    if (d > .5) { let px = E.R * K / d, small = true; if (px >= T) { if (fd <= 0 || px >= MX || wy + E.R >= cy) small = false; else { const f = fd * d; px *= Math.exp(-f * f); if (px >= T) small = false; } }
+      if (small) { const o = E.o, m = o.material; if (Array.isArray(m)) { h = true; for (let j = 0; j < m.length; j++) if (!dcullMat(m[j])) { h = false; break; } } else h = dcullMat(m); } }
+    if (h !== !!E.h) { E.h = h; if (h) act.push(E); } }
+  for (let j = act.length - 1; j >= 0; j--) { const E = act[j]; if (!E.h) { act[j] = act[act.length - 1]; act.pop(); continue; } const o = E.o; if (o.visible) { o.visible = false; hid.push(o); } }
 }
 // 4) Schatten-Diät, laufend in kleinen Portionen (auch für später geladene Kapitel):
 //    - kleine Teile (Kerzen, Dosen, Kleinkram < 30 cm) fehlen im großen Mond-Schattenbild – sparte bis zu 6,9 Mio. Dreiecke je Schattendurchgang.
