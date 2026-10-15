@@ -171,10 +171,10 @@ function lst_schatten() {
 }
 const S1 = [], R1 = [], One = [null], SH = [], SHS = new THREE.Sphere();
 function lst_schattenAus(l) { l.shadow.updateMatrices(l); const fr = l.shadow.getFrustum(); let n = 0;
-  for (const E of VCULL.list) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
+  for (let _i = 0, _L = VCULL.list; _i < _L.length; _i++) { const E = _L[_i]; const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
     SHS.center.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld); SHS.radius = E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + .5;
     if (!fr.intersectsSphere(SHS)) { o.visible = false; SH.push(o); n++; } }
-  for (const g of RIGS.list) { const r = g.r; if (!r.visible || !r.parent) continue; const e = r.matrixWorld.elements; SHS.center.set(e[12], e[13], e[14]); SHS.radius = g.size * 1.5 + 1.5;
+  for (let _i = 0, _L = RIGS.list; _i < _L.length; _i++) { const g = _L[_i]; const r = g.r; if (!r.visible || !r.parent) continue; const e = r.matrixWorld.elements; SHS.center.set(e[12], e[13], e[14]); SHS.radius = g.size * 1.5 + 1.5;
     if (!fr.intersectsSphere(SHS)) { r.visible = false; SH.push(r); n++; } }
   return n; }
 
@@ -225,16 +225,16 @@ function lst_sonde() {
       if (LST.sondeFr && typeof VCULL !== 'undefined' && VCULL.list.length) { const fc = P.cam.children[i]; if (fc && fc.projectionMatrix) {
         const fr = LST.sfr || (LST.sfr = new THREE.Frustum()), pm = LST.spm || (LST.spm = new THREE.Matrix4()), sp = LST.ssp || (LST.ssp = new THREE.Sphere()); fc.updateMatrixWorld(true);
         fr.setFromProjectionMatrix(pm.multiplyMatrices(fc.projectionMatrix, fc.matrixWorldInverse));
-        for (const E of VCULL.list) { const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
+        for (let _i = 0, _L = VCULL.list; _i < _L.length; _i++) { const E = _L[_i]; const o = E.o; if (E.r < 0 || !o.visible || !o.parent) continue; const e = o.matrixWorld.elements;
           sp.center.set(E.c.x, E.c.y, E.c.z).applyMatrix4(o.matrixWorld);
           sp.radius = E.r * Math.sqrt(Math.max(e[0] * e[0] + e[1] * e[1] + e[2] * e[2], e[4] * e[4] + e[5] * e[5] + e[6] * e[6], e[8] * e[8] + e[9] * e[9] + e[10] * e[10])) + VCULL.M;
           if (!fr.intersectsSphere(sp)) { o.visible = false; hid.push(o); } } } }
       const p = P.cam.position, px = p.x, py = p.y, pz = p.z, R = scene.fog && scene.fog.isFogExp2 && scene.fog.density > 0 ? Math.min(1.7 / scene.fog.density, 80) : 80, K = LST.sondeK; // 128 px, 90°; Sondenweite: Nebel lässt < 6 % durch (50 m bei 0,034), im Glas × Fresnel ≈ unsichtbar
       // 15.10.: ohne Math.hypot/Wurzel (je Seite 8 000 Teile; self-Zeit der Seite 2 ms): d = Abstand − R > Weite  ⇔  Abstand² > (Weite + R)²; R·K < d ⇔ Abstand² > (R·(K+1))²; d > ,5 ⇔ Abstand² > (R + ,5)²
-      for (const E of DCULL.list) { const o = E.o; if (!o.visible) continue; const e = E.e, x = E.x, y = E.y, z = E.z, r = E.R;
+      for (let _i = 0, _L = DCULL.list; _i < _L.length; _i++) { const E = _L[_i]; const o = E.o; if (!o.visible) continue; const e = E.e, x = E.x, y = E.y, z = E.z, r = E.R;
         const hx = e[0] * x + e[4] * y + e[8] * z + e[12] - px, hy = e[1] * x + e[5] * y + e[9] * z + e[13] - py, hz = e[2] * x + e[6] * y + e[10] * z + e[14] - pz, dd = hx * hx + hy * hy + hz * hz, a = R + r, b = r + .5, c = r * (K + 1);
         if (dd > a * a || (dd > b * b && dd > c * c)) { o.visible = false; hid.push(o); } }
-      for (const g of RIGS.list) { const r = g.r; if (!r.visible) continue; const m = r.matrixWorld.elements; if (Math.hypot(m[12] - px, m[14] - pz) > g.R) { r.visible = false; hid.push(r); } }
+      for (let _i = 0, _L = RIGS.list; _i < _L.length; _i++) { const g = _L[_i]; const r = g.r; if (!r.visible) continue; const m = r.matrixWorld.elements; if (Math.hypot(m[12] - px, m[14] - pz) > g.R) { r.visible = false; hid.push(r); } }
       return f0(i);
     } finally { scene.matrixWorldAutoUpdate = au; for (let k = 0; k < hid.length; k++) hid[k].visible = true; hid.length = 0; } };
 }
@@ -417,7 +417,10 @@ function lp_wrap() {
   scene.updateMatrixWorld = w('umw', scene.updateMatrixWorld); mwf_check = w('chk', mwf_check); neb_hide = w('neb', neb_hide);
   if (typeof mrg_pre === 'function') mrg_pre = w('mrg', mrg_pre);
   lst_flush = w('fl', lst_flush); lst_scan = w('scan', lst_scan);
-  { const s1 = renderer.shadowMap.render; renderer.shadowMap.render = w('shw', s1); }
+  if (typeof fassaden_probeFace === 'function') { const pf = fassaden_probeFace; LPF.pfl = []; fassaden_probeFace = function (i) { const t = performance.now(); try { return pf.apply(this, arguments); } finally { if (LPF.pfl.length < 600) LPF.pfl.push([i, +(performance.now() - t).toFixed(1)]); } }; }
+  { const s1 = renderer.shadowMap.render; LPF.shl = [];
+    renderer.shadowMap.render = function (lights, sc, cam) { const t = performance.now(); let sig = ''; if (sc === scene) for (let i = 0; i < lights.length; i++) { const l = lights[i], s = l.shadow; if (s && (s.needsUpdate || s.autoUpdate) && l.intensity > 0) sig += (l === moon ? 'M' : l === keyLight ? 'K' : l === flashlight ? 'F' : l === lampPool[0] ? 'L0' : l === lampPool[1] ? 'L1' : l.type[0]) + (s.needsUpdate ? 'n' : 'a') + ' '; }
+      try { return s1.call(this, lights, sc, cam); } finally { const d = performance.now() - t; LPF.shw += d; if (sc === scene && d > 6 && LPF.shl.length < 400) LPF.shl.push([sig, +d.toFixed(1)]); } }; }
 }
 WORLD_MODS.push(['Leistung', async () => {
   window.__leistung = { S: LST, NEB, ECP, LK, MWF, LP: LPF, LSTL, get SHF() { return SHADOW_FREI; }, get BVH() { return BVH_EARLY; }, preset(q) { settings.gfx = q; settings.fx = { ...GRAFIK_PRESET[q] }; applyQuality(); grafik_anwenden(); return q; }, sondeMs() { if (typeof fassaden_S === 'undefined' || !fassaden_S.probe) return -1; const c = camera.position; fassaden_probeAt(c.x, 1.7, c.z); const t = performance.now(); for (let i = 0; i < 6; i++) fassaden_probeFace(i); fassaden_S.probe.face = -1; return +((performance.now() - t) / 6).toFixed(2); }, get PERF_CULL() { return PERF_CULL; }, get RIGS() { return RIGS; }, get VCULL() { return VCULL; }, get DCULL() { return DCULL; }, // Testzugriff

@@ -299,7 +299,7 @@ function figuren_rotChain(list, pivot, q) { const M = FIGUREN_MV; let rest = fal
   for (const b of list) { const R = FIGUREN_RC.get(b); R.lq.copy(b.quaternion); R.lp.copy(b.position); } }
 // Bodenhöhe unter einem Fuß: Kisten-Kollision (Stufen, Kanten) und begehbare Flächen (solidGround: Treppen, Veranden). null = nichts Höheres/Tieferes gefunden
 function figuren_ground(x, y, z) { let g = -Infinity;
-  for (const c of colliders) if (c.top > g && c.top <= y + .45 && c.top >= y - .5 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top;
+  for (let ci = 0; ci < colliders.length; ci++) { const c = colliders[ci]; if (c.top > g && c.top <= y + .45 && c.top >= y - .5 && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) g = c.top; } // 15.10.: Indexschleife (kein Iterator-Müll)
   if (typeof solidGround === 'function') { try { const sg = solidGround(x, y + .05, z); if (sg > g && sg <= y + .45 && sg >= y - .5) g = sg; } catch (e) {} }
   return g === -Infinity ? null : g; }
 // Zweigelenk-IK für ein Bein: Fußgelenk um dy (Welt, nach oben) versetzen, Knie in seiner Ebene, Fußdrehung bleibt
