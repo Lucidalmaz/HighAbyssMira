@@ -356,3 +356,8 @@ assets/ui/blech.jpg und beton.jpg sind verkleinerte Ausschnitte der schon lizenz
 ## Fledermaus (15.10.2026)
 - Modell: Eigenbau in Blender (`app/tools/blender/fledermaus_bau.py`), keine Fremdmodelle.
 - Rufe (`fx_fleder_*`, `app/tools/klang_bau6.py`), Wikimedia Commons: „Hoary bat chirp recording.wav“ und „Bat feeding buzz.wav“ – Kaldari – CC0 · „Bats echolocation (CC by)“ – Yannick Dauby – CC BY 2.5 (Ausschnitte, gefiltert, Pegel angepasst). Fluegelschlag `fx_fleder_fluegel_*`: abgeleitet aus `fx_flug_*` (siehe oben).
+
+**Tiere (15.10.2026, eigener Blender-Bau bzw. CC0-Aufnahmen):**
+- Kuh (`assets/cow/cow.glb`, `app/tools/blender/kuh_bau.py`): eigener Bau (Holstein, Knochen wie vorher), Texturen prozedural.
+- Fliege (`assets/fly/model.fbx`): Fab „Realistic Fly“ (Aaron Bravo) auf 3,6 k Dreiecke dezimiert (`app/tools/blender/fliege_decimate.py`).
+- Rattenrufe (`fx_ratte_*`) und Fliegenbrummen (`amb_fliege`), `app/tools/klang_bau7.py`, freesound.org, nur CC0 (HQ-Vorschau ohne Konto): ratSqueak.wav – Zabuhailo – 143125 · ratty squeaks.wav – Reitanna – 217767 · rat-squeak.wav – toefur – 288941 · Creature - Rat - Vocalizations – LandeAudio – 574107 · Single House Fly – Kinoton – 352057.

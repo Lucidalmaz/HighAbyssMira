@@ -55,6 +55,7 @@ function leben_path(x0, z0, x1, z1) { const L = Math.hypot(x1 - x0, z1 - z0), n 
 // ---------------------------------------------------------------- Klänge (vorhandene Audio-Bausteine)
 function leben_squeak(x, y, z, n = 3, v = .05) { // Ratte: kein Sinus-Pfeifen mehr – Krallen auf Holz/Stein (Aufnahmen), kurz und leise
   if (!Audio.ctx || !Audio.started) return;
+  if (typeof kl_pick === 'function' && kl_has('fx_ratte_1')) { for (let i = 0; i < Math.min(n, 3); i++) { const nm = kl_pick('fx_ratte_', 6); if (nm) Audio.play(nm, { gain: Math.min(.6, v * 6) * rand(.7, 1), vary: .1, delay: i * rand(.25, .6), x, y, z, ref: 1.5, typ: 'normal' }); } return; } // 15.10.: echte Rattenrufe (CC0)
   for (let i = 0; i < n; i++) Audio.play(Audio.pick('scrape1', 'scrape2', 'scrape3', 'scrape4'), { gain: v * rand(.5, .8), rate: rand(2.2, 2.8), hp: 1400, dur: .2, delay: i * rand(.08, .2), x, y, z, ref: 1.5 });
 }
 function leben_click(x, y, z) { // Fledermaus: Jagd-Buzz kurz vor dem Fang (echte Aufnahme, Detektor-Klang), höchstens alle 3 s; 15.10. statt Stille
@@ -718,11 +719,12 @@ function leben_flyTick(dt, t, live) {
   // Summen: eine Stimme am nächsten Schwarm
   if (Audio.ctx && Audio.started) { if (!S.buzz) leben_buzzMake(); const B = S.buzz; if (B) { B.t -= dt; if (B.t < 0) { B.t = .12; const tt = Audio.ctx.currentTime;
     if (near) Audio.setze(B.p, near.x, near.y, near.z);
-    B.g.gain.setTargetAtTime(near ? .08 * (.25 + .75 * nf) * (Math.random() < .2 ? .4 : 1) : 0, tt, .08); } } }
+    B.g.gain.setTargetAtTime(near ? (B.real ? .5 : .08) * (.25 + .75 * nf) * (Math.random() < .2 ? .4 : 1) : 0, tt, .08); } } }
 }
 function leben_buzzMake() {
   const ctx = Audio.ctx, S = leben_S; try {
     const p = Audio.at(0, -50, 0, 1.1, { dauer: 1e9 }), g = ctx.createGain(); g.gain.value = 0; g.connect(p);
+    if (Audio.buf && Audio.buf.amb_fliege) { const sr = ctx.createBufferSource(); sr.buffer = Audio.buf.amb_fliege; sr.loop = true; sr.connect(g); sr.start(0, rand(0, 4)); S.buzz = { p, g, t: 0, real: 1 }; return; } // 15.10.: echte Fliegenaufnahme (CC0) statt Saegezahn-Summe
     const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 650; bp.Q.value = .6; bp.connect(g);
     const am = ctx.createGain(); am.gain.value = .6; Audio.lfo(11.5, .35, am.gain); am.connect(bp);
     for (const f of [187, 223, 251]) { const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f; Audio.lfo(rand(4, 7), f * .035, o.frequency); const og = ctx.createGain(); og.gain.value = .22; o.connect(og); og.connect(am); o.start(); }

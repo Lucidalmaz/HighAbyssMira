@@ -72,7 +72,7 @@ const KL_EINZEL = ['ui_stift', 'ui_seite', 'cue_fund', 'cue_verlust', 'cue_ende'
   ...[1, 2, 3, 4, 5, 6, 7, 8].map(i => 'fx_tropfen_' + i), ...[1, 2, 3].map(i => 'fx_reh_' + i), ...[1, 2, 3, 4].map(i => 'fx_hund_' + i), ...[1, 2, 3, 4, 5, 6, 7].map(i => 'fx_knarren_' + i),
   ...[1, 2, 3, 4].map(i => 'fx_fluester_' + i), ...'CDEFGAH'.split('').map(k => 'pn_' + k),
   ...Object.entries(KL_BANK).flatMap(([k, L]) => L.map(n => 'kb_' + k + '_' + n)), 'mu_jagd', 'mu_jagd_hoch', 'amb_ufo',
-  'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
+  ...[1, 2, 3, 4, 5, 6].map(i => 'fx_ratte_' + i), 'amb_fliege', 'fx_amsel_1', 'fx_amsel_2', 'fx_amsel_3', 'fx_vogel_1', 'fx_vogel_2', 'fx_vogel_3', 'fx_rabe_1', 'fx_rabe_2', 'fx_rabe_3', 'fx_rabe_4', 'fx_rabe_5',
   'fx_mikrowelle', 'fx_wecker', 'fx_ohrklingeln', 'amb_alarm', 'mu_feuer_a', 'mu_feuer_b',
   ...[1, 2, 3, 4].map(i => 'fx_boe_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'fx_busch_' + i), ...[1, 2, 3, 4].map(i => 'fx_laub_' + i), ...[1, 2].map(i => 'fx_kette_' + i), ...[1, 2].map(i => 'fx_quietsch_' + i),
   ...[1, 2, 3].map(i => 'fx_donner_krach_' + i), ...[1, 2, 3, 4, 5, 6].map(i => 'wd_knochen_' + i), ...[1, 2, 3].map(i => 'fx_donner_nah_' + i), ...[1, 2, 3, 4].map(i => 'fx_donner_fern_' + i),
