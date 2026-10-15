@@ -12,7 +12,7 @@ const ST_PFAD = 'assets/stimmen/';
 const st_norm = t => String(t == null ? '' : t).replace(/<[^>]*>/g, '').replace(/[„“”"‚‘»«]/g, '').replace(/\s+/g, ' ').trim();
 const st_an = () => { try { return settings.stimmen !== false; } catch (e) { return true; } };
 const st_vol = () => { try { return settings.stimmenVol ?? 1; } catch (e) { return 1; } };
-const ST_FUNK = /FUNK|TELEFON|MAILBOX|BAND|RADIO|ANRUF|LAUTSPRECHER|AMTSSTIMME|KANAL|MHz/i;
+const ST_FUNK = /FUNK|TELEFON|MAILBOX|BAND|RADIO|ANRUF|LAUTSPRECHER|AMTSSTIMME|KANAL|MHz|^STIMME$/i;
 
 function st_ladeManifest() { if (ST.man || ST.manP) return ST.manP;
   return ST.manP = fetch(ST_PFAD + 'manifest.json').then(r => r.ok ? r.json() : null).then(m => { if (m && m.z && typeof m.z === 'object' && Object.keys(m.z).length) { m.t = m.t && typeof m.t === 'object' ? m.t : {}; m.k = m.k && typeof m.k === 'object' ? m.k : {}; ST.man = m; ST.wer = m.wer || {}; } return ST.man; }).catch(() => null); }
@@ -20,12 +20,12 @@ function st_lade(id) { const Z = ST.man && ST.man.z[id]; if (!Z || !Audio.ctx) r
   return ST.lade[id] = fetch(ST_PFAD + Z[0]).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.arrayBuffer(); }).then(ab => Audio.ctx.decodeAudioData(ab))
     .then(b => { ST.buf[id] = b; st_kuerze(); return b; }).catch(e => { ST.fehl++; ST.bad[id] = 1; console.warn('Stimme fehlt: ' + id, e && e.message); return null; }).finally(() => { delete ST.lade[id]; }); }
 // Speicher: höchstens ST_MAXBUF dekodierte Zeilen (je ~0,3–0,6 MB); die ältesten, die gerade nicht laufen, fallen heraus und werden bei Bedarf neu geladen
-const ST_MAXBUF = 40;
-function st_kuerze() { const ids = Object.keys(ST.buf); if (ids.length <= ST_MAXBUF) return; const lauf = new Set(ST.cur.map(h => h.id).concat((ST.halt || []).map(x => x.h.id)));
-  for (const id of ids) { if (Object.keys(ST.buf).length <= ST_MAXBUF) break; if (!lauf.has(id)) delete ST.buf[id]; } }
+const ST_MAXBUF = 40, ST_MAXSEK = 150;   // Zeilen UND Gesamtdauer (150 s ≈ 29 MB dekodiert, mono 48 kHz Float32): die längsten Zeilen (bis 14 s) sprengen sonst 80 MB
+function st_kuerze() { const ids = Object.keys(ST.buf), sek = () => Object.values(ST.buf).reduce((s, b) => s + (b.duration || 0), 0); if (ids.length <= ST_MAXBUF && sek() <= ST_MAXSEK) return; const lauf = new Set(ST.cur.map(h => h.id).concat((ST.halt || []).map(x => x.h.id)));
+  for (const id of ids) { if (Object.keys(ST.buf).length <= ST_MAXBUF && sek() <= ST_MAXSEK) break; if (!lauf.has(id)) delete ST.buf[id]; } }
 // Zeile → IDs (gestapelte Wendigo-Zeilen liefern mehrere). who entscheidet, wenn derselbe Text mehrfach besetzt ist.
 // Anzeigenamen der Story-Führung (fuehrung.js) → Stimmen-Schlüssel des Bestands: neue Namen sind nur Aliase, unbekannte Sprecher bleiben stumm (kein Zuordnen auf Verdacht)
-const ST_OHNE = new Set(['STIMME VON DRAUSSEN']);   // früher ohne Sprecherzeile: Zuordnung allein über den Text
+const ST_OHNE = new Set(['STIMME VON DRAUSSEN', 'WHISKEY']);   // WHISKEY: ahmt je Zeile eine andere Stimme nach → Zuordnung allein über den Text (Rabenmund-Klang bleibt über st_art); früher ohne Sprecherzeile (STIMME VON DRAUSSEN): ebenso
 const ST_ALIAS = { 'MAILBOX · KÜHN': 'KÜHN · MAILBOX', 'TONBAND · LUCY': 'LUCYS STIMME', 'HILDE WENDT': 'HILDE', 'FUNK · LUCY': 'LUCY · FUNK', 'VEGAS · HINTER DER TÜR': 'HERR VEGAS · HINTER DER TÜR', 'STIMME AM TELEFON': 'ANRUF' };
 function st_finde(t, who) { const M = ST.man; if (!M) return null; const L = (M.t[st_norm(t)] || []).filter(i => M.z[i]); if (!L.length) return null;
   if (ST_OHNE.has(who)) who = '';
@@ -72,7 +72,7 @@ async function st_spiele(ids, who, pos, key) { const A = Audio, c = A.ctx; if (!
   let t0 = c.currentTime + .03; const rest = ST.cur.reduce((m, h) => Math.max(m, h.ende - c.currentTime), 0);
   if (rest > 0 && rest < 1.4) t0 += rest + .12; else st_stop();
   if (!ST.ana) { ST.ana = c.createAnalyser(); ST.ana.fftSize = 512; ST.tmp = new Float32Array(ST.ana.fftSize); }
-  const vol = st_vol() * (ST.man.z[ids[0]][4] || 1) * (art === 'funk' ? .8 : art === 'trocken' ? .85 : stimme === 'luke' && !wo ? .85 : 1); // die eigene Stimme etwas zurück
+  const vol = st_vol() * (ST.man.z[ids[0]][4] || 1) * (art === 'funk' ? .8 : art === 'trocken' ? 1.1 : art === 'rabe' ? 1 : stimme === 'luke' && !wo ? .85 : 1); // die eigene Stimme etwas zurück; trockene gefressene Stimmen lagen gemessen 5 dB unter den Weltstimmen → angehoben; der Rabenmund-Bandpass nimmt je Zeile 5–15 dB: Ausgleich steht im Manifest (z[4], spiel/gains.json)
   bufs.forEach((b, i) => { if (!b) return; const src = c.createBufferSource(); src.buffer = b; if (art === 'rabe') src.playbackRate.value = 1.12;
     const g = st_ziel(c, art, wo, vol * (ids.length > 1 ? [1, .8, .7][i] || .6 : 1)); src.connect(g); src.connect(ST.ana); const ts = t0 + i * [0, .05, .11][Math.min(i, 2)];
     src.start(ts); const h = { src, g, ende: ts + b.duration / src.playbackRate.value, id: ids[i], b, t0: ts, rate: src.playbackRate.value }; src.onended = () => { if (ST.halt) return; const k = ST.cur.indexOf(h); if (k >= 0) ST.cur.splice(k, 1); }; ST.cur.push(h); });
@@ -136,6 +136,9 @@ WORLD_MODS.push(['Stimmen', async () => {
   if (typeof k6_anrufLucy === 'function') k6_anrufLucy = (o => async function () { ST.telefon = true; try { return await o.apply(this, arguments); } finally { ST.telefon = false; } })(k6_anrufLucy);
   // T-4: Miras gesummte fünf Töne als echte Stimme statt des Synth-Summens (nur wenn die Aufnahme da ist)
   if (typeof hungrige_summen === 'function') hungrige_summen = (o => function (x, y, z) { try { if (stimmen_spielen('mira_summen', [x, y, z])) return; } catch (e) {} return o.apply(this, arguments); })(hungrige_summen);
+  // Tod und Rettung versetzen den Spieler: eine laufende Stimme nicht in die neue Lage mitnehmen (Kapitelwechsel räumt kapitel.js auf)
+  if (typeof todDie === 'function') try { todDie = (o => function () { try { st_stop(.25); } catch (e) {} return o.apply(this, arguments); })(todDie); } catch (e) {}
+  if (typeof tod_zurueck === 'function') try { tod_zurueck = (o => function () { try { st_stop(.15); } catch (e) {} return o.apply(this, arguments); })(tod_zurueck); } catch (e) {}
   // LWO-Gespräche warten wie say() auf das Ende der Stimme
   if (typeof lwo_ms === 'function') lwo_ms = (o => (text, ms) => { const d = o(text, ms), v = stimmen_dauer(text, ''); return v ? Math.max(d, v * 1000 + 300) : d; })(lwo_ms);
   st_ladeManifest();

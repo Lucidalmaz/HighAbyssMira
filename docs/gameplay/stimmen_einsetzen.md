@@ -1,5 +1,7 @@
 # Stimmen einsetzen: Schritt für Schritt (Stand 09.10.2026)
 
+> **Stand 15.10.2026:** Die Stimmen sind eingesetzt und im Spiel geprüft: Ablauf, Zahlen, Abdeckung und Anhörliste stehen in `stimmen_integration.md`. Einsetzen jetzt mit `HAM_Stimmen\spiel\einsetzen.py` (System-Python, Auswahl nach `pruefung.json` Note ≤ 2).
+
 Ziel: Wenn die Erzeugung (`schnell.cmd`, danach `schnell_zayn.cmd`) fertig ist, ein Weg ohne Überraschungen. Alles unten ist **vorbereitet, nicht ausgeführt**.
 
 ## Wichtig vorab
