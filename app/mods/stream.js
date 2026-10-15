@@ -269,4 +269,21 @@ function ktx_fast(p, si, loader) {
     const prom = p.getDependency('bufferView', def.bufferView).then(buf => new Promise((res, rej) => loader.parse(buf, res, rej))).then(t => {
       if (def.extras && typeof def.extras === 'object') Object.assign(t.userData, def.extras); t.userData.mimeType = def.mimeType || 'image/ktx2'; return t; });
     p.sourceCache[si] = prom; return prom; } catch (e) { return null; } }
+// Schutz (15.10.): Hochladen ohne CPU-Daten. Eine Quelle ist schon hochgeladen und freigegeben (ktxSweep), eine NEUE Textur mit gleicher Quelle, aber anderer Sampler-Kombination
+// (Wiederholung/Anisotropie) wird zum ersten Mal gezeichnet -> three.js ruft compressedTexSubImage2D mit data = null auf (TypeError, Textur bleibt schwarz, weil die Version als hochgeladen gilt).
+// Jetzt: Aufruf ohne Daten wird uebersprungen (kein Throw), die Quelle wiederhergestellt und angeheftet, danach Neu-Upload (needsUpdate).
+STR.fixQ = []; STR.nFix = 0; STR.fixTry = new Map();
+function str_fixNoData(gl) {
+  const h = gl.getParameter(gl.TEXTURE_BINDING_2D), R = renderer.properties; if (!h) return; let t = null;
+  for (const rec of STR.list) { for (const x of rec.texs) { const p = R.get(x); if (p && p.__webglTexture === h) { t = x; break; } } if (t) break; }
+  if (!t) scene.traverse(o => { if (t || !o.material) return; for (const m of Array.isArray(o.material) ? o.material : [o.material]) for (const k in m) { const x = m[k]; if (x && x.isCompressedTexture) { const p = R.get(x); if (p && p.__webglTexture === h) { t = x; return; } } } });
+  if (!t || STR.fixQ.includes(t)) return; const s = t.source; s.__kpin = true; STR.fixQ.push(t); STR.nFix++; if (!s.__kbusy && s.__kre) ktxRestore(s);
+}
+{ const P = WebGL2RenderingContext.prototype, o = P.compressedTexSubImage2D;
+  P.compressedTexSubImage2D = function (a0, a1, a2, a3, a4, a5, a6, a7, ...r) {
+    if (typeof a7 === 'number' || ArrayBuffer.isView(a7)) return o.call(this, a0, a1, a2, a3, a4, a5, a6, a7, ...r);
+    try { str_fixNoData(this); } catch (e) {} };
+  setInterval(() => { try { const q = STR.fixQ; for (let i = q.length - 1; i >= 0; i--) { const t = q[i], s = t.source; if (s.__kbusy) continue;
+      if (t.mipmaps.every(m => m && m.data)) { t.needsUpdate = true; s.__kpin = false; q.splice(i, 1); STR.fixTry.delete(t); }
+      else { const n = (STR.fixTry.get(t) || 0) + 1; STR.fixTry.set(t, n); if (n > 12 || !s.__kre) { s.__kpin = false; q.splice(i, 1); STR.fixTry.delete(t); } else ktxRestore(s); } } } catch (e) {} }, 100); }
 window.__stream = STR; window.__streamStats = stream_stats;
