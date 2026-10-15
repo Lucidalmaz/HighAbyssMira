@@ -7,7 +7,7 @@
 // (alle Teile sichtbar, gleiches Elternteil, gleiche Lage relativ zur Wurzel, gleiche Material-Werte, gleiche Schattenmarken). Sonst zeichnen die Originale wie vorher.
 // Ausgeschlossen: Teile mit Namen Tür/Haube/Klappe/Rad/Lenk/Griff/Spiegel, Glas/Leuchten/emissiv/transparent, Skinning, Instanzen, eigene onBeforeRender-Haken,
 // negative Determinante, Kleinteile der Schatten-Diät (SMALL_T/SMALL_M). Aus: ?nomerge. Testzugriff window.__mrg.
-const MRG = { on: !/nomerge/.test(location.search), units: [], seen: new WeakSet(), q: [], scanT: 0, scanI: 0, t: 0, n: 0, hid: [], stat: { units: 0, members: 0, merged: 0, invalid: 0, active: 0 } };
+const MRG = { on: !/nomerge/.test(location.search), half: true, fr: 0, units: [], seen: new WeakSet(), q: [], scanT: 0, scanI: 0, t: 0, n: 0, hid: [], stat: { units: 0, members: 0, merged: 0, invalid: 0, active: 0 } };
 const MRG_SKIP = /door|hood|bonnet|trunk|boot|tailgate|lid\b|flap|wheel|tire|tyre|steer|handle|mirror|drawer|glass|window|light|lamp|lens|screen|wiper/i;
 const MRG_V = new THREE.Vector3(), MRG_M = new THREE.Matrix4(), MRG_N = new THREE.Matrix3(), MRG_INV = new THREE.Matrix4();
 function mrg_state(m, o) { const c = m.color, e = m.emissive; o[0] = c ? c.r : 0; o[1] = c ? c.g : 0; o[2] = c ? c.b : 0; o[3] = e ? e.r : 0; o[4] = e ? e.g : 0; o[5] = e ? e.b : 0; o[6] = m.emissiveIntensity ?? 0; o[7] = m.roughness ?? 0;
@@ -49,7 +49,7 @@ function mrg_bake(R) {
     const Mg = new THREE.Mesh(geo, P.mat); const f = P.list[0]; Mg.name = 'mrg'; Mg.castShadow = f.castShadow; Mg.receiveShadow = f.receiveShadow; Mg.renderOrder = f.renderOrder; Mg.layers.mask = f.layers.mask;
     Mg.matrixAutoUpdate = false; Mg.visible = false; Mg.raycast = () => {}; Mg.userData.noCol = true; Mg.userData.noCull = true; Mg.userData.mrg = true;
     R.add(Mg); Mg.matrixWorld.copy(R.matrixWorld); Mg.matrixWorldNeedsUpdate = true;
-    const G2 = { Mg, list: P.list, par: P.list.map(m => m.parent), mat: P.list.map(m => m.material), cs: f.castShadow, st: P.list.map(m => mrg_state(m.material, new Float64Array(16))), mp: P.list.map(m => mrg_maps(m.material)) };
+    const G2 = { id: MRG.gid = (MRG.gid | 0) + 1, ok: undefined, Mg, list: P.list, par: P.list.map(m => m.parent), mat: P.list.map(m => m.material), cs: f.castShadow, st: P.list.map(m => mrg_state(m.material, new Float64Array(16))), mp: P.list.map(m => mrg_maps(m.material)) };
     const nodes = new Set(); for (const m of P.list) for (let p = m; p && p !== R; p = p.parent) nodes.add(p); G2.nodeList = [...nodes]; G2.nTRS = G2.nodeList.map(mrg_trs);
     unit.groups.push(G2); members += P.list.length; merged++; }
   if (!unit.groups.length) return;
@@ -67,11 +67,11 @@ function mrg_valid(G2) {
       const mp = G2.mp[i]; if (m.material.map !== mp[0] || m.material.normalMap !== mp[1] || m.material.roughnessMap !== mp[2] || m.material.envMap !== mp[7]) return false; } }
   return true; }
 function mrg_pre() {
-  if (!MRG.on) return; const cx = camera.position.x, cz = camera.position.z; MRG.stat.active = 0;
+  if (!MRG.on) return; MRG.fr = (MRG.fr | 0) + 1; const cx = camera.position.x, cz = camera.position.z; MRG.stat.active = 0;
   for (const U of MRG.units) { if (U.dead) continue; const R = U.R; if (!R.parent) { U.dead = true; continue; }
     const e = R.matrixWorld.elements, dx = e[12] - cx, dz = e[14] - cz; if (dx * dx + dz * dz > 140 * 140) continue;
     let any = false;
-    for (const G2 of U.groups) { if (mrg_valid(G2)) { any = true; G2.bad = 0; MRG.stat.active++; for (const m of G2.list) { m.visible = false; MRG.hid.push(m); } G2.Mg.visible = true; MRG.vis.push(G2.Mg); } else G2.bad = (G2.bad | 0) + 1; }
+    for (const G2 of U.groups) { if (G2.ok === undefined || !MRG.half || ((MRG.fr + G2.id) & 1) === 0) G2.ok = mrg_valid(G2); /* 15.10.: Gültigkeit je Gruppe nur jedes 2. Bild neu prüfen (Zustand ändert sich selten; ein Bild Verzug ist unsichtbar) */ if (G2.ok) { any = true; G2.bad = 0; MRG.stat.active++; for (const m of G2.list) { m.visible = false; MRG.hid.push(m); } G2.Mg.visible = true; MRG.vis.push(G2.Mg); } else G2.bad = (G2.bad | 0) + 1; }
     if (!any) { if (++U.bad > 240) { U.dead = true; mrg_drop(U); MRG.stat.invalid++; } } else U.bad = 0; } }
 MRG.vis = [];
 function mrg_post() { for (const m of MRG.hid) m.visible = true; MRG.hid.length = 0; for (const Mg of MRG.vis) Mg.visible = false; MRG.vis.length = 0; }

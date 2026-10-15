@@ -3008,9 +3008,9 @@ const ITEM_DEFS = {}; // QA: Mod-Gegenstände werden mitgespeichert (saveGame �
 function modItem(k, name, desc, icon) { try { ITEMS[k] = { name, desc }; ICONS[k] = ICONS[icon] || ICONS.paper; ITEM_DEFS[k] = { name: String(name), desc: String(desc), icon: icon || 'paper' }; } catch (e) { setTimeout(() => modItem(k, name, desc, icon), 100); } } // Module laufen evtl. vor ITEMS/ICONS // fn(camera, dt) setzt Position/Blick; null = zurück zum Spieler
 function collide(axis, step = 0) { // step: eben gegangene Strecke auf dieser Achse
   if (state.zone === 'canal') return canalCollide(axis);
-  let hit = false; const v = step;
+  let hit = false; const v = step, yLo = player.pos.y + .36, yHi = player.pos.y + bodyH(); // 15.10.: Grenzen einmal (vorher je Kollider zwei Summen + Aufruf; erzeugte Zwischenzahlen, Müll im Hauptfaden)
   for (const c of colliders) {
-    if (c.top <= player.pos.y + .36 || c.base >= player.pos.y + bodyH()) continue; // darunter (stehen wir drauf) oder darüber (geduckt: niedriger)
+    if (c.top <= yLo || c.base >= yHi) continue; // darunter (stehen wir drauf) oder darüber (geduckt: niedriger)
     if (player.pos.x + R > c.minX && player.pos.x - R < c.maxX && player.pos.z + R > c.minZ && player.pos.z - R < c.maxZ) {
       // nur auflösen, wenn GENAU dieser Achsenschritt hineingeführt hat, und dann dorthin zurück, woher man kam.
       // Vorher: „zum nächsten Ende“ – in Raumecken schob das durch die Nachbarwand nach draußen.
@@ -5355,8 +5355,8 @@ const solidNear = (x, z) => SOL.grid.get(_sk(Math.floor(x / SOL.B), Math.floor(z
 const HEAD_CLEAR = 1.87; // Füße → Oberkante Kopf inkl. Abstand für die Kamera-Nahebene (Kamera sitzt bei 1,65 m)
 const _cRay = new THREE.Ray(), _cO = new THREE.Vector3(), _cD = new THREE.Vector3();
 function ceilingAt(x, y, z, maxUp = 3.5) {
-  let best = Infinity;
-  for (const c of colliders) if (c.base > y && c.base < y + maxUp && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) best = Math.min(best, c.base);
+  let best = Infinity; const yU = y + maxUp;
+  for (const c of colliders) if (c.base > y && c.base < yU && x > c.minX && x < c.maxX && z > c.minZ && z < c.maxZ) best = Math.min(best, c.base);
   if (state.zone === 'canal') return best;
   for (const it of solidNear(x, z)) { const bb = it.bb; if (x < bb.min.x || x > bb.max.x || z < bb.min.z || z > bb.max.z || bb.max.y < y || bb.min.y > y + maxUp || it.soft || !solidLive(it)) continue;
     _cO.set(x, y, z).applyMatrix4(it.inv); _cD.set(0, 1, 0).transformDirection(it.inv); _cRay.set(_cO, _cD);
